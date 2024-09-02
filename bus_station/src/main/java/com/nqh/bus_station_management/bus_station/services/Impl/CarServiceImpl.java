@@ -1,11 +1,13 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.CarDTO;
+import com.nqh.bus_station_management.bus_station.pojo.Car;
 import com.nqh.bus_station_management.bus_station.repositories.CarRepository;
 import com.nqh.bus_station_management.bus_station.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,14 @@ public class CarServiceImpl implements CarService {
     @Override
     public List<CarDTO> getCarsByCompanyId(Long companyId) {
         return carRepository.findCarsByCompanyId(companyId)
+                .stream()
+                .map(car -> new CarDTO(car.getId(), car.getCarNumber()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CarDTO> getAvailableCarsByCompanyAndDate(Long companyId, Date date) {
+        return carRepository.findAvailableCarsByCompanyAndDate(companyId, date)
                 .stream()
                 .map(car -> new CarDTO(car.getId(), car.getCarNumber()))
                 .collect(Collectors.toList());
