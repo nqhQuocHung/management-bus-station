@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "Welcome to the Bus Station Nguyen Quoc Hung!";
+        return "Welcome to the Bus Station Nguyen Quoc Hung 1!";
     }
 }
