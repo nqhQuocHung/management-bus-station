@@ -1,0 +1,27 @@
+package com.nqh.bus_station_management.bus_station.repositories;
+
+import com.nqh.bus_station_management.bus_station.pojo.Seat;
+import com.nqh.bus_station_management.bus_station.pojo.Trip;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface TripRepository extends JpaRepository<Trip, Long> {
+
+    @Query("SELECT s FROM Seat s WHERE s.trip.id = :tripId AND s.isAvailable = true")
+    List<Seat> getAvailableSeats(@Param("tripId") Long tripId);
+
+    @Query("SELECT s FROM Seat s WHERE s.trip.id = :tripId AND s.isAvailable = false")
+    List<Seat> getUnAvailableSeats(@Param("tripId") Long tripId);
+
+    @Query("SELECT s FROM Seat s WHERE s.trip.id = :tripId AND s.id = :seatId AND s.isAvailable = true")
+    Seat availableSeat(@Param("tripId") Long tripId, @Param("seatId") Long seatId);
+
+    @Query("SELECT t FROM Trip t WHERE t.id = :id")
+    Trip getById(@Param("id") Long id);
+}
+

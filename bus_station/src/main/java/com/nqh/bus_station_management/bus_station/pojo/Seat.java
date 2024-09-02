@@ -28,4 +28,12 @@ public class Seat {
     @JoinColumn(name = "car_id", referencedColumnName = "id", nullable = false)
     private Car car;
 
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
+    private Trip trip;
+
+    @Basic
+    @Column(name = "is_available", nullable = false)
+    private Boolean isAvailable;
 }
