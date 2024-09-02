@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -34,17 +33,17 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Map<Integer, StatisticsDTO> calculateAnnualRevenue(int year, Long companyId) {
+    public List<StatisticsDTO> calculateAnnualRevenue(int year, Long companyId) {
         return ticketRepository.calculateAnnualRevenue(year, companyId);
     }
 
     @Override
-    public Map<Integer, StatisticsDTO> calculateQuarterlyRevenue(int year, Long companyId) {
+    public List<StatisticsDTO> calculateQuarterlyRevenue(int year, Long companyId) {
         return ticketRepository.calculateQuarterlyRevenue(year, companyId);
     }
 
     @Override
-    public Map<Integer, StatisticsDTO> calculateDailyRevenue(int year, int month, int day, Long companyId) {
+    public List<StatisticsDTO> calculateDailyRevenue(int year, int month, int day, Long companyId) {
         return ticketRepository.calculateDailyRevenue(year, month, day, companyId);
     }
 
