@@ -1,0 +1,8 @@
+{
+  "short_name": "Bus Station",
+  "name": "Bus Station E-commercial Webapp",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

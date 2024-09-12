@@ -1,0 +1,11 @@
+.cart-icon-container {
+  position: fixed;
+  width: 3.5rem;
+  height: 3.5rem;
+  right: 0;
+  top: 30%;
+  z-index: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}

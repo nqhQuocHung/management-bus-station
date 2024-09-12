@@ -1,0 +1,55 @@
+.logo {
+  width: 10rem;
+  height: 10rem;
+}
+
+.logo > img {
+  width: 100%;
+  height: 100%;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-item:hover > a {
+  color: #27aae1;
+}
+
+.nav-item:hover > .ul-child {
+  display: grid;
+}
+
+.nav-item:hover > .ul-child-user {
+  display: flex;
+}
+
+.ul-child-user {
+  position: absolute;
+  left: 20%;
+  background-color: #ffffff;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  display: none;
+  padding: 1rem;
+  border-radius: 6px;
+  min-width: 80%;
+  row-gap: 1rem;
+}
+
+.ul-child {
+  position: absolute;
+  background-color: #ffffff;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  display: none;
+  gap: 1rem 1rem;
+  padding: 1rem;
+  grid-template-columns: auto auto auto auto;
+  border-radius: 6px;
+}
+
+.ul-child-company {
+  grid-template-columns: 10rem 10rem 10rem 10rem;
+  left: -100%;
+}

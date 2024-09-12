@@ -1,0 +1,7 @@
+.company-list {
+  list-style-type: "👉";
+}
+
+.company-list > li:last-child {
+  list-style-type: none;
+}
