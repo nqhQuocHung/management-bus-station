@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+
+    <definition name="baseLayout" template="/WEB-INF/admin/layout/base.jsp">
+        <put-attribute name="title" value="Default Title" />
+        <put-attribute name="header" value="/WEB-INF/admin/layout/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/defaultContent.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/admin/layout/footer.jsp" />
+    </definition>
+    <definition name="admin" extends="baseLayout">
+        <put-attribute name="title" value="Trang chủ" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/index.jsp" />
+    </definition>
+    <definition name="companies" extends="baseLayout">
+        <put-attribute name="title" value="Companies" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/companies.jsp" />
+    </definition>
+
+    <definition name="company" extends="baseLayout">
+        <put-attribute name="title" value="Company" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/company.jsp" />
+    </definition>
+
+
+
+    <definition name="routes" extends="baseLayout">
+        <put-attribute name="title" value="Routes" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/routes.jsp" />
+    </definition>
+
+    <definition name="stations" extends="baseLayout">
+        <put-attribute name="title" value="Stations" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/stations.jsp" />
+    </definition>
+
+    <definition name="station_detail" extends="baseLayout">
+        <put-attribute name="title" value="Station_detail" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/station_detail.jsp" />
+    </definition>
+
+    <definition name="addstation" extends="baseLayout">
+        <put-attribute name="title" value="Addstation" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/addstation.jsp" />
+    </definition>
+
+
+
+    <definition name="company_detail" extends="baseLayout">
+        <put-attribute name="title" value="Company_detail" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/company_detail.jsp" />
+    </definition>
+
+    <definition name="verify" extends="baseLayout">
+        <put-attribute name="title" value="Verify" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/verify.jsp" />
+    </definition>
+
+    <definition name="home" extends="baseLayout">
+        <put-attribute name="title" value="Home" />
+        <put-attribute name="content" value="/WEB-INF/admin/pages/home.jsp" />
+    </definition>
+
+
+</tiles-definitions>
