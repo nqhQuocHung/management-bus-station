@@ -1,0 +1,19 @@
+.grid-data {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  gap: 2rem;
+  padding: 4rem;
+}
+
+.grid-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.grid-item > .image-container > img {
+  width: 10rem;
+  height: 10rem;
+}

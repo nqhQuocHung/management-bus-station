@@ -1,0 +1,79 @@
+.custom-form-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  margin-top: 30px;
+}
+
+.custom-form-container h2 {
+  text-align: center;
+}
+
+.custom-form-container label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.custom-form-container input[type="text"], 
+.custom-form-container input[type="email"], 
+.custom-form-container input[type="file"], 
+.custom-form-container select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.custom-form-container input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.custom-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  flex: 1; 
+  margin: 0 5px;
+  text-align: center;
+}
+
+.custom-btn.cancel {
+  background-color: #f44336;
+}
+
+.custom-btn:hover {
+  background-color: #45a049;
+}
+
+.custom-btn.cancel:hover {
+  background-color: #e31b0c;
+}
+
+#avatarPreview {
+  max-width: 150px;
+  height: auto;
+  display: block;
+  margin-top: 10px;
+}
+
+.custom-submission-message {
+  text-align: center;
+  font-size: 1.2em;
+  color: #4CAF50;
+  margin-top: 20px;
+}
+
+.custom-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+}

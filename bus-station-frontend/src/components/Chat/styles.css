@@ -1,0 +1,17 @@
+.chat-time {
+  font-size: 0.8rem;
+}
+
+.rcw-message:has(.sender) {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rcw-message:has(.receiver) {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.rcw-conversation-container > .rcw-header {
+  background-color: #297e9d;
+}

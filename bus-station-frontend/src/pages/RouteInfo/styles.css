@@ -1,0 +1,9 @@
+.seat-grid {
+  display: grid;
+  grid-template-columns: 4rem 4rem 4rem 4rem 4rem;
+  gap: 1rem;
+}
+
+.seat-grid label {
+  min-width: 4rem;
+}

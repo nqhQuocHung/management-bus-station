@@ -1,0 +1,19 @@
+.ticket-table-header {
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.ticket-table-body {
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.ticket-table-body button {
+  width: 4rem;
+  height: 2rem;
+  font-size: 0.8rem;
+}
+
+.ticket-table-body td {
+  vertical-align: middle;
+}

@@ -1,0 +1,20 @@
+{
+  "overrides": [
+    {
+      "files": "*.js",
+      "options": {
+        "arrowParens": "always",
+        "singleQuote": true,
+        "trailingComma": "all",
+        "bracketSpacing": false,
+        "tabWidth": 2
+      }
+    },
+    {
+      "files": "*.html",
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}

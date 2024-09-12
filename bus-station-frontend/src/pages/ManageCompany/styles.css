@@ -1,0 +1,132 @@
+.custom-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s, transform 0.3s, color 0.3s;
+    width: 200px;
+    text-align: center;
+  }
+  
+  .custom-button:hover {
+    background-color: #28a745;
+    transform: scale(1.1);
+    color: #fff;
+  }
+  
+  .custom-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    flex-direction: row;
+  }
+  
+  .custom-stats-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  .custom-stats-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .custom-date-input {
+    padding: 0.5rem;
+    margin: 0.5rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ccc;
+    width: 200px;
+  }
+  
+  .custom-chart-and-heading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 60%;
+  }
+  
+  .custom-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 100%;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    padding: 20px;
+  }
+  
+  .custom-chart-placeholder {
+    text-align: center;
+  }
+  
+  .custom-confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .custom-confirmation-dialog {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .custom-confirmation-dialog p {
+    margin-bottom: 20px;
+  }
+  
+  .custom-confirmation-dialog .custom-button {
+    margin: 5px;
+  }
+  
+  .custom-message {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+  
+  a {
+    text-decoration: none;
+  }
+  
+  .custom-heading {
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 2rem;
+    color: cadetblue;
+  }
+  
+  .company-name {
+    color: blue;
+  }
+  
+  .chat-icon-container {
+    margin-left: 20px;
+  }
+  
