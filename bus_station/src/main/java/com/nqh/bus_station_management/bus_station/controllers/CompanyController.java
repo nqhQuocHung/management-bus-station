@@ -1,6 +1,7 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
 import com.nqh.bus_station_management.bus_station.dtos.CompanyDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyPublicDTO;
 import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/companies")
+@CrossOrigin(origins = "http://localhost:3000")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -22,8 +24,13 @@ public class CompanyController {
     }
 
     @GetMapping
-    public List<CompanyDTO> listCompanies(@RequestParam Map<String, String> params) {
+    public Map<String, Object> listCompanies(@RequestParam Map<String, String> params) {
         return companyService.listCompanies(params);
+    }
+
+    @GetMapping("/name-id")
+    public List<CompanyPublicDTO> getNameId() {
+        return companyService.getNameId();
     }
 
     @GetMapping("/count")
@@ -72,7 +79,7 @@ public class CompanyController {
         companyService.verifyCompany(id);
     }
 
-    @GetMapping("/manager/{companyId}")
+    @GetMapping("/manager/company/{companyId}")
     public CompanyDTO getCompanyAndManager(@PathVariable Long companyId) {
         return companyService.getCompanyAndManager(companyId);
     }

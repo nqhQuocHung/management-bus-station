@@ -1,6 +1,6 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
-import com.nqh.bus_station_management.bus_station.dtos.StatisticsDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TicketDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Ticket;
 import com.nqh.bus_station_management.bus_station.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,7 +35,6 @@ public class TicketController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Ticket>> findTicketsByUserId(@PathVariable Long userId) {
         List<Ticket> tickets = ticketService.findTicketsByUserId(userId);
@@ -54,4 +54,9 @@ public class TicketController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @PostMapping("/cart/details")
+    public ResponseEntity<List<TicketDTO>> handleGetCartInfo(@RequestBody List<Map<String, String>> cart) {
+        List<TicketDTO> ticketDetails = ticketService.getInfoFromCart(cart);
+        return new ResponseEntity<>(ticketDetails, HttpStatus.OK);
+    }
 }

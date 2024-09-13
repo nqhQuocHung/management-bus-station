@@ -1,15 +1,18 @@
-package com.nqh.bus_station_management.bus_station.services.impl;
+package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.CompanyDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyPublicDTO;
 import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.repositories.CompanyRepository;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,27 +26,36 @@ public class CompanyServiceImpl implements CompanyService {
     private final UserRepository userRepository;
 
     @Autowired
+    private Environment environment;  // Correct Environment class
+
+    @Autowired
     public CompanyServiceImpl(CompanyRepository companyRepository, UserRepository userRepository) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
     }
 
     @Override
-    public List<CompanyDTO> listCompanies(Map<String, String> params) {
+    public Map<String, Object> listCompanies(Map<String, String> params) {
         String name = params.get("name");
+        int page = params.get("page") != null ? Integer.parseInt(params.get("page")) : 1;
+        // Fetch pageSize from the environment
+        int pageSize = Integer.parseInt(environment.getProperty("company.pageSize", "10"));
+
         List<TransportationCompany> companies = companyRepository.list(name);
-        return companies.stream()
-                .map(company -> new CompanyDTO(
-                        company.getId(),
-                        company.getName(),
-                        company.getAvatar(),
-                        company.getPhone(),
-                        company.getEmail(),
-                        company.getIsVerified(),
-                        company.getIsActive(),
-                        company.getIsCargoTransport(),
-                        company.getManager().getId()))
-                .collect(Collectors.toList());
+        Long totalCompanies = companyRepository.count(name);
+
+        int totalPages = (int) Math.ceil((double) totalCompanies / pageSize);
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, companies.size());
+
+        List<TransportationCompany> paginatedCompanies = companies.subList(startIndex, endIndex);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("results", paginatedCompanies);
+        response.put("total", totalCompanies);
+        response.put("pageTotal", totalPages);
+
+        return response;
     }
 
     @Override
@@ -138,5 +150,15 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public long countAllCompanies() {
         return companyRepository.countAllCompanies();
+    }
+
+    @Override
+    public List<CompanyPublicDTO> getNameId() {
+        return companyRepository.findAll().stream()
+                .map(company -> CompanyPublicDTO.builder()
+                        .id(company.getId())
+                        .name(company.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

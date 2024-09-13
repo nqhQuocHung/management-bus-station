@@ -1,5 +1,7 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
+import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
+import com.nqh.bus_station_management.bus_station.mappers.TripDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.Seat;
 import com.nqh.bus_station_management.bus_station.pojo.Trip;
 import com.nqh.bus_station_management.bus_station.repositories.TripRepository;
@@ -16,10 +18,12 @@ import java.util.Optional;
 public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
+    private final TripDTOMapper tripDTOMapper;
 
     @Autowired
-    public TripServiceImpl(TripRepository tripRepository) {
+    public TripServiceImpl(TripRepository tripRepository, TripDTOMapper tripDTOMapper) {
         this.tripRepository = tripRepository;
+        this.tripDTOMapper = tripDTOMapper;
     }
 
     @Override
@@ -45,5 +49,11 @@ public class TripServiceImpl implements TripService {
     @Override
     public Trip saveTrip(Trip trip) {
         return tripRepository.save(trip);
+    }
+
+    @Override
+    public TripDTO tripInfo(Long id) {
+        Trip trip = tripRepository.getById(id);
+        return tripDTOMapper.apply(trip);
     }
 }

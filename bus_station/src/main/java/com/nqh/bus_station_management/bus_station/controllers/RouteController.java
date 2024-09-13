@@ -21,7 +21,7 @@ public class RouteController {
     }
 
     @GetMapping
-    public List<Route> listRoutes(@RequestParam Map<String, String> params) {
+    public Map<String, Object> listRoutes(@RequestParam Map<String, String> params) {
         return routeService.listRoutes(params);
     }
 
