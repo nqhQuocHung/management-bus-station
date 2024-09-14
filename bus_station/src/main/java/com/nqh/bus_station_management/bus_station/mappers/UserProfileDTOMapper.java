@@ -3,6 +3,9 @@ package com.nqh.bus_station_management.bus_station.mappers;
 import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class UserProfileDTOMapper {
 
     public static UserProfileDTO toDTO(User user) {

@@ -74,10 +74,10 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.deleteById(id);
     }
 
-    @Override
     public Optional<Ticket> getTicketById(Long id) {
         return ticketRepository.findById(id);
     }
+
 
     @Override
     public List<TicketDTO> getInfoFromCart(List<Map<String, String>> cart) {
