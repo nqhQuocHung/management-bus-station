@@ -2,11 +2,13 @@ package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.CompanyDTO;
 import com.nqh.bus_station_management.bus_station.dtos.CompanyPublicDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.repositories.CompanyRepository;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.services.CompanyService;
+import com.nqh.bus_station_management.bus_station.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,10 @@ public class CompanyServiceImpl implements CompanyService {
     private final UserRepository userRepository;
 
     @Autowired
-    private Environment environment;  // Correct Environment class
+    private EmailService emailService;
+
+    @Autowired
+    private Environment environment;
 
     @Autowired
     public CompanyServiceImpl(CompanyRepository companyRepository, UserRepository userRepository) {
@@ -38,7 +43,6 @@ public class CompanyServiceImpl implements CompanyService {
     public Map<String, Object> listCompanies(Map<String, String> params) {
         String name = params.get("name");
         int page = params.get("page") != null ? Integer.parseInt(params.get("page")) : 1;
-        // Fetch pageSize from the environment
         int pageSize = Integer.parseInt(environment.getProperty("company.pageSize", "10"));
 
         List<TransportationCompany> companies = companyRepository.list(name);
@@ -70,23 +74,25 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void saveCompany(CompanyDTO companyDTO) {
-        TransportationCompany company = new TransportationCompany();
-        company.setName(companyDTO.getName());
-        company.setAvatar(companyDTO.getAvatar());
-        company.setPhone(companyDTO.getPhone());
-        company.setEmail(companyDTO.getEmail());
-        company.setIsVerified(companyDTO.getIsVerified());
-        company.setIsActive(companyDTO.getIsActive());
-        company.setIsCargoTransport(companyDTO.getIsCargoTransport());
+    public TransportationCompany createCompany(CompanyRegisterDTO companyDTO) {
+        User manager = userRepository.findById(companyDTO.getManagerId())
+                .orElseThrow(() -> new RuntimeException("Manager not found"));
 
-        if (companyDTO.getManagerId() != null) {
-            Optional<User> manager = userRepository.findById(companyDTO.getManagerId());
-            manager.ifPresent(company::setManager);
-        }
+        TransportationCompany company = TransportationCompany.builder()
+                .name(companyDTO.getName())
+                .avatar(companyDTO.getAvatar())
+                .phone(companyDTO.getPhone())
+                .email(companyDTO.getEmail())
+                .isCargoTransport(companyDTO.getIsCargoTransport())
+                .manager(manager) // Cài đặt manager
+                .isVerified(false)
+                .isActive(true)
+                .build();
 
-        companyRepository.save(company);
+        return companyRepository.save(company);
     }
+
+
 
     @Override
     public void deleteCompanyById(Long id) {
@@ -161,4 +167,18 @@ public class CompanyServiceImpl implements CompanyService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public void toggleCargoTransport(Long companyId) {
+        TransportationCompany company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+        company.setIsCargoTransport(!company.getIsCargoTransport());
+        companyRepository.save(company);
+
+        emailService.sendCargoTransportStatusEmail(
+                company.getEmail(),
+                company.getName(),
+                company.getIsCargoTransport()
+        );
+    }
+
 }

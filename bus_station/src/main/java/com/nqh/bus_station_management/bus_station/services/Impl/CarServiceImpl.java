@@ -30,10 +30,11 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarDTO> getAvailableCarsByCompanyAndDate(Long companyId, Date date) {
-        return carRepository.findAvailableCarsByCompanyAndDate(companyId, date)
-                .stream()
-                .map(car -> new CarDTO(car.getId(), car.getCarNumber()))
-                .collect(Collectors.toList());
+    public List<CarDTO> getAvailableCarsByCompanyAndDate(Long busStationId, Date date) {
+        List<Car> cars = carRepository.findAvailableCarsByCompanyAndDate(busStationId, date);
+        return cars.stream().map(car -> CarDTO.builder()
+                .id(car.getId())
+                .carNumber(car.getCarNumber())
+                .build()).collect(Collectors.toList());
     }
 }

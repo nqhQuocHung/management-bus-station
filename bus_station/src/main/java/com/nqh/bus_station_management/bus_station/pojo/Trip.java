@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.sql.Timestamp;
 import java.util.Collection;
 
@@ -38,9 +40,11 @@ public class Trip {
 
     @ManyToOne
     @JoinColumn(name = "car_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private Car car;
 
     @ManyToOne
     @JoinColumn(name = "route_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private Route route;
 }

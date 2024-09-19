@@ -1,16 +1,23 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nqh.bus_station_management.bus_station.dtos.UserDTO;
 import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserRegisterDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserUpdateDTO;
 import com.nqh.bus_station_management.bus_station.pojo.User;
+import com.nqh.bus_station_management.bus_station.services.CloudinaryService;
 import com.nqh.bus_station_management.bus_station.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,17 +26,16 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @GetMapping("/username/{username}")
     public ResponseEntity<UserProfileDTO> getUserByUsername(@PathVariable String username) {
         UserProfileDTO user = userService.getUserByUsername(username);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PostMapping
-    public ResponseEntity<User> saveUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -43,11 +49,17 @@ public class UserController {
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        Optional<User> updatedUser = userService.updateUser(id, user);
-        return updatedUser.isPresent() ? ResponseEntity.ok(updatedUser.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        User updatedUser = userService.updateUser(id, userUpdateDTO);
+
+        if (updatedUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with id " + id);
+        }
+
+        return ResponseEntity.ok(updatedUser);
     }
+
 
     @GetMapping("/role/{roleId}")
     public ResponseEntity<List<UserDTO>> findActiveUsersByRoleId(@PathVariable Long roleId) {
@@ -55,4 +67,19 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(
+            @ModelAttribute UserRegisterDTO userRegisterDTO) {
+        try {
+            if (userRegisterDTO.getAvatar() == null || userRegisterDTO.getAvatar().isEmpty()) {
+                userRegisterDTO.setAvatar("https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg");
+            }
+            User savedUser = userService.saveUser(userRegisterDTO);
+
+            return ResponseEntity.ok(savedUser);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

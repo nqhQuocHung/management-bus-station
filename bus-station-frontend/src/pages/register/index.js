@@ -1,20 +1,25 @@
 import './styles.css';
 import '../login/styles.css';
-// import '../login/styles.css';
-import {useContext, useState} from 'react';
+import { useContext, useState } from 'react';
 import * as validator from '../../config/validator';
-import {LoadingContext, AuthenticationContext} from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
-import {toast} from 'react-toastify';
-import {Link} from 'react-router-dom';
+import { LoadingContext, AuthenticationContext } from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
+import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
+
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
   const [email, setEmail] = useState('');
-  const [isCompanyManager, setIsCompanyManager] = useState(false);
-  const {setLoading} = useContext(LoadingContext);
-  const {setUser} = useContext(AuthenticationContext);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const { setLoading } = useContext(LoadingContext);
+  const { setUser } = useContext(AuthenticationContext);
+
   const validate = () => {
     if (password !== rePassword) {
       return 'Mật khẩu không khớp';
@@ -27,6 +32,32 @@ const Register = () => {
       if (msg) return msg;
     }
   };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    setAvatar(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const uploadAvatar = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await apis(null).post(endpoints.upload_image, formData);
+      if (response.status === 200) {
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      return null;
+    }
+  };
+
   const callRegister = async () => {
     const validateMsg = validate();
 
@@ -44,27 +75,42 @@ const Register = () => {
     } else {
       try {
         setLoading('flex');
-        const response = await apis(null)
-          .post(endpoints.register, {
-            username: username,
-            password: password,
-            email: email,
-            role: isCompanyManager ? 'COMPANY_MANAGER' : 'CUSTOMER',
-          })
-          .catch((error) => {
-            if (error.response.status === 400) {
-              toast.error(error.response.data, {
-                position: 'top-center',
-                autoClose: 4000,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: 'colored',
-              });
-            }
-          });
-        if (response.status === 201) {
+        let avatarUrl = null;
+
+        if (avatar) {
+          avatarUrl = await uploadAvatar(avatar);
+          if (!avatarUrl) {
+            toast.error('Upload ảnh thất bại!', {
+              position: 'top-center',
+              autoClose: 4000,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'colored',
+            });
+            setLoading('none');
+            return;
+          }
+        }
+
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+        formData.append('email', email);
+        formData.append('firstName', firstName);
+        formData.append('lastName', lastName);
+        formData.append('phone', phone);
+
+        if (avatarUrl) {
+          formData.append('avatar', avatarUrl);
+        }
+        for (let pair of formData.entries()) {
+          console.log(`${pair[0]}: ${pair[1]}`);
+        }
+
+        const response = await apis(null).post(endpoints.register_user, formData);
+        if (response && response.status === 201) {
           localStorage.setItem('accessToken', response.data.accessToken);
           setUser(response.data['userDetails']);
         }
@@ -75,13 +121,14 @@ const Register = () => {
       }
     }
   };
+
   return (
-    <div className="row" style={{height: '100vh'}}>
+    <div className="row" style={{ height: '100vh' }}>
       <div className="col-md-6">
-        <div className="container" style={{height: '100%'}}>
+        <div className="container" style={{ height: '100%' }}>
           <div
             className="row align-items-center justify-content-center"
-            style={{height: '100%'}}
+            style={{ height: '100%' }}
           >
             <div className="col-md-7">
               <div>
@@ -119,6 +166,71 @@ const Register = () => {
                   ></input>
                 </div>
                 <div className="mb-3">
+                  <label htmlFor="firstName" className="form-label">
+                    Tên
+                  </label>
+                  <input
+                    className="form-control form-control-lg"
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    aria-describedby="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  ></input>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="lastName" className="form-label">
+                    Họ và tên đệm
+                  </label>
+                  <input
+                    className="form-control form-control-lg"
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    aria-describedby="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  ></input>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="phone" className="form-label">
+                    Số điện thoại
+                  </label>
+                  <input
+                    className="form-control form-control-lg"
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    aria-describedby="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  ></input>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="avatar" className="form-label">
+                    Ảnh đại diện
+                  </label>
+                  <input
+                    className="form-control form-control-lg"
+                    id="avatar"
+                    name="avatar"
+                    type="file"
+                    aria-describedby="avatar"
+                    onChange={handleAvatarChange}
+                  ></input>
+                  {avatarPreview && (
+                    <div className="mt-3">
+                      <p>Xem trước ảnh đại diện:</p>
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar Preview"
+                        style={{ width: '100%', maxWidth: '200px' }}
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="mb-3">
                   <label htmlFor="password" className="form-label">
                     Mật khẩu
                   </label>
@@ -146,33 +258,11 @@ const Register = () => {
                     onChange={(e) => setRePassword(e.target.value)}
                   ></input>
                 </div>
-                <div className="form-check mb-5">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={isCompanyManager}
-                    onChange={(e) => {
-                      setIsCompanyManager(
-                        (isCompanyManager) => !isCompanyManager,
-                      );
-                    }}
-                    id="isCompanyManager"
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="isCompanyManager"
-                  >
-                    Bạn muốn trở thành đối tác?
-                  </label>
-                  <p className="text-muted" style={{fontSize: '0.9rem'}}>
-                    Bạn sẽ đăng ký tài khoản với vai trò quản lý công ty
-                  </p>
-                </div>
                 <button
                   onClick={callRegister}
                   type="button"
                   className="btn btn-primary btn-lg"
-                  style={{width: '100%'}}
+                  style={{ width: '100%' }}
                 >
                   Đăng ký
                 </button>
@@ -191,4 +281,5 @@ const Register = () => {
     </div>
   );
 };
+
 export default Register;

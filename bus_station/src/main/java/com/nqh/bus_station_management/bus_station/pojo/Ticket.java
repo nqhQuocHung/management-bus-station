@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 @Builder
 public class Ticket implements Serializable {
 
-    private static final long serialVersionUID = 1L; // Add serialVersionUID for version control
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

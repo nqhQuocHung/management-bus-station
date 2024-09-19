@@ -20,4 +20,22 @@ public class EmailServiceImpl implements EmailService {
         message.setText(text);
         mailSender.send(message);
     }
+
+    @Override
+    public void sendCargoTransportStatusEmail(String to, String companyName, boolean isCargoTransport) {
+        String subject = "Thông báo cập nhật dịch vụ vận chuyển hàng hóa";
+        String message = isCargoTransport
+                ? "Chào " + companyName + ",\n\nCông ty của bạn đã đăng ký thành công dịch vụ vận chuyển hàng hóa."
+                : "Chào " + companyName + ",\n\nCông ty của bạn đã hủy dịch vụ vận chuyển hàng hóa.";
+
+        message += "\n\nHãy liên hệ quản trị viên để biết thêm chi tiết.\nTrân trọng!";
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(to);
+        mailMessage.setSubject(subject);
+        mailMessage.setText(message);
+
+        mailSender.send(mailMessage);
+    }
+
 }

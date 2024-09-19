@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.Collection;
 
 @Entity
@@ -14,6 +16,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Data
 public class Car {
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
@@ -24,6 +27,10 @@ public class Car {
     @Size(min = 0, max = 10, message = "{car.carNumber.size}")
     @Column(name = "car_number", nullable = false, length = 10)
     private String carNumber;
+
+    @OneToMany(mappedBy = "car")
+    @JsonManagedReference
+    private Collection<Trip> trips;
 
     @OneToMany(mappedBy = "car")
     private Collection<Seat> seats;

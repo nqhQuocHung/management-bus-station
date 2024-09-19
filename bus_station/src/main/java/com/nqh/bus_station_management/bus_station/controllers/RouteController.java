@@ -1,8 +1,11 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
+import com.nqh.bus_station_management.bus_station.dtos.RoutePublicDTO;
+import com.nqh.bus_station_management.bus_station.dtos.RouteRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Route;
 import com.nqh.bus_station_management.bus_station.services.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,9 +38,10 @@ public class RouteController {
         return routeService.getRouteById(id);
     }
 
-    @PostMapping
-    public Route saveRoute(@RequestBody Route route) {
-        return routeService.saveRoute(route);
+    @PostMapping("/add")
+    public ResponseEntity<Route> createRoute(@RequestBody RouteRegisterDTO routeDTO) {
+        Route newRoute = routeService.createRoute(routeDTO);
+        return ResponseEntity.ok(newRoute);
     }
 
     @DeleteMapping("/{id}")
@@ -46,7 +50,8 @@ public class RouteController {
     }
 
     @GetMapping("/company/{companyId}")
-    public List<Route> findRoutesByCompanyId(@PathVariable Long companyId) {
-        return routeService.findRoutesByCompanyId(companyId);
+    public ResponseEntity<List<RoutePublicDTO>> getRoutesByCompanyId(@PathVariable Long companyId) {
+        List<RoutePublicDTO> routes = routeService.getRoutesByCompanyId(companyId);
+        return ResponseEntity.ok(routes);
     }
 }

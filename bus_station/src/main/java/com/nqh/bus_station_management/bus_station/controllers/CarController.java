@@ -4,6 +4,7 @@ import com.nqh.bus_station_management.bus_station.dtos.CarDTO;
 import com.nqh.bus_station_management.bus_station.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -26,9 +27,11 @@ public class CarController {
     }
 
     @GetMapping("/available")
-    public List<CarDTO> getAvailableCarsByCompanyAndDate(
-            @RequestParam Long companyId,
+    public ResponseEntity<List<CarDTO>> getAvailableCarsByCompanyAndDate(
+            @RequestParam Long busStationId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
-        return carService.getAvailableCarsByCompanyAndDate(companyId, date);
+
+        List<CarDTO> availableCars = carService.getAvailableCarsByCompanyAndDate(busStationId, date);
+        return ResponseEntity.ok(availableCars);
     }
 }

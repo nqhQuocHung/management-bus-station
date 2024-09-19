@@ -19,7 +19,7 @@ public class StationController {
         this.stationService = stationService;
     }
 
-    @GetMapping
+    @GetMapping("/list")
     public List<Station> getAllStations() {
         return stationService.getAllStations();
     }

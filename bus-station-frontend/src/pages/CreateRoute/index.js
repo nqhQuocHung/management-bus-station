@@ -1,9 +1,8 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './styles.css';
-
-import {apis, endpoints} from '../../config/apis';
-import {LoadingContext, AuthenticationContext} from '../../config/context';
-import {useNavigate} from 'react-router-dom';
+import { apis, endpoints } from '../../config/apis';
+import { LoadingContext, AuthenticationContext } from '../../config/context';
+import { useNavigate } from 'react-router-dom';
 
 const CreateRoute = () => {
   const [stations, setStations] = useState([]);
@@ -16,20 +15,19 @@ const CreateRoute = () => {
     isActive: true,
     companyId: '',
   });
-
-  const {setLoading} = useContext(LoadingContext);
-  const { user} = useContext(AuthenticationContext);
+  const { setLoading } = useContext(LoadingContext);
+  const { user } = useContext(AuthenticationContext);
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Fetch the company based on the manager ID
   useEffect(() => {
     const fetchCompany = async () => {
       try {
         setLoading('flex');
         const api = apis(accessToken);
-        const response = await api.get(
-          endpoints.get_company_managerid(user.id),
-        );
+        const response = await api.get(endpoints.get_company_managerid(user.id));
         setFormData((prevData) => ({
           ...prevData,
           companyId: response.data.id,
@@ -46,6 +44,7 @@ const CreateRoute = () => {
     }
   }, [user, accessToken, setLoading]);
 
+  // Fetch all available stations
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -63,38 +62,62 @@ const CreateRoute = () => {
     fetchStations();
   }, [accessToken, setLoading]);
 
+  // Handle form input changes
   const handleChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
+  // Validate form input before submission
+  const validateForm = () => {
+    const { fromStation, toStation, routeName, seatPrice, cargoPrice } = formData;
+    if (!fromStation || !toStation || !routeName || !seatPrice || !cargoPrice) {
+      alert('Please fill in all the required fields.');
+      return false;
+    }
+    if (fromStation === toStation) {
+      alert('Departure and destination stations cannot be the same.');
+      return false;
+    }
+    return true;
+  };
+
+  // Submit form to the API
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    if (!validateForm()) return;
+  
     try {
-      setLoading(true);
+      setIsSubmitting(true);
+      setLoading('flex');
+  
       const api = apis(accessToken);
       const routeData = {
         name: formData.routeName,
         companyId: formData.companyId,
-        seatPrice: formData.seatPrice,
-        cargoPrice: formData.cargoPrice,
+        seatPrice: parseFloat(formData.seatPrice),
+        cargoPrice: parseFloat(formData.cargoPrice),
         fromStationId: formData.fromStation,
         toStationId: formData.toStation,
         isActive: formData.isActive,
       };
+  
       await api.post(endpoints.create_route, routeData);
       alert('Route created successfully');
-      navigate(-1);
+      navigate('/manage-company');
     } catch (error) {
       console.error('Error creating route', error);
       alert('Failed to create route');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
+      setLoading('none');
     }
   };
+  
 
   return (
     <div>
@@ -159,8 +182,12 @@ const CreateRoute = () => {
           />
         </div>
         <div className="custom-button-group">
-          <button type="submit" className="custom-btn custom-btn-primary">
-            Tạo tuyến
+          <button
+            type="submit"
+            className="custom-btn custom-btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Đang tạo...' : 'Tạo tuyến'}
           </button>
           <button
             type="button"

@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -54,6 +51,7 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.calculateAnnualRevenue(year, companyId);
     }
 
+
     @Override
     public List<StatisticsDTO> calculateQuarterlyRevenue(int year, Long companyId) {
         return ticketRepository.calculateQuarterlyRevenue(year, companyId);
@@ -63,6 +61,7 @@ public class TicketServiceImpl implements TicketService {
     public List<StatisticsDTO> calculateDailyRevenue(int year, int month, int day, Long companyId) {
         return ticketRepository.calculateDailyRevenue(year, month, day, companyId);
     }
+
 
     @Override
     public List<Ticket> findTicketsByUserId(Long userId) {

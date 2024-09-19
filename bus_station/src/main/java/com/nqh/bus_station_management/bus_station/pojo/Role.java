@@ -1,5 +1,6 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,12 @@ public class Role {
     private String name;
 
     @OneToMany(mappedBy = "role")
+    @JsonIgnore
     private Collection<User> users;
 
+    public Role(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
+

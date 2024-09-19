@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CarService {
     List<CarDTO> getCarsByCompanyId(Long companyId);
-    List<CarDTO> getAvailableCarsByCompanyAndDate(Long companyId, Date date);
+    List<CarDTO> getAvailableCarsByCompanyAndDate(Long busStationId, Date date);
 }

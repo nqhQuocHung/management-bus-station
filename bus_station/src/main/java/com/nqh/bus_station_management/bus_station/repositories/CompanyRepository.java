@@ -36,4 +36,6 @@ public interface CompanyRepository extends JpaRepository<TransportationCompany, 
 
     @Query("SELECT COUNT(tc) FROM TransportationCompany tc")
     long countAllCompanies();
+
+
 }

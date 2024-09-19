@@ -1,0 +1,8 @@
+{
+  "name": "management-bus-station",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/nqhQuocHung/management-bus-station.git",
+  "author": "nqhQuocHung <hungmt2426@gmail.com>",
+  "license": "MIT"
+}

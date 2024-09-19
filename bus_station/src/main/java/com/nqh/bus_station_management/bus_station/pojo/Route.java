@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.sql.Timestamp;
 import java.util.Collection;
 
@@ -49,6 +51,7 @@ public class Route {
     private TransportationCompany company;
 
     @OneToMany(mappedBy = "route", fetch = FetchType.EAGER)
+    @JsonManagedReference
     private Collection<Trip> trips;
 
     @ManyToOne

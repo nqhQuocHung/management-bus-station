@@ -1,9 +1,14 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.RouteDTO;
+import com.nqh.bus_station_management.bus_station.dtos.RouteRegisterDTO;
 import com.nqh.bus_station_management.bus_station.mappers.RouteDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.Route;
+import com.nqh.bus_station_management.bus_station.pojo.Station;
+import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
+import com.nqh.bus_station_management.bus_station.repositories.CompanyRepository;
 import com.nqh.bus_station_management.bus_station.repositories.RouteRepository;
+import com.nqh.bus_station_management.bus_station.repositories.StationRepository;
 import com.nqh.bus_station_management.bus_station.services.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -12,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.nqh.bus_station_management.bus_station.dtos.RoutePublicDTO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +31,13 @@ import java.util.stream.Collectors;
 public class RouteServiceImpl implements RouteService {
 
     private final RouteRepository routeRepository;
+
+    @Autowired
+    private StationRepository stationRepository;
+
+
+    @Autowired
+    private CompanyRepository companyRepository;
     private final Environment environment;
 
     private final RouteDTOMapper routeDTOMapper;
@@ -96,8 +110,26 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public Route saveRoute(Route route) {
-        return routeRepository.save(route);
+    public Route createRoute(RouteRegisterDTO routeDTO) {
+        TransportationCompany company = companyRepository.findById(routeDTO.getCompanyId())
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+
+        Station fromStation = stationRepository.findById(routeDTO.getFromStationId())
+                .orElseThrow(() -> new RuntimeException("From Station not found"));
+        Station toStation = stationRepository.findById(routeDTO.getToStationId())
+                .orElseThrow(() -> new RuntimeException("To Station not found"));
+
+        Route newRoute = Route.builder()
+                .name(routeDTO.getName())
+                .isActive(routeDTO.getIsActive())
+                .seatPrice(routeDTO.getSeatPrice())
+                .cargoPrice(routeDTO.getCargoPrice())
+                .company(company)
+                .fromStation(fromStation)
+                .toStation(toStation)
+                .build();
+
+        return routeRepository.save(newRoute);
     }
 
     @Override
@@ -106,8 +138,12 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public List<Route> findRoutesByCompanyId(Long companyId) {
-        return routeRepository.findByCompanyId(companyId);
+    public List<RoutePublicDTO> getRoutesByCompanyId(Long companyId) {
+        List<Route> routes = routeRepository.findByCompanyId(companyId);
+        return routes.stream().map(route -> RoutePublicDTO.builder()
+                .id(route.getId())
+                .name(route.getName())
+                .build()).collect(Collectors.toList());
     }
 
     @Override

@@ -1,67 +1,105 @@
-import {useContext, useEffect, useRef, useState} from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import './styles.css';
-import {AuthenticationContext, LoadingContext} from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
+import { AuthenticationContext, LoadingContext } from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
 
 const Profile = () => {
-  const {user, setUser} = useContext(AuthenticationContext);
-  const {setLoading} = useContext(LoadingContext);
+  const { user, setUser } = useContext(AuthenticationContext);
+  const { setLoading } = useContext(LoadingContext);
   const [userInfo, setUserInfo] = useState({});
   const [isChanged, setIsChanged] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const avatar = useRef(null);
+  const [currentAvatar, setCurrentAvatar] = useState(user['avatar']);
+
   const updateState = (event, field) => {
     setIsChanged(true);
-    setUserInfo((userInfo) => {
-      return {
-        ...userInfo,
-        [field]: event.target.value,
-      };
-    });
+    setUserInfo((prevState) => ({
+      ...prevState,
+      [field]: event.target.value,
+    }));
   };
+
   const resetUserInfo = () => {
     setIsChanged(false);
     setUserInfo({
-      username: user['username'],
-      email: user['email'],
-      firstname: user['firstname'],
-      lastname: user['lastname'],
-      phone: user['phone'],
+      firstName: user['firstName'] || user['firstname'] || '',
+      lastName: user['lastName'] || user['lastname'] || '',
+      email: user['email'] || '',
+      username: user['username'] || '',
+      phone: user['phone'] || ''
     });
     setCurrentAvatar(user['avatar']);
+    setAvatarFile(null);
     avatar.current.value = null;
   };
+
   useEffect(() => {
     resetUserInfo();
-  }, []);
+  }, [user]);
+
+  const uploadAvatarAndGetUrl = async () => {
+    if (!avatarFile) return null;
+    const data = new FormData();
+    data.append('file', avatarFile);
+
+    try {
+      setLoading('flex');
+      const api = apis(localStorage.getItem('accessToken'));
+      const response = await api.post(endpoints.upload_image, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      return null;
+    } finally {
+      setLoading('none');
+    }
+  };
+
   const handleUpdateUserInfo = async () => {
+    const isConfirmed = window.confirm("Bạn có muốn lưu thông tin này không?");
+    if (!isConfirmed) {
+      return;
+    }
+  
     setLoading('flex');
     try {
-      const formData = new FormData();
-      for (let key in userInfo) {
-        formData.append([key], userInfo[key]);
-      }
-      if (avatar.current.files.length > 0) {
-        formData.append('file', avatar.current.files[0]);
-      }
+      const avatarUrl = await uploadAvatarAndGetUrl() || currentAvatar;
+  
+      const formData = {
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        email: userInfo.email,
+        username: userInfo.username,
+        phone: userInfo.phone,
+        avatar: avatarUrl,
+      };
+  
       const accessToken = localStorage.getItem('accessToken');
+  
       const response = await apis(accessToken).patch(
-        endpoints.user(user['id']),
+        endpoints.update_user(user['id']),
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
-        },
+        }
       );
-      setUser(response['data']);
+  
+      setUser(response.data);
+  
     } catch (ex) {
-      console.error(ex);
+      console.error('Failed to update user:', ex);
     } finally {
       setIsChanged(false);
       setLoading('none');
     }
   };
-  const avatar = useRef(null);
-  const [currentAvart, setCurrentAvatar] = useState(user['avatar']);
+  
+
   return (
     <div className="container mt-5 shadow p-3 mb-5 bg-body rounded">
       <div className="row mt-2">
@@ -69,18 +107,9 @@ const Profile = () => {
       </div>
       <div className="row mt-2 gx-5">
         <div className="col-md-6 fields">
-          {Object.keys(user).map((field) => {
-            if (field === 'id' || field === 'avatar' || field === 'role') {
-              return null;
-            }
-            let disable = false;
-            if (field === 'username' || field === 'email') {
-              disable = true;
-            }
-            let type = 'text';
-            if (field === 'phone') {
-              type = 'tel';
-            }
+          {['firstName', 'lastName', 'email', 'username', 'phone'].map((field) => {
+            let type = field === 'phone' ? 'tel' : 'text';
+            let disabled = (field === 'email' || field === 'username');
             return (
               <div key={field}>
                 <label className="form-label text-capitalize" htmlFor={field}>
@@ -88,10 +117,10 @@ const Profile = () => {
                 </label>
                 <input
                   type={type}
-                  disabled={disable}
                   id={field}
                   className="form-control"
-                  value={userInfo[field]}
+                  disabled={disabled}
+                  value={userInfo[field] || ''}
                   onChange={(event) => updateState(event, field)}
                 />
               </div>
@@ -102,7 +131,7 @@ const Profile = () => {
           <img
             className="img-thumbnail mx-auto d-block"
             alt="Ảnh đại diện của bạn"
-            src={currentAvart}
+            src={currentAvatar}
             width={300}
             height={300}
           />
@@ -118,6 +147,7 @@ const Profile = () => {
                 const element = event.target;
                 setIsChanged(true);
                 if (element.files.length > 0) {
+                  setAvatarFile(element.files[0]);
                   setCurrentAvatar(URL.createObjectURL(element.files[0]));
                 }
               }}

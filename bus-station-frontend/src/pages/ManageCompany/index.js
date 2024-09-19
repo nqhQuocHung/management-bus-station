@@ -1,9 +1,9 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './styles.css';
-import {Link} from 'react-router-dom';
-import {AuthenticationContext, LoadingContext} from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
-import {Bar} from 'react-chartjs-2';
+import { Link } from 'react-router-dom';
+import { AuthenticationContext, LoadingContext } from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
+import { Bar } from 'react-chartjs-2';
 import ChatIcon from '../../components/ChatIcon';
 import {
   Chart as ChartJS,
@@ -33,6 +33,7 @@ const ManageCompany = () => {
   const { setLoading } = useContext(LoadingContext);
   const { user } = useContext(AuthenticationContext);
   const [companyName, setCompanyName] = useState(null);
+  const [isCargoTransport, setIsCargoTransport] = useState(false);
   const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
@@ -40,12 +41,10 @@ const ManageCompany = () => {
       try {
         setLoading('flex');
         const api = apis(accessToken);
-        const response = await api.get(
-          endpoints.get_company_managerid(user.id),
-        );
+        const response = await api.get(endpoints.get_company_managerid(user.id));
         setCompanyId(response.data.id);
         setCompanyName(response.data.name);
-        console.log('Fetched Company ID:', response.data.id);
+        setIsCargoTransport(response.data.is_cargo_transport);
       } catch (error) {
         console.error('Error fetching company ID:', error);
       } finally {
@@ -59,39 +58,36 @@ const ManageCompany = () => {
   }, [user, accessToken, setLoading]);
 
   const fetchStats = async (type) => {
-    if (!companyId) return;
+    if (!companyId || !date) return;
 
     try {
       setLoading('flex');
       const api = apis(accessToken);
       const dateObj = new Date(date);
+
+      if (isNaN(dateObj.getTime())) {
+        alert('Ngày không hợp lệ. Vui lòng chọn lại.');
+        return;
+      }
+
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth() + 1;
       const day = dateObj.getDate();
       let endpoint;
 
       if (type === 'month') {
-        endpoint = `${endpoints.statistics_ticket_year(
-          year,
-        )}?companyId=${companyId}`;
+        endpoint = `${endpoints.statistics_ticket_year(year)}?companyId=${companyId}`;
       } else if (type === 'quarter') {
-        endpoint = `${endpoints.statistics_ticket_quarterly(
-          year,
-        )}?companyId=${companyId}`;
+        endpoint = `${endpoints.statistics_ticket_quarterly(year)}?companyId=${companyId}`;
       } else if (type === 'day') {
-        endpoint = `${endpoints.statistics_ticket_day(
-          year,
-          month,
-          day,
-        )}?companyId=${companyId}`;
+        endpoint = `${endpoints.statistics_ticket_day(year, month, day)}?companyId=${companyId}`;
       }
 
-      console.log('API Request URL:', endpoint);
       const response = await api.get(endpoint, accessToken);
-      console.log('API Response Data:', response.data);
       setStats(response.data);
     } catch (error) {
       console.error(`Error fetching ${type} statistics:`, error);
+      setStats(null);
     } finally {
       setLoading('none');
     }
@@ -103,19 +99,16 @@ const ManageCompany = () => {
       setLoading('flex');
       const api = apis(accessToken);
       const payload = { date };
-      console.log('Register Cargo Payload:', payload);
-      const response = await api.put(
-        endpoints.register_cargo(companyId),
-        payload,
-      );
+      const response = await api.patch(endpoints.register_cargo(companyId), payload);
       if (response.status === 200) {
-        alert('Registration successful!');
+        setIsCargoTransport(!isCargoTransport);
+        alert(isCargoTransport ? 'Hủy đăng kí thành công!' : 'Đăng kí thành công!');
       } else {
-        alert('Registration failed!');
+        alert('Thao tác không thành công!');
       }
     } catch (error) {
       console.error('Error registering cargo:', error);
-      alert('An error occurred during registration.');
+      alert('Có lỗi xảy ra trong quá trình thao tác.');
     } finally {
       setLoading('none');
     }
@@ -139,12 +132,33 @@ const ManageCompany = () => {
 
   const renderChart = () => {
     if (!stats || Object.keys(stats).length === 0) {
-      return <p>Dữ liệu chưa được thiết lập!</p>;
+      return <p>Không có dữ liệu để hiển thị.</p>;
     }
 
-    const labels = Object.keys(stats);
+    let labels;
+
+    if (selectedOption === 'day') {
+      const dateObj = new Date(date);
+      const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
+      labels = [formattedDate];
+    } else {
+      labels = Object.keys(stats).map((label) => {
+        if (selectedOption === 'quarter') {
+          return parseInt(label) + 1;
+        } else if (selectedOption === 'month') {
+          return parseInt(label) + 1;
+        } else {
+          return label;
+        }
+      });
+    }
+
     const ticketData = Object.values(stats).map((item) => item.totalTicket);
     const cargoData = Object.values(stats).map((item) => item.totalCargo);
+
+    if (ticketData.length === 0 || cargoData.length === 0) {
+      return <p>Không có dữ liệu để hiển thị.</p>;
+    }
 
     const data = {
       labels,
@@ -187,14 +201,18 @@ const ManageCompany = () => {
           <button className="custom-button">Đăng kí chuyến</button>
         </Link>
         <button className="custom-button" onClick={showConfirmationDialog}>
-          Đăng kí chuyển hàng
+          {isCargoTransport ? 'Hủy chuyển hàng' : 'Đăng kí chuyển hàng'}
         </button>
-        <ChatIcon/>
+        <ChatIcon />
       </div>
       {showConfirmation && (
         <div className="custom-confirmation-overlay">
           <div className="custom-confirmation-dialog">
-            <p>Bạn chắc chắn muốn đăng kí vận chuyển hàng hóa không?</p>
+            <p>
+              {isCargoTransport
+                ? 'Bạn chắc chắn muốn hủy đăng kí vận chuyển hàng hóa không?'
+                : 'Bạn chắc chắn muốn đăng kí vận chuyển hàng hóa không?'}
+            </p>
             <button className="custom-button" onClick={handleRegisterCargo}>
               OK
             </button>

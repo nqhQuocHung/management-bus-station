@@ -2,8 +2,11 @@ package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.UserDTO;
 import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserRegisterDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserUpdateDTO;
 import com.nqh.bus_station_management.bus_station.mappers.UserDTOMapper;
 import com.nqh.bus_station_management.bus_station.mappers.UserProfileDTOMapper;
+import com.nqh.bus_station_management.bus_station.pojo.Role;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.services.UserService;
@@ -12,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +33,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private UserProfileDTOMapper userProfileDTOMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserProfileDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
@@ -37,7 +44,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public User saveUser(UserRegisterDTO userRegisterDTO) {
+        if (userRepository.existsByUsername(userRegisterDTO.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+        if (userRepository.existsByEmail(userRegisterDTO.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+        String encodedPassword = passwordEncoder.encode(userRegisterDTO.getPassword());
+        User user = User.builder()
+                .username(userRegisterDTO.getUsername())
+                .password(encodedPassword)
+                .firstname(userRegisterDTO.getFirstName())
+                .lastname(userRegisterDTO.getLastName())
+                .email(userRegisterDTO.getEmail())
+                .phone(userRegisterDTO.getPhone())
+                .avatar(userRegisterDTO.getAvatar())
+                .isActive(true)
+                .role(new Role(1L, "USER"))
+                .build();
         return userRepository.save(user);
     }
 
@@ -59,16 +84,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> updateUser(Long id, User updatedUserDetails) {
-        return userRepository.findById(id).map(existingUser -> {
-            existingUser.setFirstname(updatedUserDetails.getFirstname());
-            existingUser.setLastname(updatedUserDetails.getLastname());
-            existingUser.setEmail(updatedUserDetails.getEmail());
-            existingUser.setUsername(updatedUserDetails.getUsername());
-            return userRepository.save(existingUser);
-        });
+    public User updateUser(Long id, UserUpdateDTO userUpdateDTO) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            System.out.println("User not found with id " + id);
+            return null;
+        }
+        User user = optionalUser.get();
+        user.setFirstname(userUpdateDTO.getFirstName());
+        user.setLastname(userUpdateDTO.getLastName());
+        user.setPhone(userUpdateDTO.getPhone());
+        user.setAvatar(userUpdateDTO.getAvatar());
+        return userRepository.save(user);
     }
-
     @Override
     public List<UserDTO> getUsersByRole(Long roleId) {
         List<User> users = userRepository.findActiveUsersByRoleId(roleId);
@@ -115,4 +143,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public boolean isEmailExist(String email) {
         return userRepository.existsByEmail(email);
     }
+
 }

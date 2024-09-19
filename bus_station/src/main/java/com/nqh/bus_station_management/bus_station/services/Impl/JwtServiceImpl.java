@@ -19,7 +19,8 @@ public class JwtServiceImpl implements JwtService {
 
     private final String SECRET_KEY = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
 
-    private final long expiration = 1000 * 60 * 60;
+    private final long expiration = 1000 * 60 * 60 * 24;
+
 
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);

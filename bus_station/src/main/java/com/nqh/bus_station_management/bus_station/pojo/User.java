@@ -1,6 +1,7 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,7 +39,7 @@ public class User implements UserDetails {
     private String lastname;
 
     @Column(name = "password", nullable = false, length = 255)
-    @JsonIgnore // Ensure password is not serialized to JSON
+    @JsonIgnore
     private String password;
 
     @Column(name = "email", nullable = false, length = 254)
@@ -57,7 +58,6 @@ public class User implements UserDetails {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    // Prevent circular references when serializing JSON by ignoring tickets
     @JsonIgnore
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private Collection<Ticket> tickets;
@@ -66,12 +66,11 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
     private TransportationCompany managed;
 
-    // Use eager fetch but ignore it in serialization to avoid circular JSON
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    @JsonManagedReference
     private Role role;
 
-    // Methods from UserDetails for Spring Security
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
