@@ -19,15 +19,15 @@ const Footer = () => {
             <ul className="list-unstyled mt-5">
               <li className="d-flex  my-2">
                 <FaPhone color="#34A853" />
-                <p className="px-3">01234567899</p>
+                <p className="px-3">0329183328</p>
               </li>
               <li className="d-flex my-2">
                 <IoMdMail color="#E74033" />
-                <p className="px-3">contact.company@example.com</p>
+                <p className="px-3">2151013034hung@ou.edu.vn</p>
               </li>
               <li className="d-flex my-2">
                 <FaFacebook color="#0866FF" />
-                <a className="px-3" href="facebook.com">
+                <a className="px-3" href="https://www.facebook.com/hung.nguyenquoc.16503323">
                   facebook.com
                 </a>
               </li>

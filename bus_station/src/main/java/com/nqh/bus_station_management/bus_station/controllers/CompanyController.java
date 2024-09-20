@@ -1,9 +1,14 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
 import com.nqh.bus_station_management.bus_station.dtos.CompanyDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyPublicDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.services.CompanyService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +27,13 @@ public class CompanyController {
     }
 
     @GetMapping
-    public List<CompanyDTO> listCompanies(@RequestParam Map<String, String> params) {
+    public Map<String, Object> listCompanies(@RequestParam Map<String, String> params) {
         return companyService.listCompanies(params);
+    }
+
+    @GetMapping("/name-id")
+    public List<CompanyPublicDTO> getNameId() {
+        return companyService.getNameId();
     }
 
     @GetMapping("/count")
@@ -46,9 +56,10 @@ public class CompanyController {
                 value.getManager().getId()));
     }
 
-    @PostMapping
-    public void saveCompany(@RequestBody CompanyDTO companyDTO) {
-        companyService.saveCompany(companyDTO);
+    @PostMapping("/register")
+    public ResponseEntity<TransportationCompany> createCompany(@Valid @RequestBody CompanyRegisterDTO companyDTO) {
+        TransportationCompany company = companyService.createCompany(companyDTO);
+        return new ResponseEntity<>(company, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
@@ -72,7 +83,7 @@ public class CompanyController {
         companyService.verifyCompany(id);
     }
 
-    @GetMapping("/manager/{companyId}")
+    @GetMapping("/manager/company/{companyId}")
     public CompanyDTO getCompanyAndManager(@PathVariable Long companyId) {
         return companyService.getCompanyAndManager(companyId);
     }
@@ -85,5 +96,15 @@ public class CompanyController {
     @GetMapping("/count/all")
     public long countAllCompanies() {
         return companyService.countAllCompanies();
+    }
+
+    @PatchMapping("/cargo/{companyId}")
+    public ResponseEntity<String> toggleCargoTransport(@PathVariable Long companyId) {
+        try {
+            companyService.toggleCargoTransport(companyId);
+            return ResponseEntity.ok("Cargo transport status toggled successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to toggle cargo transport status.");
+        }
     }
 }

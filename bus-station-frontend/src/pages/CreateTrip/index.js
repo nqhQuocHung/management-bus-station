@@ -19,6 +19,7 @@ const CreateTrip = () => {
   const { user } = useContext(AuthenticationContext);
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
+  const [companyId, setCompanyId] = useState(null);
 
   useEffect(() => {
     const fetchCompanyAndRoutes = async () => {
@@ -26,14 +27,11 @@ const CreateTrip = () => {
         setLoading('flex');
         const api = apis(accessToken);
 
-        const companyResponse = await api.get(
-          endpoints.get_company_managerid(user.id),
-        );
+        const companyResponse = await api.get(endpoints.get_company_managerid(user.id));
         const companyId = companyResponse.data.id;
+        setCompanyId(companyId);
 
-        const routesResponse = await api.get(
-          endpoints.get_route_by_companyid(companyId),
-        );
+        const routesResponse = await api.get(endpoints.get_route_by_companyid(companyId));
         const sortedRoutes = (routesResponse.data || []).sort((a, b) => b.id - a.id);
         setRoutes(sortedRoutes);
       } catch (error) {
@@ -61,16 +59,19 @@ const CreateTrip = () => {
   };
 
   const handleFetchCars = async (departAt) => {
-    if (!departAt) return;
+    if (!departAt || !companyId) return;
 
     try {
       setLoading('flex');
       const api = apis(accessToken);
+
       const response = await api.get(endpoints.available_cars, {
         params: {
-          date: departAt.split('T')[0],
+          date: departAt.split('T')[0], 
+          busStationId: companyId, 
         },
       });
+
       setCars(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching available cars', error);
@@ -86,28 +87,32 @@ const CreateTrip = () => {
     return `${date} ${time}:00`;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading('flex');
-      const api = apis(accessToken);
-      const tripData = {
-        routeId: formData.routeId,
-        carId: formData.carId,
-        departAt: formatDepartAt(formData.departAt),
-        isActive: formData.isActive,
-      };
-      console.log('Thông tin gửi đi: ', tripData);
-      await api.post(endpoints.creat_trip, tripData);
-      alert('Trip created successfully');
-      navigate(-1);
-    } catch (error) {
-      console.error('Error creating trip', error);
-      alert('Failed to create trip');
-    } finally {
-      setLoading('none');
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    setLoading('flex');
+    const api = apis(accessToken);
+
+    const tripData = {
+      routeId: Number(formData.routeId),
+      carId: Number(formData.carId),
+      departAt: formatDepartAt(formData.departAt),
+      isActive: formData.isActive,
+    };
+
+    console.log('Sending trip data: ', tripData);
+
+    await api.post(endpoints.creat_trip, tripData);
+    alert('Trip created successfully');
+    navigate(-1);
+  } catch (error) {
+    console.error('Error creating trip', error);
+    alert('Failed to create trip');
+  } finally {
+    setLoading('none');
+  }
+};
+
 
   return (
     <div>
@@ -119,7 +124,7 @@ const CreateTrip = () => {
             value={formData.routeId}
             onChange={handleChange}
           >
-            <option value="">Chọn tuyến</option>
+            <option value="">Select Route</option>
             {routes.map((route) => (
               <option
                 key={route.id}
@@ -140,7 +145,7 @@ const CreateTrip = () => {
         <div className="custom-form-group">
           <label>Car:</label>
           <select name="carId" value={formData.carId} onChange={handleChange}>
-            <option value="">Chọn xe</option>
+            <option value="">Select Car</option>
             {cars.map((car) => (
               <option
                 key={car.id}
@@ -151,14 +156,14 @@ const CreateTrip = () => {
         </div>
         <div className="custom-button-group">
           <button type="submit" className="custom-btn custom-btn-primary">
-            Xác nhận
+            Confirm
           </button>
           <button
             type="button"
             className="custom-btn custom-btn-secondary"
             onClick={() => navigate(-1)}
           >
-            Hủy
+            Cancel
           </button>
         </div>
       </form>

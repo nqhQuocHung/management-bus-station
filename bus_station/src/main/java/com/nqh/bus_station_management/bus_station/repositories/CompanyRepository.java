@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface CompanyRepository extends JpaRepository<TransportationCompany, Long> {
 
-    @Query("SELECT tc FROM TransportationCompany tc WHERE (:name IS NULL OR tc.name LIKE %:name%)")
+    @Query("SELECT tc FROM TransportationCompany tc WHERE (:name IS NULL OR tc.name LIKE %:name%) AND tc.isActive = true AND tc.isVerified = true")
     List<TransportationCompany> list(@Param("name") String name);
 
     @Query("SELECT COUNT(tc) FROM TransportationCompany tc WHERE (:name IS NULL OR tc.name LIKE %:name%)")
@@ -36,4 +36,6 @@ public interface CompanyRepository extends JpaRepository<TransportationCompany, 
 
     @Query("SELECT COUNT(tc) FROM TransportationCompany tc")
     long countAllCompanies();
+
+
 }

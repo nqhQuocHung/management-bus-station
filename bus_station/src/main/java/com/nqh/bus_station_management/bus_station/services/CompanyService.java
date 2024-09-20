@@ -1,6 +1,8 @@
 package com.nqh.bus_station_management.bus_station.services;
 
 import com.nqh.bus_station_management.bus_station.dtos.CompanyDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyPublicDTO;
+import com.nqh.bus_station_management.bus_station.dtos.CompanyRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 
 import java.util.List;
@@ -9,13 +11,13 @@ import java.util.Optional;
 
 public interface CompanyService {
 
-    List<CompanyDTO> listCompanies(Map<String, String> params);
+    Map<String, Object> listCompanies(Map<String, String> params);
 
     Long countCompanies(Map<String, String> params);
 
     Optional<TransportationCompany> getCompanyById(Long id);
 
-    void saveCompany(CompanyDTO companyDTO);
+    TransportationCompany createCompany(CompanyRegisterDTO companyDTO);
 
     void deleteCompanyById(Long id);
 
@@ -30,4 +32,8 @@ public interface CompanyService {
     TransportationCompany findByManagerId(Long id);
 
     long countAllCompanies();
+    public List<CompanyPublicDTO> getNameId();
+
+    void toggleCargoTransport(Long companyId);
+
 }

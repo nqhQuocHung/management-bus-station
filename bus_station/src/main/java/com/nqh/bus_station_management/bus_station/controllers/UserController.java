@@ -1,13 +1,23 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nqh.bus_station_management.bus_station.dtos.UserDTO;
 import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
-import com.nqh.bus_station_management.bus_station.pojo.Role;
+import com.nqh.bus_station_management.bus_station.dtos.UserRegisterDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserUpdateDTO;
 import com.nqh.bus_station_management.bus_station.pojo.User;
+import com.nqh.bus_station_management.bus_station.services.CloudinaryService;
 import com.nqh.bus_station_management.bus_station.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,23 +26,60 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @GetMapping("/username/{username}")
-    public UserProfileDTO getUserByUsername(@PathVariable String username) {
-        return userService.getUserByUsername(username);
+    public ResponseEntity<UserProfileDTO> getUserByUsername(@PathVariable String username) {
+        UserProfileDTO user = userService.getUserByUsername(username);
+        return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PostMapping
-    public User saveUser(@RequestBody User user) {
-        return userService.saveUser(user);
-    }
+
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUserById(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        boolean isDeleted = userService.deleteUserById(id);
+        return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/{id}")
-    public UserProfileDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public ResponseEntity<UserProfileDTO> getUserById(@PathVariable Long id) {
+        UserProfileDTO user = userService.getUserById(id);
+        return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        User updatedUser = userService.updateUser(id, userUpdateDTO);
+
+        if (updatedUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with id " + id);
+        }
+
+        return ResponseEntity.ok(updatedUser);
+    }
+
+
+    @GetMapping("/role/{roleId}")
+    public ResponseEntity<List<UserDTO>> findActiveUsersByRoleId(@PathVariable Long roleId) {
+        List<UserDTO> users = userService.getUsersByRole(roleId);
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(
+            @ModelAttribute UserRegisterDTO userRegisterDTO) {
+        try {
+            if (userRegisterDTO.getAvatar() == null || userRegisterDTO.getAvatar().isEmpty()) {
+                userRegisterDTO.setAvatar("https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg");
+            }
+            User savedUser = userService.saveUser(userRegisterDTO);
+
+            return ResponseEntity.ok(savedUser);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -21,21 +20,28 @@ public class StatisticsController {
         this.ticketService = ticketService;
     }
 
-    @GetMapping("/annual")
-    public ResponseEntity<List<StatisticsDTO>> calculateAnnualRevenue(@RequestParam int year, @RequestParam Long companyId) {
+    @GetMapping("/annual/{year}")
+    public ResponseEntity<List<StatisticsDTO>> calculateAnnualRevenue(
+            @PathVariable int year,
+            @RequestParam Long companyId) {
         List<StatisticsDTO> statistics = ticketService.calculateAnnualRevenue(year, companyId);
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
 
-    @GetMapping("/quarterly")
-    public ResponseEntity<List<StatisticsDTO>> calculateQuarterlyRevenue(@RequestParam int year, @RequestParam Long companyId) {
+    @GetMapping("/quarterly/{year}")
+    public ResponseEntity<List<StatisticsDTO>> calculateQuarterlyRevenue(@PathVariable int year, @RequestParam Long companyId) {
         List<StatisticsDTO> statistics = ticketService.calculateQuarterlyRevenue(year, companyId);
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
 
-    @GetMapping("/daily")
-    public ResponseEntity<List<StatisticsDTO>> calculateDailyRevenue(@RequestParam int year, @RequestParam int month, @RequestParam int day, @RequestParam Long companyId) {
+    @GetMapping("/daily/{year}/{month}/{day}")
+    public ResponseEntity<List<StatisticsDTO>> calculateDailyRevenue(
+            @PathVariable int year,
+            @PathVariable int month,
+            @PathVariable int day,
+            @RequestParam Long companyId) {
         List<StatisticsDTO> statistics = ticketService.calculateDailyRevenue(year, month, day, companyId);
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
+
 }

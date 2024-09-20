@@ -1,9 +1,12 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
+import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Seat;
 import com.nqh.bus_station_management.bus_station.pojo.Trip;
 import com.nqh.bus_station_management.bus_station.services.TripService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,8 +43,9 @@ public class TripController {
         return tripService.findAvailableSeat(tripId, seatId);
     }
 
-    @PostMapping
-    public Trip saveTrip(@RequestBody Trip trip) {
-        return tripService.saveTrip(trip);
+    @PostMapping("/create")
+    public ResponseEntity<Trip> createTrip(@RequestBody TripRegisterDTO tripRegisterDTO) {
+        Trip newTrip = tripService.createTrip(tripRegisterDTO);
+        return ResponseEntity.ok(newTrip);
     }
 }

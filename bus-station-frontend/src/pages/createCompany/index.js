@@ -9,17 +9,18 @@ const CreateCompany = () => {
   const accessToken = localStorage.getItem('accessToken');
   const { setLoading } = useContext(LoadingContext);
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     isCargoTransport: false,
-    isActive: true,
-    isVerified: false,
     managerId: user ? user.id : ''
   });
+
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -32,6 +33,7 @@ const CreateCompany = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setAvatarFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setAvatarPreview(e.target.result);
@@ -39,26 +41,50 @@ const CreateCompany = () => {
       reader.readAsDataURL(file);
     } else {
       setAvatarPreview(null);
+      setAvatarFile(null);
+    }
+  };
+
+  const uploadAvatarAndGetUrl = async () => {
+    if (!avatarFile) return null;
+    const data = new FormData();
+    data.append('file', avatarFile);
+    
+    try {
+      setLoading('flex');
+      const api = apis(accessToken);
+      const response = await api.post(endpoints.upload_image, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      return null;
+    } finally {
+      setLoading('none');
     }
   };
 
   const handleSubmit = async () => {
     setLoading('flex');
-    const data = new FormData();
-    data.append('company', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
-    if (document.getElementById('avatar').files[0]) {
-      data.append('avatar', document.getElementById('avatar').files[0]);
-    }
-
     try {
-      const api = apis(accessToken);
-      await api.post(endpoints.register_company, data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setIsSubmitted(true);
+      const avatarUrl = await uploadAvatarAndGetUrl();
+      
+      if (avatarUrl || !avatarFile) {
+        const newCompanyData = {
+          ...formData,
+          avatar: avatarUrl
+        };
+
+        const api = apis(accessToken);
+        await api.post(endpoints.register_company, newCompanyData);
+        setIsSubmitted(true);
+      } else {
+        alert("Failed to upload avatar.");
+      }
     } catch (error) {
       console.error("Failed to create new company:", error);
-      alert("Failed to create new company");
+      alert("Failed to create new company.");
     } finally {
       setLoading('none');
     }
@@ -99,8 +125,7 @@ const CreateCompany = () => {
         </div>
       )}
     </div>
-);
-
+  );
 };
 
 export default CreateCompany;

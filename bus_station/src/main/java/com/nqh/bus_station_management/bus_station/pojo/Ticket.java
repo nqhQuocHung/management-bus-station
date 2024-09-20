@@ -20,6 +20,8 @@ import java.sql.Timestamp;
 @Builder
 public class Ticket implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -40,7 +42,7 @@ public class Ticket implements Serializable {
     @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cargo cargo;
 
-    @OneToOne(mappedBy = "ticket")
+    @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Review review;
 
     @ManyToOne
@@ -59,7 +61,7 @@ public class Ticket implements Serializable {
     @JoinColumn(name = "seat_id", referencedColumnName = "id", nullable = false)
     private Seat seat;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE) // Adjusted cascade type
     @JoinColumn(name = "payment_id")
     private OnlinePaymentResult paymentResult;
 }
