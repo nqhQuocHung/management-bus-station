@@ -1,20 +1,22 @@
-import {Link, useParams, useLocation} from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import './styles.css';
-import {useState, useContext, useEffect, useRef} from 'react';
-import {AuthenticationContext, LoadingContext} from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
+import { useState, useContext, useEffect, useRef } from 'react';
+import { AuthenticationContext, LoadingContext } from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
 import moment from 'moment';
 import Chat from '../../components/Chat';
 import databaseRef from '../../config/firebase';
+
 const CompanyInfo = () => {
-  let {pathname} = useLocation();
-  const {user} = useContext(AuthenticationContext);
-  const {id} = useParams();
-  const {setLoading} = useContext(LoadingContext);
+  let { pathname } = useLocation();
+  const { user } = useContext(AuthenticationContext);
+  const { id } = useParams();
+  const { setLoading } = useContext(LoadingContext);
   const [company, setCompany] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [startChat, setStartChat] = useState(false);
   const conversationKey = useRef(null);
+
   const fetchComanyInfo = async () => {
     try {
       setLoading('flex');
@@ -26,6 +28,7 @@ const CompanyInfo = () => {
       setLoading('none');
     }
   };
+
   const fetchRoutes = async () => {
     try {
       setLoading('flex');
@@ -39,6 +42,7 @@ const CompanyInfo = () => {
       setLoading('none');
     }
   };
+
   const startConversation = async () => {
     let key = null;
     await databaseRef
@@ -74,6 +78,7 @@ const CompanyInfo = () => {
     fetchRoutes();
     fetchComanyInfo();
   }, []);
+
   return (
     <div className="container mt-5">
       {company && (
@@ -129,7 +134,7 @@ const CompanyInfo = () => {
                       Tư vấn
                     </button>
                   ) : (
-                    <Link to={'/login'} state={{from: pathname}}>
+                    <Link to={'/login'} state={{ from: pathname }}>
                       Đăng nhập để chat với nhân viên nhà xe
                     </Link>
                   )}
@@ -143,7 +148,7 @@ const CompanyInfo = () => {
                   <Link
                     className="me-3 mb-3"
                     key={route['id']}
-                    to={`/route/${id}`}
+                    to={`/route/${route['id']}`}
                   >
                     {route['name']}
                   </Link>

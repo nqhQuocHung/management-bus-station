@@ -2,6 +2,7 @@ package com.nqh.bus_station_management.bus_station.repositories;
 
 import com.nqh.bus_station_management.bus_station.dtos.StatisticsDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Ticket;
+import com.nqh.bus_station_management.bus_station.pojo.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -50,4 +51,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Transactional
     @Query("DELETE FROM Ticket t WHERE t.id = :id")
     void deleteById(@Param("id") Long id);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Cargo c WHERE c.ticket.id = :ticketId")
+    void deleteCargosByTicketId(@Param("ticketId") Long ticketId);
 }

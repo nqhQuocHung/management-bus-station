@@ -1,13 +1,8 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
-import com.nqh.bus_station_management.bus_station.dtos.RouteDTO;
-import com.nqh.bus_station_management.bus_station.dtos.StatisticsDTO;
-import com.nqh.bus_station_management.bus_station.dtos.TicketDTO;
-import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
-import com.nqh.bus_station_management.bus_station.pojo.Seat;
-import com.nqh.bus_station_management.bus_station.pojo.Ticket;
-import com.nqh.bus_station_management.bus_station.repositories.SeatRepository;
-import com.nqh.bus_station_management.bus_station.repositories.TicketRepository;
+import com.nqh.bus_station_management.bus_station.dtos.*;
+import com.nqh.bus_station_management.bus_station.pojo.*;
+import com.nqh.bus_station_management.bus_station.repositories.*;
 import com.nqh.bus_station_management.bus_station.services.RouteService;
 import com.nqh.bus_station_management.bus_station.services.TicketService;
 import com.nqh.bus_station_management.bus_station.services.TripService;
@@ -16,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -29,6 +25,15 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private TripService tripService;
+
+    @Autowired
+    private TripRepository tripRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CargoRepository cargoRepository;
 
     @Autowired
     public TicketServiceImpl(TicketRepository ticketRepository, SeatRepository seatRepository) {
@@ -69,7 +74,9 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public void deleteTicketById(Long id) {
+        ticketRepository.deleteCargosByTicketId(id);
         ticketRepository.deleteById(id);
     }
 
@@ -111,4 +118,61 @@ public class TicketServiceImpl implements TicketService {
 
         return results;
     }
+
+    @Override
+    public Ticket addTicket(AddTicketRequestDTO requestDTO) {
+        Seat seat = seatRepository.findById(requestDTO.getSeatId())
+                .orElseThrow(() -> new RuntimeException("Seat not found"));
+        Trip trip = tripRepository.findById(requestDTO.getTripId())
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+        User customer = userRepository.findById(requestDTO.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        Ticket ticket = Ticket.builder()
+                .seat(seat)
+                .trip(trip)
+                .customer(customer)
+                .seatPrice(requestDTO.getSeatPrice())
+                .paidAt(requestDTO.getPaidAt())
+                .build();
+
+        return ticketRepository.save(ticket);
+    }
+
+    @Override
+    public List<TicketDetailDTO> getTicketDetails(List<Long> ticketIds) {
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        if (tickets.isEmpty()) {
+            throw new RuntimeException("No tickets found");
+        }
+        return tickets.stream()
+                .map(this::convertToTicketDetailDTO)
+                .collect(Collectors.toList());
+    }
+    private TicketDetailDTO convertToTicketDetailDTO(Ticket ticket) {
+        return TicketDetailDTO.builder()
+                .ticketId(ticket.getId())
+                .seatCode(ticket.getSeat() != null && ticket.getSeat().getSeatCode() != null ? ticket.getSeat().getSeatCode().getCode() : null)
+                .routeName(ticket.getTrip() != null && ticket.getTrip().getRoute() != null ? ticket.getTrip().getRoute().getName() : null)
+                .companyName(ticket.getTrip() != null && ticket.getTrip().getRoute() != null && ticket.getTrip().getRoute().getCompany() != null ? ticket.getTrip().getRoute().getCompany().getName() : null)
+                .fromStation(ticket.getTrip() != null && ticket.getTrip().getRoute() != null && ticket.getTrip().getRoute().getFromStation() != null ? ticket.getTrip().getRoute().getFromStation().getAddress() : null)
+                .toStation(ticket.getTrip() != null && ticket.getTrip().getRoute() != null && ticket.getTrip().getRoute().getToStation() != null ? ticket.getTrip().getRoute().getToStation().getAddress() : null)
+                .departAt(ticket.getTrip() != null ? ticket.getTrip().getDepartAt() : null)
+                .seatPrice(ticket.getSeatPrice())
+                .cargoPrice(ticket.getCargo() != null ? ticket.getCargo().getCargoPrice() : 0.0)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteTicketAndCargoById(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket với ID " + ticketId + " không tồn tại."));
+        Cargo cargo = cargoRepository.findByTicket(ticket);
+        if (cargo != null) {
+            cargoRepository.delete(cargo);
+        }
+        ticketRepository.delete(ticket);
+    }
+
 }

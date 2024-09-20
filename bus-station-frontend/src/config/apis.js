@@ -20,12 +20,15 @@ const endpoints = {
   userInfor: '/api/v1/users/self',
   route_list: '/api/routes',
   // route_list: '/api/v1/route/list',
-  cart_details: '/api/tickets/cart/details',
-  // cart_details: '/api/v1/ticket/cart/details',
-  payment_method_list: '/api/v1/payment-method/list',
- //Xong
+  add_cart: '/api/tickets/add-cart',
+  cart_details: '/api/tickets/details',
+  add_cargo: '/api/cargos',
+   //Xong
+  payment_method_list: '/api/payment-methods',
   create_route: '/api/routes/add',
   list_station: '/api/stations/list',
+  get_available_seat: (tripId) => `/api/seats/available?tripId=${tripId}`,
+  get_occupied_seat: (tripId) => `/api/seats/occupied/${tripId}`,
   //
   available_cars: '/api/cars/available',
   creat_trip: '/api/trips/create',
@@ -38,11 +41,12 @@ const endpoints = {
     `/api/statistics/daily/${year}/${month}/${day}`,
   //
   
+  //xong
   register_cargo: (id) => `api/companies/cargo/${id}`,
-  route_info: (id) => `/api/v1/route/${id}`,
+  route_info: (id) => `/api/routes/${id}`,
   get_route_by_companyid: (id) => `/api/routes/company/${id}`,
   
-  route_trip_list: (id) => `/api/v1/route/${id}/trip`,
+  route_trip_list: (id) => `/api/trips/route/${id}`,
   trip_seat_details: (id) => `/api/v1/trip/${id}/seat-details`,
   checkout: (paymentMethodId) => `/api/v1/ticket/checkout/${paymentMethodId}`,
   // user: (id) => `/api/v1/users/${id}`,
@@ -50,8 +54,8 @@ const endpoints = {
   get_user_by_id: (id) => `/api/users/${id}`,
   get_user_by_role: (id) => `/admin/users/role/${id}`,
   // get_user_by_role: (id) => `/admin/users/role/${id}`,
-  companyInfo: (id) => `/api/v1/transportation_company/${id}`,
-  ticket: (id) => `/api/v1/ticket/${id}`,
+  companyInfo: (id) => `/api/companies/${id}`,
+  ticket: (id) => `/api/tickets/${id}`,
 };
 
 const apis = (accessToken) => {

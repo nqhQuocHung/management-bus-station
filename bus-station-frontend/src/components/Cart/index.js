@@ -1,46 +1,85 @@
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './styles.css';
-import {CartContext} from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
-import {Link} from 'react-router-dom';
+import { CartContext } from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 import * as ultils from '../../config/utils';
 
 const Cart = () => {
-  const {cart, cartDispatcher} = useContext(CartContext);
+  const { cart, cartDispatcher } = useContext(CartContext);
   const [tickets, setTickets] = useState([]);
 
-  const handleDeleteCart = (tripId, seatId) => {
-    cartDispatcher({
-      type: 'DELETE_ITEM',
-      payload: {
-        tripId: tripId,
-        seatId: seatId,
-      },
-    });
+  const handleDeleteCart = async (ticketId) => {
+    if (!ticketId) {
+      console.error('Ticket ID is missing:', ticketId);
+      return;
+    }
+
+    try {
+      const response = await apis(null).delete(endpoints.ticket(ticketId));
+
+      if (response.status === 200 || response.status === 204) {
+        cartDispatcher({
+          type: 'DELETE_ITEM',
+          payload: {
+            id: ticketId,
+          },
+        });
+        fetchTickets();
+        toast.success('Xóa vé thành công!', {
+          position: 'top-center',
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        });
+      } else {
+        toast.error('Xóa vé thất bại, vui lòng thử lại!', {
+          position: 'top-center',
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        });
+      }
+    } catch (ex) {
+      console.error('Error deleting ticket:', ex);
+      toast.error('Có lỗi xảy ra khi xóa vé, vui lòng thử lại sau!', {
+        position: 'top-center',
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+    }
   };
 
-  const handleToggleWithCargo = (event, tripId, seatId) => {
-    cartDispatcher({
-      type: 'WITH_CARGO',
-      payload: {
-        tripId: tripId,
-        seatId: seatId,
-        withCargo: event.target.checked,
-      },
-    });
-  };
   const fetchTickets = async () => {
-    const response = await apis(null).post(
-      endpoints.cart_details,
-      cart['data'],
-    );
-
-    setTickets(response['data']);
+    try {
+      const ticketIds = cart['data'].map((item) => item.id);
+      if (ticketIds.length > 0) {
+        const response = await apis(null).post(endpoints.cart_details, ticketIds);
+        setTickets(response.data);
+      } else {
+        setTickets([]);
+      }
+    } catch (ex) {
+      console.error('Error fetching ticket details:', ex);
+    }
   };
+
   useEffect(() => {
     fetchTickets();
-  }, [cart['key']]);
+  }, [cart['data']]);
+
   return (
     <div
       className="offcanvas offcanvas-end w-50"
@@ -50,10 +89,7 @@ const Cart = () => {
       aria-labelledby="offcanvasWithBothOptionsLabel"
     >
       <div className="offcanvas-header">
-        <h5
-          className="offcanvas-title mt-5  p-3"
-          id="offcanvasWithBothOptionsLabel"
-        >
+        <h5 className="offcanvas-title mt-5 p-3" id="offcanvasWithBothOptionsLabel">
           Giỏ hàng
         </h5>
         <button
@@ -73,84 +109,58 @@ const Cart = () => {
             </tr>
           </thead>
           <tbody>
-            {tickets.map((ticket, index) => {
-              return (
-                <tr key={index}>
-                  <td>
-                    <ul className="list-unstyled">
+            {tickets.map((item, index) => (
+              <tr key={index}>
+                <td>
+                  <ul className="list-unstyled">
+                    <li>
+                      <Link className="nav-link">
+                        Mã chuyến: <span className="fw-bold">{item.routeName || 'N/A'}</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="nav-link">
+                        Tên công ty: <span className="fw-bold">{item.companyName || 'N/A'}</span>
+                      </Link>
+                    </li>
+                    <li>
+                      Chuyến đi: {item.fromStation || 'N/A'} đến {item.toStation || 'N/A'}
+                    </li>
+                    <li>
+                      Khởi hành lúc: {item.departAt ? moment(item.departAt).format('HH[h]mm [ngày] D [tháng] M [năm] YYYY') : 'N/A'}
+                    </li>
+                    <li>Mã ghế: {item.seatCode || 'N/A'}</li>
+                    <li>
+                      Giá vé: {ultils.formatToVND(item.seatPrice || 0)}
+                    </li>
+                    {item.cargoPrice !== null && item.cargoPrice > 0 && (
                       <li>
-                        <Link className="nav-link">
-                          Mã chuyến:{' '}
-                          <span className="fw-bold">
-                            {ticket['routeInfo']['name']}
-                          </span>
-                        </Link>
+                        Giá giao hàng: {ultils.formatToVND(item.cargoPrice)}
                       </li>
-                      <li>
-                        <Link className="nav-link">
-                          Tên công ty:{' '}
-                          <span className="fw-bold">
-                            {ticket['routeInfo']['company']['name']}
-                          </span>
-                        </Link>
-                      </li>
-                      <li>
-                        Chuyến đi:{' '}
-                        {ticket['routeInfo']['fromStation']['address']} đến{' '}
-                        {ticket['routeInfo']['toStation']['address']}
-                      </li>
-                      <li>
-                        Khởi hành lúc:{' '}
-                        {moment(ticket['tripInfo']['departAt']).format('LLL')}
-                      </li>
-                      <li>Mã ghế: {ticket['seat']['code']}</li>
-                      <li>
-                        Giá vé:{' '}
-                        {ultils.formatToVND(ticket['routeInfo']['seatPrice'])}
-                      </li>
-                      <li>
-                        Giá giao hàng:{' '}
-                        {ultils.formatToVND(ticket['routeInfo']['cargoPrice'])}
-                      </li>
-                      <li>
-                        Tổng cộng:{' '}
-                        {ultils.formatToVND(
-                          ticket['routeInfo']['seatPrice'] +
-                            ticket['routeInfo']['cargoPrice'],
-                        )}
-                      </li>
-                    </ul>
-                  </td>
-                  <td>
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      checked={ticket['routeInfo']['cargoPrice'] > 0}
-                      onChange={(event) =>
-                        handleToggleWithCargo(
-                          event,
-                          ticket['tripInfo']['id'],
-                          ticket['seat']['id'],
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <button
-                      onClick={() =>
-                        handleDeleteCart(
-                          ticket['tripInfo']['id'],
-                          ticket['seat']['id'],
-                        )
-                      }
-                      className="btn btn-danger"
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                    )}
+                    <li>
+                      Tổng cộng: {ultils.formatToVND((item.seatPrice || 0) + (item.cargoPrice || 0))}
+                    </li>
+                  </ul>
+                </td>
+                <td>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    checked={item.cargoPrice !== null && item.cargoPrice > 0}
+                    readOnly
+                  />
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleDeleteCart(item.ticketId)}
+                    className="btn btn-danger"
+                  >
+                    Xóa
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
         <div className="d-flex justify-content-end">

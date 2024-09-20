@@ -104,9 +104,10 @@ public class RouteServiceImpl implements RouteService {
         return routeRepository.count(name, isActive);
     }
 
-    @Override
-    public Optional<Route> getRouteById(Long id) {
-        return routeRepository.findById(id);
+    public RouteDTO getRouteById(Long routeId) {
+        Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new RuntimeException("Route not found"));
+        return routeDTOMapper.apply(route);
     }
 
     @Override

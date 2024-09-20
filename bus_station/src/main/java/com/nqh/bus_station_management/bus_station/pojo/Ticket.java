@@ -9,6 +9,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -40,9 +44,11 @@ public class Ticket implements Serializable {
     private Timestamp paidAt;
 
     @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Cargo cargo;
 
     @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Review review;
 
     @ManyToOne
@@ -55,13 +61,14 @@ public class Ticket implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private Trip trip;
 
     @ManyToOne
     @JoinColumn(name = "seat_id", referencedColumnName = "id", nullable = false)
     private Seat seat;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE) // Adjusted cascade type
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "payment_id")
     private OnlinePaymentResult paymentResult;
 }

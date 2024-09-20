@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,20 +39,6 @@ public class TripServiceImpl implements TripService {
         this.tripDTOMapper = tripDTOMapper;
     }
 
-    @Override
-    public List<Seat> getAvailableSeats(Long tripId) {
-        return tripRepository.getAvailableSeats(tripId);
-    }
-
-    @Override
-    public List<Seat> getUnAvailableSeats(Long tripId) {
-        return tripRepository.getUnAvailableSeats(tripId);
-    }
-
-    @Override
-    public Optional<Seat> findAvailableSeat(Long tripId, Long seatId) {
-        return Optional.ofNullable(tripRepository.availableSeat(tripId, seatId));
-    }
 
     @Override
     public Optional<Trip> getTripById(Long id) {
@@ -81,5 +68,11 @@ public class TripServiceImpl implements TripService {
     public TripDTO tripInfo(Long id) {
         Trip trip = tripRepository.getById(id);
         return tripDTOMapper.apply(trip);
+    }
+
+    @Override
+    public List<TripDTO> getTripsByRouteId(Long routeId) {
+        List<Trip> trips = tripRepository.findByRouteId(routeId);
+        return trips.stream().map(tripDTOMapper).collect(Collectors.toList());
     }
 }

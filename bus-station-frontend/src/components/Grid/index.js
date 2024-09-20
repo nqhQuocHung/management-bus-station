@@ -20,7 +20,7 @@ const Grid = ({ title, breadcrumb, dataEndpoint }) => {
       );
       if (response) {
         setData(response.data.results);
-        setPageTotal(response.data.pageTotal); // Set total pages from response
+        setPageTotal(response.data.pageTotal);
       }
     } catch (ex) {
       console.error(ex);

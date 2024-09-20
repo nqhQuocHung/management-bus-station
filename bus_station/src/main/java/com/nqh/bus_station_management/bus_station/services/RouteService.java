@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface RouteService {
     Map<String, Object> listRoutes(Map<String, String> params);
     Long countRoutes(Map<String, String> params);
-    Optional<Route> getRouteById(Long id);
+    public RouteDTO getRouteById(Long routeId);
     Route createRoute(RouteRegisterDTO routeDTO);
     void deleteRouteById(Long id);
     List<RoutePublicDTO> getRoutesByCompanyId(Long companyId);

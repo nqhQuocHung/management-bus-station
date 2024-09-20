@@ -1,25 +1,33 @@
-import {Link, useParams} from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import './styles.css';
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as utils from '../../config/utils';
-import {apis, endpoints} from '../../config/apis';
-import {CartContext, LoadingContext} from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
+import { CartContext, LoadingContext } from '../../config/context';
 import moment from 'moment';
 import 'moment/locale/vi';
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const RouteInfo = () => {
-  let {id} = useParams();
+  let { id } = useParams();
   const [route, setRoute] = useState(null);
-  const {setLoading} = useContext(LoadingContext);
-  const {cartDispatcher} = useContext(CartContext);
+  const { setLoading } = useContext(LoadingContext);
+  const { cartDispatcher } = useContext(CartContext);
   const [withCargo, setWithCargo] = useState(true);
   const [trips, setTrips] = useState([]);
   const [tripId, setTripId] = useState(null);
   const [seatDetails, setSeatDetails] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [showCargoForm, setShowCargoForm] = useState(false);
+  const [cargoInfo, setCargoInfo] = useState({
+    receiverName: '',
+    receiverEmail: '',
+    receiverPhone: '',
+    receiverAddress: '',
+    description: '',
+  });
 
-  const addToCart = () => {
+  const addToCart = async () => {
     if (selectedSeats.length === 0) {
       toast.warning('Please select your seat', {
         position: 'top-center',
@@ -32,31 +40,88 @@ const RouteInfo = () => {
       });
       return;
     }
-    const payload = selectedSeats.map((seat) => {
-      return {
-        routeId: id,
-        tripId: tripId,
-        seatId: seat,
-        withCargo: withCargo,
-      };
-    });
 
-    cartDispatcher({
-      type: 'ADD_TO_CART',
-      payload: payload,
-    });
+    const payload = selectedSeats.map((seat) => ({
+      seatId: seat,
+      tripId: tripId,
+      customerId: 1,
+      seatPrice: route?.seatPrice || 0,
+      cargoPrice: withCargo ? (route?.cargoPrice || null) : null,
+      withCargo: withCargo,
+      paidAt: null,
+    }));
+
+    try {
+      setLoading('flex');
+      const response = await apis(null).post(endpoints.add_cart, payload);
+
+      if (response.status === 200) {
+        toast.success('Thêm vào giỏ hàng thành công!', {
+          position: 'top-center',
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        });
+
+        cartDispatcher({
+          type: 'ADD_TO_CART',
+          payload: response.data,
+        });
+
+        setSelectedSeats([]);
+
+        const ticketId = response.data[0]?.id;
+        if (withCargo && ticketId) {
+          await createCargo(ticketId);
+        }
+      }
+    } catch (ex) {
+      console.error('Error adding to cart:', ex.response ? ex.response.data : ex);
+      toast.error('Không thể thêm vào giỏ hàng, vui lòng thử lại sau!', {
+        position: 'top-center',
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+    } finally {
+      setLoading('none');
+    }
+  };
+
+  const createCargo = async (ticketId) => {
+    const payload = {
+      receiverName: cargoInfo.receiverName,
+      receiverEmail: cargoInfo.receiverEmail,
+      receiverPhone: cargoInfo.receiverPhone,
+      receiverAddress: cargoInfo.receiverAddress,
+      cargoPrice: route?.cargoPrice || 0,
+      description: cargoInfo.description,
+      ticketId: ticketId,
+    };
+
+    try {
+      setLoading('flex');
+      await apis(null).post(endpoints.add_cargo, payload);
+    } catch (error) {
+      console.error('Error creating cargo:', error.response ? error.response.data : error);
+    } finally {
+      setLoading('none');
+    }
   };
 
   const handleToggleSeat = (event) => {
     if (event.target.checked) {
-      const newSelectedSeats = selectedSeats;
-      newSelectedSeats.push(event.target.value);
+      const newSelectedSeats = [...selectedSeats, event.target.value];
       setSelectedSeats(newSelectedSeats);
     } else {
       const id = event.target.value;
-      const index = selectedSeats.indexOf(id);
-      const newSelectedSeats = selectedSeats;
-      newSelectedSeats.splice(index, 1);
+      const newSelectedSeats = selectedSeats.filter((seat) => seat !== id);
       setSelectedSeats(newSelectedSeats);
     }
   };
@@ -92,25 +157,16 @@ const RouteInfo = () => {
   const fetchTripSeatDetails = async () => {
     setLoading('flex');
     try {
-      const response = await apis(null).get(
-        endpoints.trip_seat_details(tripId),
+      const response = await apis(null).get(endpoints.get_available_seat(tripId));
+      const availableSeats = response.data;
+
+      setSeatDetails(
+        availableSeats.map((seat) => ({
+          id: seat.id,
+          code: seat.code,
+          available: true,
+        }))
       );
-      const availableSeat = response['data']['availableSeat'];
-      const unAvailableSeat = response['data']['unAvailableSeat'];
-      let seats = availableSeat.map((a) => {
-        a['available'] = true;
-        return a;
-      });
-      seats = seats.concat(
-        unAvailableSeat.map((a) => {
-          a['available'] = false;
-          return a;
-        }),
-      );
-      seats.sort((a, b) => {
-        return a['id'] - b['id'];
-      });
-      setSeatDetails(seats);
     } catch (ex) {
       console.error(ex);
     } finally {
@@ -196,7 +252,10 @@ const RouteInfo = () => {
                   checked={withCargo}
                   className="form-check-input"
                   type="checkbox"
-                  onChange={(event) => setWithCargo(event.target.checked)}
+                  onChange={(event) => {
+                    setWithCargo(event.target.checked);
+                    setShowCargoForm(event.target.checked);
+                  }}
                   id="flexCheckChecked"
                 />
                 <label className="form-check-label" htmlFor="flexCheckChecked">
@@ -204,6 +263,71 @@ const RouteInfo = () => {
                 </label>
               </div>
             </div>
+
+            {showCargoForm && (
+              <div className="cargo-form mt-4">
+                <h6>Thông tin giao hàng</h6>
+                <div className="mb-3">
+                  <label>Receiver Name:</label>
+                  <input
+                    type="text"
+                    value={cargoInfo.receiverName}
+                    onChange={(e) =>
+                      setCargoInfo({ ...cargoInfo, receiverName: e.target.value })
+                    }
+                    required
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>Receiver Email:</label>
+                  <input
+                    type="email"
+                    value={cargoInfo.receiverEmail}
+                    onChange={(e) =>
+                      setCargoInfo({ ...cargoInfo, receiverEmail: e.target.value })
+                    }
+                    required
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>Receiver Phone:</label>
+                  <input
+                    type="text"
+                    value={cargoInfo.receiverPhone}
+                    onChange={(e) =>
+                      setCargoInfo({ ...cargoInfo, receiverPhone: e.target.value })
+                    }
+                    required
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>Receiver Address:</label>
+                  <input
+                    type="text"
+                    value={cargoInfo.receiverAddress}
+                    onChange={(e) =>
+                      setCargoInfo({ ...cargoInfo, receiverAddress: e.target.value })
+                    }
+                    required
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>Description:</label>
+                  <textarea
+                    value={cargoInfo.description}
+                    onChange={(e) =>
+                      setCargoInfo({ ...cargoInfo, description: e.target.value })
+                    }
+                    required
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
         <div className="col-md-6 p-3">
@@ -241,26 +365,26 @@ const RouteInfo = () => {
               <div className="mt-3 seat-grid">
                 {seatDetails.map((seat) => {
                   return (
-                    <div key={seat['id']} className="form-check w-100 p-0">
+                    <div key={seat.id} className="form-check w-100 p-0">
                       <input
-                        value={seat['id']}
+                        value={seat.id}
                         type="checkbox"
                         className="btn-check"
-                        id={seat['id']}
+                        id={`seat-${seat.id}`}
                         autoComplete="off"
                         onChange={(event) => handleToggleSeat(event)}
-                        disabled={!seat['available']}
+                        disabled={!seat.available}
                       />
                       <label
                         className={[
                           'btn',
-                          seat['available']
+                          seat.available
                             ? 'btn-outline-primary'
                             : 'btn-danger',
                         ].join(' ')}
-                        htmlFor={seat['id']}
+                        htmlFor={`seat-${seat.id}`}
                       >
-                        {seat['code']}
+                        {seat.code}
                       </label>
                     </div>
                   );

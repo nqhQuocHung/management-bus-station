@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -36,6 +37,7 @@ public class Trip {
     private Timestamp departAt;
 
     @OneToMany(mappedBy = "trip")
+    @JsonManagedReference
     private Collection<Ticket> tickets;
 
     @ManyToOne

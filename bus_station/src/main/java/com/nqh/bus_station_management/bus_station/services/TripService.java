@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TripService {
-    List<Seat> getAvailableSeats(Long tripId);
-    List<Seat> getUnAvailableSeats(Long tripId);
-    Optional<Seat> findAvailableSeat(Long tripId, Long seatId);
     Optional<Trip> getTripById(Long id);
     Trip createTrip(TripRegisterDTO tripRegisterDTO);
     TripDTO tripInfo(Long id);
+    public List<TripDTO> getTripsByRouteId(Long routeId);
 }
