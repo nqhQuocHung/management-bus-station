@@ -17,7 +17,5 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     Trip getById(@Param("id") Long id);
 
     List<Trip> findByRouteId(Long routeId);
-
-
 }
 

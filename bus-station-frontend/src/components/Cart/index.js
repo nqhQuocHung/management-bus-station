@@ -114,14 +114,10 @@ const Cart = () => {
                 <td>
                   <ul className="list-unstyled">
                     <li>
-                      <Link className="nav-link">
-                        Mã chuyến: <span className="fw-bold">{item.routeName || 'N/A'}</span>
-                      </Link>
+                      Mã chuyến: <span className="fw-bold">{item.routeName || 'N/A'}</span>
                     </li>
                     <li>
-                      <Link className="nav-link">
-                        Tên công ty: <span className="fw-bold">{item.companyName || 'N/A'}</span>
-                      </Link>
+                      Tên công ty: <span className="fw-bold">{item.companyName || 'N/A'}</span>
                     </li>
                     <li>
                       Chuyến đi: {item.fromStation || 'N/A'} đến {item.toStation || 'N/A'}

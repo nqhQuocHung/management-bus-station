@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,6 +74,9 @@ public class TripServiceImpl implements TripService {
     @Override
     public List<TripDTO> getTripsByRouteId(Long routeId) {
         List<Trip> trips = tripRepository.findByRouteId(routeId);
-        return trips.stream().map(tripDTOMapper).collect(Collectors.toList());
+        return trips.stream()
+                .filter(trip -> trip.getDepartAt().toLocalDateTime().isAfter(LocalDateTime.now()))
+                .map(tripDTOMapper)
+                .collect(Collectors.toList());
     }
 }

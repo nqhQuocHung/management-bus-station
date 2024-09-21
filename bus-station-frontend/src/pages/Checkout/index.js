@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './styles.css';
 import moment from 'moment';
 import {
@@ -6,16 +6,23 @@ import {
   CartContext,
   LoadingContext,
 } from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
+import { apis, endpoints } from '../../config/apis';
 import * as ultils from '../../config/utils';
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
+
 const Checkout = () => {
-  const {user} = useContext(AuthenticationContext);
-  const {setLoading} = useContext(LoadingContext);
-  const {cart, cartDispatcher} = useContext(CartContext);
+  const { user } = useContext(AuthenticationContext);
+  const { setLoading } = useContext(LoadingContext);
+  const { cart, cartDispatcher } = useContext(CartContext);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(0);
   const [tickets, setTickets] = useState([]);
+
+  // Log user information to the console to verify the data
+  useEffect(() => {
+    console.log('User information:', user); // This line will print the user object to the console
+  }, [user]);
+
   const fetchPaymentMethod = async () => {
     try {
       setLoading('flex');
@@ -33,10 +40,8 @@ const Checkout = () => {
   const fetchCartDetails = async () => {
     try {
       setLoading('flex');
-      const response = await apis(null).post(
-        endpoints.cart_details,
-        cart['data'],
-      );
+      const ticketIds = cart['data'].map((item) => item.id);
+      const response = await apis(null).post(endpoints.cart_details, ticketIds);
       setTickets(response['data']);
     } catch (ex) {
       console.log(ex);
@@ -59,10 +64,10 @@ const Checkout = () => {
       const accessToken = localStorage.getItem('accessToken');
       const response = await apis(accessToken).post(
         endpoints.checkout(selectedPaymentMethod),
-        cart['data'],
+        cart['data']
       );
 
-      const {paymentUrl} = response['data'];
+      const { paymentUrl } = response['data'];
 
       if (paymentUrl === null) {
         toast.success('Đơn hàng của bạn đã được xử lý thành công', {
@@ -105,14 +110,14 @@ const Checkout = () => {
             <h4>Thông tin của bạn</h4>
             <div className="form mt-4">
               <div className="mb-3">
-                <label htmlFor="email" className="form-label">
+                <label htmlFor="firstname" className="form-label">
                   Họ và tên lót
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   className="form-control"
-                  id="email"
-                  value={user['firstname']}
+                  id="firstname"
+                  value={user?.firstname || ''}
                   disabled
                   readOnly
                 />
@@ -125,7 +130,7 @@ const Checkout = () => {
                   type="text"
                   className="form-control"
                   id="lastname"
-                  value={user['lastname']}
+                  value={user?.lastname || ''}
                   disabled
                   readOnly
                 />
@@ -138,7 +143,7 @@ const Checkout = () => {
                   type="email"
                   className="form-control"
                   id="email"
-                  value={user['email']}
+                  value={user?.email || ''}
                   disabled
                   readOnly
                 />
@@ -148,10 +153,10 @@ const Checkout = () => {
                   Số điện thoại
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   className="form-control"
                   id="phone"
-                  value={user['phone']}
+                  value={user?.phone || ''}
                   disabled
                   readOnly
                 />
@@ -201,50 +206,41 @@ const Checkout = () => {
                 </tr>
               </thead>
               <tbody>
-                {tickets.map((ticket, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>
-                        <p>{ticket['routeInfo']['company']['name']}</p>
-                        <p>{ticket['routeInfo']['name']}</p>
-                      </td>
-                      <td>
-                        <p>
-                          {ticket['routeInfo']['fromStation']['address']} -{' '}
-                          {ticket['routeInfo']['toStation']['address']}
-                        </p>
-                      </td>
-                      <td>
-                        {moment(ticket['tripInfo']['departAt']).format('LLL')}
-                      </td>
-                      <td>{ticket['seat']['code']}</td>
-                      <td>
-                        {ultils.formatToVND(ticket['routeInfo']['seatPrice'])}
-                      </td>
-                      <td>
-                        {ultils.formatToVND(ticket['routeInfo']['cargoPrice'])}
-                      </td>
-                      <td>
-                        {ultils.formatToVND(
-                          ticket['routeInfo']['seatPrice'] +
-                            ticket['routeInfo']['cargoPrice'],
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {tickets.map((ticket, index) => (
+                  <tr key={index}>
+                    <td>
+                      <p>{ticket['routeName']}</p>
+                      <p>{ticket['companyName']}</p>
+                    </td>
+                    <td>
+                      <p>
+                        {ticket['fromStation']} - {ticket['toStation']}
+                      </p>
+                    </td>
+                    <td>
+                      {moment(ticket['departAt']).format('LLL')}
+                    </td>
+                    <td>{ticket['seatCode']}</td>
+                    <td>{ultils.formatToVND(ticket['seatPrice'])}</td>
+                    <td>{ultils.formatToVND(ticket['cargoPrice'])}</td>
+                    <td>
+                      {ultils.formatToVND(
+                        ticket['seatPrice'] + ticket['cargoPrice']
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
             <div className="d-flex justify-content-between align-items-center">
               <h5 className="ps-2 fw-bold">Tổng cộng</h5>
               <p className="fw-bold fs-3 text-danger">
                 {ultils.formatToVND(
-                  tickets.reduce((total, cuurent) => {
-                    const cuurentTotal =
-                      cuurent['routeInfo']['seatPrice'] +
-                      cuurent['routeInfo']['cargoPrice'];
-                    return total + cuurentTotal;
-                  }, 0),
+                  tickets.reduce((total, current) => {
+                    const currentTotal =
+                      current['seatPrice'] + current['cargoPrice'];
+                    return total + currentTotal;
+                  }, 0)
                 )}
               </p>
             </div>

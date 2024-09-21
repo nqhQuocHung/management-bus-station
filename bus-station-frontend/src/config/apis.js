@@ -22,6 +22,7 @@ const endpoints = {
   // route_list: '/api/v1/route/list',
   add_cart: '/api/tickets/add-cart',
   cart_details: '/api/tickets/details',
+  get_cart_details: '/api/tickets/cart/details',
   add_cargo: '/api/cargos',
    //Xong
   payment_method_list: '/api/payment-methods',
