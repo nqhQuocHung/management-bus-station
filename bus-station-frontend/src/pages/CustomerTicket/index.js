@@ -1,48 +1,58 @@
-import {useContext, useState} from 'react';
+import { useContext, useState, useEffect } from 'react';
 import './styles.css';
-import {useEffect} from 'react';
-import {LoadingContext} from '../../config/context';
-import {apis, endpoints} from '../../config/apis';
+import { LoadingContext, AuthenticationContext } from '../../config/context';
+import { apis, endpoints } from '../../config/apis';
 import moment from 'moment';
 
 const CustomerTicket = () => {
   const [tickets, setTickets] = useState([]);
-  const {setLoading} = useContext(LoadingContext);
+  const { setLoading } = useContext(LoadingContext);
+  const { user } = useContext(AuthenticationContext);
+
   const fetchTickets = async () => {
+    // Kiểm tra nếu không có user hoặc user.id
+    if (!user || !user.id) {
+      console.warn('Không lấy được thông tin người dùng hoặc ID người dùng.');
+      alert('Bạn cần đăng nhập để xem vé.');
+      return;
+    }
+
     try {
       setLoading('flex');
       const accessToken = localStorage.getItem('accessToken');
-      const response = await apis(accessToken).get(endpoints['self_ticket']);
-      setTickets(response['data']);
+      const response = await apis(accessToken).get(endpoints.get_ticket_of_user(user.id));
+      setTickets(response.data);
     } catch (ex) {
-      console.error(ex);
+      console.error('Lỗi khi lấy vé:', ex);
     } finally {
       setLoading('none');
     }
   };
+
   useEffect(() => {
     fetchTickets();
   }, []);
+
   const handleDeleteTicket = async (index, id) => {
     if (window.confirm(`Bạn có chắc hủy vé? Mã vé: ${id}`)) {
       try {
         setLoading('flex');
         const accessToken = localStorage.getItem('accessToken');
-        console.log(endpoints.ticket(id));
         const response = await apis(accessToken).delete(endpoints.ticket(id));
 
-        if (response['status'] === 204) {
-          const temp = tickets;
+        if (response.status === 204) {
+          const temp = [...tickets];
           temp.splice(index, 1);
           setTickets(temp);
         }
       } catch (ex) {
-        console.error(ex);
+        console.error('Lỗi khi hủy vé:', ex);
       } finally {
         setLoading('none');
       }
     }
   };
+
   return (
     <div className="container mt-5 shadow p-3 mb-5 bg-body rounded">
       <div className="row">
@@ -68,33 +78,29 @@ const CustomerTicket = () => {
           </thead>
           <tbody className="ticket-table-body">
             {tickets.map((ticket, index) => (
-              <tr key={ticket['ticketId']}>
-                <td>{ticket['ticketId']}</td>
-                <td>{ticket['routeInfo']['name']}</td>
-                <td>{ticket['routeInfo']['company']['name']}</td>
-                <td>{ticket['seatPrice']}</td>
-                <td>{ticket['cargoPrice']}</td>
-                <td>{ticket['routeInfo']['fromStation']['address']}</td>
-                <td>{ticket['routeInfo']['toStation']['address']}</td>
-                <td>{ticket['seat']['code']}</td>
-                <td>{moment(ticket['tripInfo']['departAt']).format('LLL')}</td>
-                <td>{ticket['paymentMethod']['name']}</td>
+              <tr key={ticket.ticketId}>
+                <td>{ticket.ticketId}</td>
+                <td>{ticket.routeName}</td>
+                <td>{ticket.companyName}</td>
+                <td>{ticket.seatPrice}</td>
+                <td>{ticket.cargoPrice}</td>
+                <td>{ticket.fromStation}</td>
+                <td>{ticket.toStation}</td>
+                <td>{ticket.seatCode}</td>
+                <td>{moment(ticket.departAt).format('LLL')}</td>
+                <td>{ticket.paymentMethod?.name || 'Không xác định'}</td>
                 <td>
-                  {ticket['paidAt']
-                    ? moment(ticket['paidAt']).format('LLL')
-                    : 'Chưa thanh toán'}
+                  {ticket.paidAt ? moment(ticket.paidAt).format('LLL') : 'Chưa thanh toán'}
                 </td>
                 <td>
-                  {ticket['paidAt'] ? (
+                  {ticket.paidAt ? (
                     <button className="btn btn-danger" disabled>
                       Hủy vé
                     </button>
                   ) : (
                     <button
                       className="btn btn-danger"
-                      onClick={() =>
-                        handleDeleteTicket(index, ticket['ticketId'])
-                      }
+                      onClick={() => handleDeleteTicket(index, ticket.ticketId)}
                     >
                       Hủy vé
                     </button>

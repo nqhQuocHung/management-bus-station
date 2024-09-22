@@ -219,7 +219,7 @@ const RouteInfo = () => {
   useEffect(() => {
     if (showMap && mapRef.current) {
       const map = new window.google.maps.Map(mapRef.current, {
-        center: { lat: 21.028511, lng: 105.804817 }, // Tọa độ trung tâm ban đầu (ví dụ: Hà Nội)
+        center: { lat: 21.028511, lng: 105.804817 },
         zoom: 15,
       });
   

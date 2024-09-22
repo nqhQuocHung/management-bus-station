@@ -97,4 +97,10 @@ public class TicketController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/user/{userId}/paid")
+    public ResponseEntity<List<TicketDetailDTO>> getPaidTicketsByUserId(@PathVariable Long userId) {
+        List<TicketDetailDTO> tickets = ticketService.findPaidTicketsByUserId(userId);
+        return ResponseEntity.ok(tickets);
+    }
 }

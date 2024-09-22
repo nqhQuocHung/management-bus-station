@@ -26,6 +26,8 @@ const endpoints = {
   add_cargo: '/api/cargos',
    //Xong
   payment_method_list: '/api/payment-methods',
+  payment: '/api/payment/create',
+  payment_result: '/api/payment/vnpay_return',
   create_route: '/api/routes/add',
   list_station: '/api/stations/list',
   get_available_seat: (tripId) => `/api/seats/available?tripId=${tripId}`,
@@ -40,8 +42,12 @@ const endpoints = {
   statistics_ticket_quarterly: (year) => `/api/statistics/quarterly/${year}`,
   statistics_ticket_day: (year, month, day) =>
     `/api/statistics/daily/${year}/${month}/${day}`,
+  get_ticket_of_user: (id) => `api/tickets/user/${id}/paid`,
   //
-  
+  //Comment và rating
+  get_comments_by_company: (companyId) => `/api/comments/company/${companyId}`,
+  get_average_rating: (companyId) => `api/comments/rating/${companyId}`,
+  create_comment: () => `api/comments/create`,
   //xong
   register_cargo: (id) => `api/companies/cargo/${id}`,
   route_info: (id) => `/api/routes/${id}`,

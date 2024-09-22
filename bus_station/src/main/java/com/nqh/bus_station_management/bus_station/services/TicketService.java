@@ -23,4 +23,6 @@ public interface TicketService {
     Ticket addTicket(AddTicketRequestDTO requestDTO);
     List<TicketDetailDTO> getTicketDetails(List<Long> ticketIds);
     void deleteTicketAndCargoById(Long ticketId);
+    Ticket updateTicketPayment(Long ticketId, Long paymentResultId, Long paymentMethodId);
+    List<TicketDetailDTO> findPaidTicketsByUserId(Long userId);
 }

@@ -18,20 +18,19 @@ const Checkout = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(0);
   const [tickets, setTickets] = useState([]);
 
-  // Log user information to the console to verify the data
   useEffect(() => {
-    console.log('User information:', user); // This line will print the user object to the console
+    console.log('User information:', user);
   }, [user]);
 
   const fetchPaymentMethod = async () => {
     try {
       setLoading('flex');
       const response = await apis(null).get(endpoints.payment_method_list);
-      const data = response['data'];
+      const data = response.data;
       setPaymentMethods(data);
-      setSelectedPaymentMethod(data[0]['id']);
+      setSelectedPaymentMethod(data[0]?.id || 0);
     } catch (ex) {
-      console.error(ex);
+      console.error('Error fetching payment methods:', ex);
     } finally {
       setLoading('none');
     }
@@ -40,11 +39,11 @@ const Checkout = () => {
   const fetchCartDetails = async () => {
     try {
       setLoading('flex');
-      const ticketIds = cart['data'].map((item) => item.id);
+      const ticketIds = cart.data.map((item) => item.id);
       const response = await apis(null).post(endpoints.cart_details, ticketIds);
-      setTickets(response['data']);
+      setTickets(response.data);
     } catch (ex) {
-      console.log(ex);
+      console.error('Error fetching cart details:', ex);
     } finally {
       setLoading('none');
     }
@@ -56,54 +55,66 @@ const Checkout = () => {
 
   useEffect(() => {
     fetchCartDetails();
-  }, [cart['key']]);
+  }, [cart.key]);
 
   const handleCheckout = async () => {
     try {
       setLoading('flex');
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await apis(accessToken).post(
-        endpoints.checkout(selectedPaymentMethod),
-        cart['data']
+      const amount = tickets.reduce(
+        (total, ticket) => total + (ticket.seatPrice || 0) + (ticket.cargoPrice || 0),
+        0
       );
+      const orderInfo = `Order for user ${user?.firstname || ''} ${user?.lastname || ''}`;
+      
+      // Mã hóa URL cho orderInfo để tránh lỗi
+      const encodedOrderInfo = encodeURIComponent(orderInfo);
 
-      const { paymentUrl } = response['data'];
+      console.log('Amount:', amount);
+      console.log('Order Info:', encodedOrderInfo);
 
-      if (paymentUrl === null) {
-        toast.success('Đơn hàng của bạn đã được xử lý thành công', {
-          position: 'top-center',
-          autoClose: 5000,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'colored',
-        });
+      // Gọi API tạo URL thanh toán với orderInfo đã mã hóa
+      const response = await apis(null).post(endpoints.payment, null, {
+        params: { amount, orderInfo: encodedOrderInfo },
+      });
+
+      console.log('Payment response:', response.data);
+
+      const paymentUrl = typeof response.data === 'string' ? response.data : response.data.paymentUrl;
+      console.log('Payment URL:', paymentUrl);
+
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
       } else {
-        window.location.replace(paymentUrl);
+        toast.error('Không thể tạo URL thanh toán!');
       }
     } catch (error) {
-      toast.error('Đã xảy ra lỗi khi xử lý đơn hàng của bạn', {
-        position: 'top-center',
-        autoClose: 5000,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'colored',
-      });
-      console.error(error);
+      toast.error('Đã xảy ra lỗi khi tạo thanh toán!');
+      console.error('Error creating payment:', error);
     } finally {
-      cartDispatcher({
-        type: 'CLEAR_CART',
+      setLoading('none');
+    }
+  };
+
+  const handleVnpayReturn = async (vnpParams) => {
+    try {
+      setLoading('flex');
+      console.log('Handling VNPAY return with params:', vnpParams);
+      const response = await apis(null).get(endpoints.payment_result, {
+        params: vnpParams,
       });
 
+      toast.success(response.data || 'Thanh toán thành công!');
+    } catch (error) {
+      toast.error('Xử lý kết quả thanh toán thất bại!');
+      console.error('Error handling VNPAY return:', error);
+    } finally {
+      cartDispatcher({ type: 'CLEAR_CART' });
       setLoading('none');
     }
   };
 
   return (
-    <div className="container-fluid mt-5 ">
+    <div className="container-fluid mt-5">
       <div className="row">
         <div className="col-md-6">
           <div className="shadow-sm p-3 mb-5 bg-body rounded">
@@ -172,17 +183,17 @@ const Checkout = () => {
                   id="paymentMethod"
                 >
                   {paymentMethods.map((method) => (
-                    <option value={method['id']} key={method['id']}>
-                      {method['name']}
+                    <option value={method.id} key={method.id}>
+                      {method.name}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="mt-3 d-flex justify-content-center align-items-center">
                 <button
-                  disabled={tickets.length === 0 ? 'disabled' : null}
+                  disabled={tickets.length === 0}
                   onClick={handleCheckout}
-                  className=" btn btn-primary"
+                  className="btn btn-primary"
                 >
                   Đặt vé
                 </button>
@@ -209,24 +220,20 @@ const Checkout = () => {
                 {tickets.map((ticket, index) => (
                   <tr key={index}>
                     <td>
-                      <p>{ticket['routeName']}</p>
-                      <p>{ticket['companyName']}</p>
+                      <p>{ticket.routeName}</p>
+                      <p>{ticket.companyName}</p>
                     </td>
                     <td>
                       <p>
-                        {ticket['fromStation']} - {ticket['toStation']}
+                        {ticket.fromStation} - {ticket.toStation}
                       </p>
                     </td>
+                    <td>{moment(ticket.departAt).format('LLL')}</td>
+                    <td>{ticket.seatCode}</td>
+                    <td>{ultils.formatToVND(ticket.seatPrice)}</td>
+                    <td>{ultils.formatToVND(ticket.cargoPrice)}</td>
                     <td>
-                      {moment(ticket['departAt']).format('LLL')}
-                    </td>
-                    <td>{ticket['seatCode']}</td>
-                    <td>{ultils.formatToVND(ticket['seatPrice'])}</td>
-                    <td>{ultils.formatToVND(ticket['cargoPrice'])}</td>
-                    <td>
-                      {ultils.formatToVND(
-                        ticket['seatPrice'] + ticket['cargoPrice']
-                      )}
+                      {ultils.formatToVND(ticket.seatPrice + ticket.cargoPrice)}
                     </td>
                   </tr>
                 ))}
@@ -236,11 +243,11 @@ const Checkout = () => {
               <h5 className="ps-2 fw-bold">Tổng cộng</h5>
               <p className="fw-bold fs-3 text-danger">
                 {ultils.formatToVND(
-                  tickets.reduce((total, current) => {
-                    const currentTotal =
-                      current['seatPrice'] + current['cargoPrice'];
-                    return total + currentTotal;
-                  }, 0)
+                  tickets.reduce(
+                    (total, current) =>
+                      total + (current.seatPrice || 0) + (current.cargoPrice || 0),
+                    0
+                  )
                 )}
               </p>
             </div>

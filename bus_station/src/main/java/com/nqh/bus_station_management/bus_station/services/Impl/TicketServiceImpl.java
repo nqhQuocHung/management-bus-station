@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,11 @@ public class TicketServiceImpl implements TicketService {
     @Autowired
     private CargoRepository cargoRepository;
 
+    @Autowired
+    private OnlinePaymentResultRepository paymentResultRepository;
+
+    @Autowired
+    private PaymentMethodRepository paymentMethodRepository;
     @Autowired
     public TicketServiceImpl(TicketRepository ticketRepository, SeatRepository seatRepository) {
         this.ticketRepository = ticketRepository;
@@ -173,6 +179,35 @@ public class TicketServiceImpl implements TicketService {
             cargoRepository.delete(cargo);
         }
         ticketRepository.delete(ticket);
+    }
+
+    @Override
+    public Ticket updateTicketPayment(Long ticketId, Long paymentResultId, Long paymentMethodId) {
+        Optional<Ticket> optionalTicket = ticketRepository.findById(ticketId);
+        if (optionalTicket.isPresent()) {
+            Ticket ticket = optionalTicket.get();
+            OnlinePaymentResult paymentResult = paymentResultRepository.findById(paymentResultId)
+                    .orElseThrow(() -> new RuntimeException("Payment result not found"));
+            PaymentMethod paymentMethod = paymentMethodRepository.findById(paymentMethodId)
+                    .orElseThrow(() -> new RuntimeException("Payment method not found"));
+            ticket.setPaymentResult(paymentResult);
+            ticket.setPaidAt(new Timestamp(System.currentTimeMillis()));
+            ticket.setPaymentMethod(paymentMethod);
+            return ticketRepository.save(ticket);
+        } else {
+            throw new RuntimeException("Ticket not found");
+        }
+    }
+
+    @Override
+    public List<TicketDetailDTO> findPaidTicketsByUserId(Long userId) {
+        List<Ticket> tickets = ticketRepository.findTicketsByUserIdAndPaidAtNotNull(userId);
+        if (tickets.isEmpty()) {
+            throw new RuntimeException("No paid tickets found for user with ID: " + userId);
+        }
+        return tickets.stream()
+                .map(this::convertToTicketDetailDTO)
+                .collect(Collectors.toList());
     }
 
 }

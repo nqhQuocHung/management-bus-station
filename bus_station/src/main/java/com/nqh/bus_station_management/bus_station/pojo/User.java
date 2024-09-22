@@ -1,5 +1,6 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "bus_station_user", schema = "bus_stationdb", catalog = "")
@@ -68,7 +70,7 @@ public class User implements UserDetails {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-    @JsonManagedReference
+    @JsonBackReference
     private Role role;
 
     @Override
@@ -102,4 +104,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return this.isActive;
     }
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "user-comment")
+    private Set<Comment> comments;
 }

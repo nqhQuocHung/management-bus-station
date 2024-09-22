@@ -38,4 +38,19 @@ public class EmailServiceImpl implements EmailService {
         mailSender.send(mailMessage);
     }
 
+    @Override
+    public void sendRegistrationSuccessEmail(String to, String firstName, String lastName, String username, String password) {
+        String subject = "Đăng ký thành công";
+        String fullName = lastName + " " + firstName;
+        String text = "Chào " + fullName + ",\n\n"
+                + "Bạn đã đăng ký thành công. Vui lòng chờ quản trị viên xác nhận để có thể đăng nhập.\n"
+                + "Thông tin tài khoản của bạn như sau:\n"
+                + "Tên đăng nhập: " + username + "\n"
+                + "Mật khẩu: " + password + "\n\n"
+                + "Vui lòng không chia sẻ thông tin này với bất kỳ ai.\n\n"
+                + "Bạn sẽ nhận được thông báo qua email khi tài khoản của bạn được xác nhận.\n\n"
+                + "Trân trọng,\n"
+                + "Đội ngũ hỗ trợ của chúng tôi.";
+        sendEmail(to, subject, text);
+    }
 }

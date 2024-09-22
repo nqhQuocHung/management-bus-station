@@ -60,7 +60,7 @@ const Register = () => {
 
   const callRegister = async () => {
     const validateMsg = validate();
-
+  
     if (validateMsg) {
       toast.error(validateMsg, {
         position: 'top-center',
@@ -76,7 +76,7 @@ const Register = () => {
       try {
         setLoading('flex');
         let avatarUrl = null;
-
+  
         if (avatar) {
           avatarUrl = await uploadAvatar(avatar);
           if (!avatarUrl) {
@@ -93,7 +93,7 @@ const Register = () => {
             return;
           }
         }
-
+  
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
@@ -101,26 +101,51 @@ const Register = () => {
         formData.append('firstName', firstName);
         formData.append('lastName', lastName);
         formData.append('phone', phone);
-
+  
         if (avatarUrl) {
           formData.append('avatar', avatarUrl);
         }
-        for (let pair of formData.entries()) {
-          console.log(`${pair[0]}: ${pair[1]}`);
-        }
-
+  
         const response = await apis(null).post(endpoints.register_user, formData);
         if (response && response.status === 201) {
-          localStorage.setItem('accessToken', response.data.accessToken);
-          setUser(response.data['userDetails']);
+          toast.success('Đăng ký thành công!', {
+            position: 'top-center',
+            autoClose: 4000,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
+          });
+  
+          // Reset tất cả các input về trạng thái trống
+          setUsername('');
+          setPassword('');
+          setRePassword('');
+          setEmail('');
+          setFirstName('');
+          setLastName('');
+          setPhone('');
+          setAvatar(null);
+          setAvatarPreview(null);
         }
       } catch (error) {
         console.log(error);
+        toast.error('Đăng ký thất bại, vui lòng thử lại!', {
+          position: 'top-center',
+          autoClose: 4000,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'colored',
+        });
       } finally {
         setLoading('none');
       }
     }
   };
+  
 
   return (
     <div className="row" style={{ height: '100vh' }}>

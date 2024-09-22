@@ -26,9 +26,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private CloudinaryService cloudinaryService;
-
     @GetMapping("/username/{username}")
     public ResponseEntity<UserProfileDTO> getUserByUsername(@PathVariable String username) {
         UserProfileDTO user = userService.getUserByUsername(username);
