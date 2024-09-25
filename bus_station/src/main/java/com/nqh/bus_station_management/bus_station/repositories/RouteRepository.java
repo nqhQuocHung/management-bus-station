@@ -14,12 +14,9 @@ import java.util.List;
 public interface RouteRepository extends JpaRepository<Route, Long> {
 
 
-    @Query("SELECT r FROM Route r JOIN FETCH r.company c JOIN FETCH r.fromStation fs JOIN FETCH r.toStation ts " +
-            "WHERE (:name IS NULL OR r.name LIKE %:name%) " +
+    @Query("SELECT r FROM Route r WHERE (:name IS NULL OR r.name LIKE CONCAT(:name, '%')) " +
             "AND (:isActive IS NULL OR r.isActive = :isActive)")
-    Page<Route> list(@Param("name") String name,
-                     @Param("isActive") Boolean isActive,
-                     Pageable pageable);
+    Page<Route> list(@Param("name") String name, @Param("isActive") Boolean isActive, Pageable pageable);
 
 
     @Query("SELECT COUNT(r) FROM Route r WHERE (:name IS NULL OR r.name LIKE %:name%) " +

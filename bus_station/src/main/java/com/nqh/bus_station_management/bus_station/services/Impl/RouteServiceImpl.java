@@ -52,10 +52,10 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public Map<String, Object> listRoutes(Map<String, String> params) {
         String name = params.get("name");
-        Boolean isActive = params.get("isActive") != null ? Boolean.parseBoolean(params.get("isActive")) : null;
+        Boolean isActive = params.get("isActive") != null ? Boolean.parseBoolean(params.get("isActive")) : null; // Lọc theo trạng thái hoạt động nếu có
 
-        int page = params.containsKey("page") ? Integer.parseInt(params.get("page")) : 0;
-        int pageSize = Integer.parseInt(environment.getProperty("route.pageSize", "10"));
+        int page = params.containsKey("page") ? Integer.parseInt(params.get("page")) - 1 : 0; // Chuyển page về dạng index cho Pageable (0-based)
+        int pageSize = Integer.parseInt(environment.getProperty("route.pageSize", "10")); // Kích thước trang mặc định là 10
         Pageable pageable = PageRequest.of(page, pageSize);
 
         Page<Route> routesPage = routeRepository.list(name, isActive, pageable);
@@ -104,9 +104,10 @@ public class RouteServiceImpl implements RouteService {
         return routeRepository.count(name, isActive);
     }
 
-    @Override
-    public Optional<Route> getRouteById(Long id) {
-        return routeRepository.findById(id);
+    public RouteDTO getRouteById(Long routeId) {
+        Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new RuntimeException("Route not found"));
+        return routeDTOMapper.apply(route);
     }
 
     @Override

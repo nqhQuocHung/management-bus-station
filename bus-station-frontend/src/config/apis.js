@@ -20,29 +20,48 @@ const endpoints = {
   userInfor: '/api/v1/users/self',
   route_list: '/api/routes',
   // route_list: '/api/v1/route/list',
-  cart_details: '/api/tickets/cart/details',
-  // cart_details: '/api/v1/ticket/cart/details',
-  payment_method_list: '/api/v1/payment-method/list',
- //Xong
+  add_cart: '/api/tickets/add-cart',
+  cart_details: '/api/tickets/details',
+  get_cart_details: '/api/tickets/cart/details',
+  add_cargo: '/api/cargos',
+   //Xong
+  payment_method_list: '/api/payment-methods',
+  payment_url: '/api/payment/create',
+  payment_result: '/api/payment/vnpay_return',
+  payment_bill: '/api/payment/bill',
   create_route: '/api/routes/add',
   list_station: '/api/stations/list',
+  update_payment_ticket: '/api/tickets/payment',
+  get_available_seat: (tripId) => `/api/seats/available?tripId=${tripId}`,
+  get_occupied_seat: (tripId) => `/api/seats/occupied/${tripId}`,
   //
   available_cars: '/api/cars/available',
   creat_trip: '/api/trips/create',
   self_ticket: '/api/v1/users/self/tickets',
   login_with_google: '/api/v1/auth/oauth2/google',
-  //Xong
+  //Driver
+  driver_list_by_company: (companyId) => `/api/drivers/company/${companyId}`,
+  driver_create: '/api/drivers/create',
+  driver_verify: (id) => `/api/drivers/verify/${id}`,
+  verified_driver_list_by_company: (companyId) => `/api/drivers/verified/company/${companyId}`,
+  driver_available: "/api/drivers/available",
+  //
   statistics_ticket_year: (year) => `/api/statistics/annual/${year}`,
   statistics_ticket_quarterly: (year) => `/api/statistics/quarterly/${year}`,
   statistics_ticket_day: (year, month, day) =>
     `/api/statistics/daily/${year}/${month}/${day}`,
+  get_ticket_of_user: (id) => `api/tickets/user/${id}/paid`,
   //
-  
+  //Comment và rating
+  get_comments_by_company: (companyId) => `/api/comments/company/${companyId}`,
+  get_average_rating: (companyId) => `api/comments/rating/${companyId}`,
+  create_comment: () => `api/comments/create`,
+  //xong
   register_cargo: (id) => `api/companies/cargo/${id}`,
-  route_info: (id) => `/api/v1/route/${id}`,
+  route_info: (id) => `/api/routes/${id}`,
   get_route_by_companyid: (id) => `/api/routes/company/${id}`,
   
-  route_trip_list: (id) => `/api/v1/route/${id}/trip`,
+  route_trip_list: (id) => `/api/trips/route/${id}`,
   trip_seat_details: (id) => `/api/v1/trip/${id}/seat-details`,
   checkout: (paymentMethodId) => `/api/v1/ticket/checkout/${paymentMethodId}`,
   // user: (id) => `/api/v1/users/${id}`,
@@ -50,8 +69,8 @@ const endpoints = {
   get_user_by_id: (id) => `/api/users/${id}`,
   get_user_by_role: (id) => `/admin/users/role/${id}`,
   // get_user_by_role: (id) => `/admin/users/role/${id}`,
-  companyInfo: (id) => `/api/v1/transportation_company/${id}`,
-  ticket: (id) => `/api/v1/ticket/${id}`,
+  companyInfo: (id) => `/api/companies/${id}`,
+  ticket: (id) => `/api/tickets/${id}`,
 };
 
 const apis = (accessToken) => {

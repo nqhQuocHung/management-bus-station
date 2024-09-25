@@ -9,6 +9,7 @@ import com.nqh.bus_station_management.bus_station.mappers.UserProfileDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.Role;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
+import com.nqh.bus_station_management.bus_station.services.EmailService;
 import com.nqh.bus_station_management.bus_station.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public UserProfileDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
@@ -60,10 +64,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .email(userRegisterDTO.getEmail())
                 .phone(userRegisterDTO.getPhone())
                 .avatar(userRegisterDTO.getAvatar())
-                .isActive(true)
+                .isActive(false)
                 .role(new Role(1L, "USER"))
                 .build();
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+
+        emailService.sendRegistrationSuccessEmail(
+                savedUser.getEmail(),
+                savedUser.getFirstname(),
+                savedUser.getLastname(),
+                savedUser.getUsername(),
+                userRegisterDTO.getPassword()
+        );
+
+        return savedUser;
     }
 
     @Override

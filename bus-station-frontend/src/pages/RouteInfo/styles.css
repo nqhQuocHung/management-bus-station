@@ -1,9 +1,26 @@
 .seat-grid {
   display: grid;
-  grid-template-columns: 4rem 4rem 4rem 4rem 4rem;
+  grid-template-columns: repeat(5, 4rem);
   gap: 1rem;
 }
 
 .seat-grid label {
   min-width: 4rem;
+}
+
+.cargo-form {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.cargo-form h6 {
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.cargo-form .form-control {
+  width: 100%;
+  margin-bottom: 0.5rem;
 }

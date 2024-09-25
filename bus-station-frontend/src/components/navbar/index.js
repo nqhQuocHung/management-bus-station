@@ -38,7 +38,7 @@ const Navbar = () => {
             <div className="logo">
               <img src="/images/logo.png" alt="logo" />
             </div>
-            <p className="fs-4 fw-bold">DỊCH VỤ VẬN TẢI TIỆN LỢI</p>
+            <p className="fs-4 fw-bold">BẾN XE KHÁCH OU</p>
           </Link>
         </div>
         <div className="col-md-4 py-5">

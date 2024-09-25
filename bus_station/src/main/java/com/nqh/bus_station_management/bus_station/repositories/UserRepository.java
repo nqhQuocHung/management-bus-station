@@ -16,6 +16,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+
+
     Optional<User> findByUsername(String username);
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.email = :email")
@@ -53,4 +55,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("phone") String phone,
             @Param("avatar") String avatar
     );
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.role.id = 4 WHERE u.id = :userId")
+    int updateRoleToDriver(@Param("userId") Long userId);
+
 }

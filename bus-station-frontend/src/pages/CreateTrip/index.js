@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './styles.css';
-
 import { apis, endpoints } from '../../config/apis';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +7,11 @@ import { useNavigate } from 'react-router-dom';
 const CreateTrip = () => {
   const [routes, setRoutes] = useState([]);
   const [cars, setCars] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [formData, setFormData] = useState({
     routeId: '',
     carId: '',
+    driverId: '',
     departAt: '',
     isActive: true,
   });
@@ -55,8 +56,15 @@ const CreateTrip = () => {
 
     if (name === 'departAt' && value) {
       handleFetchCars(value);
+      handleFetchDrivers(value);
     }
   };
+
+  useEffect(() => {
+    if (formData.departAt) {
+      handleFetchDrivers(formData.departAt);
+    }
+  }, [formData.departAt]); // useEffect để gọi lại hàm khi departAt thay đổi
 
   const handleFetchCars = async (departAt) => {
     if (!departAt || !companyId) return;
@@ -67,8 +75,8 @@ const CreateTrip = () => {
 
       const response = await api.get(endpoints.available_cars, {
         params: {
-          date: departAt.split('T')[0], 
-          busStationId: companyId, 
+          date: departAt.split('T')[0],
+          busStationId: companyId,
         },
       });
 
@@ -81,38 +89,59 @@ const CreateTrip = () => {
     }
   };
 
+  const handleFetchDrivers = async (departAt) => {
+    if (!departAt || !companyId) return;
+
+    try {
+      setLoading('flex');
+      const api = apis(accessToken);
+
+      const response = await api.get(endpoints.driver_available, {
+        params: {
+          date: departAt.split('T')[0],
+          companyId: companyId,
+        },
+      });
+
+      setDrivers(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Error fetching available drivers', error);
+      setDrivers([]);
+    } finally {
+      setLoading('none');
+    }
+  };
+
   const formatDepartAt = (departAt) => {
     if (!departAt) return '';
     const [date, time] = departAt.split('T');
     return `${date} ${time}:00`;
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    setLoading('flex');
-    const api = apis(accessToken);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading('flex');
+      const api = apis(accessToken);
 
-    const tripData = {
-      routeId: Number(formData.routeId),
-      carId: Number(formData.carId),
-      departAt: formatDepartAt(formData.departAt),
-      isActive: formData.isActive,
-    };
+      const tripData = {
+        routeId: Number(formData.routeId),
+        carId: Number(formData.carId),
+        driverId: Number(formData.driverId),
+        departAt: formatDepartAt(formData.departAt),
+        isActive: formData.isActive,
+      };
 
-    console.log('Sending trip data: ', tripData);
-
-    await api.post(endpoints.creat_trip, tripData);
-    alert('Trip created successfully');
-    navigate(-1);
-  } catch (error) {
-    console.error('Error creating trip', error);
-    alert('Failed to create trip');
-  } finally {
-    setLoading('none');
-  }
-};
-
+      await api.post(endpoints.creat_trip, tripData);
+      alert('Trip created successfully');
+      navigate(-1);
+    } catch (error) {
+      console.error('Error creating trip', error);
+      alert('Failed to create trip');
+    } finally {
+      setLoading('none');
+    }
+  };
 
   return (
     <div>
@@ -126,10 +155,9 @@ const handleSubmit = async (e) => {
           >
             <option value="">Select Route</option>
             {routes.map((route) => (
-              <option
-                key={route.id}
-                value={route.id}
-              >{`${route.id} - ${route.name}`}</option>
+              <option key={route.id} value={route.id}>
+                {`${route.id} - ${route.name}`}
+              </option>
             ))}
           </select>
         </div>
@@ -147,10 +175,24 @@ const handleSubmit = async (e) => {
           <select name="carId" value={formData.carId} onChange={handleChange}>
             <option value="">Select Car</option>
             {cars.map((car) => (
-              <option
-                key={car.id}
-                value={car.id}
-              >{`${car.id} - ${car.carNumber}`}</option>
+              <option key={car.id} value={car.id}>
+                {`${car.id} - ${car.carNumber}`}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="custom-form-group">
+          <label>Driver:</label>
+          <select
+            name="driverId"
+            value={formData.driverId}
+            onChange={handleChange}
+          >
+            <option value="">Select Driver</option>
+            {drivers.map((driver) => (
+              <option key={driver.id} value={driver.id}>
+                {`${driver.id} - ${driver.firstname} ${driver.lastname}`}
+              </option>
             ))}
           </select>
         </div>

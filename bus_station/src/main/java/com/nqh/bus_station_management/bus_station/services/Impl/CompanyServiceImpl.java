@@ -44,7 +44,6 @@ public class CompanyServiceImpl implements CompanyService {
         String name = params.get("name");
         int page = params.get("page") != null ? Integer.parseInt(params.get("page")) : 1;
         int pageSize = Integer.parseInt(environment.getProperty("company.pageSize", "10"));
-
         List<TransportationCompany> companies = companyRepository.list(name);
         Long totalCompanies = companyRepository.count(name);
 

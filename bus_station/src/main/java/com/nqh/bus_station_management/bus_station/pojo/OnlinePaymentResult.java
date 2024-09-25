@@ -1,5 +1,7 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,5 +49,7 @@ public class OnlinePaymentResult implements Serializable {
     private Timestamp confirmAt;
 
     @OneToMany(mappedBy = "paymentResult", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<Ticket> tickets;
+
 }

@@ -1,5 +1,6 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
+import com.nqh.bus_station_management.bus_station.dtos.RouteDTO;
 import com.nqh.bus_station_management.bus_station.dtos.RoutePublicDTO;
 import com.nqh.bus_station_management.bus_station.dtos.RouteRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Route;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/routes")
@@ -34,8 +34,9 @@ public class RouteController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Route> getRouteById(@PathVariable Long id) {
-        return routeService.getRouteById(id);
+    public ResponseEntity<RouteDTO> getRouteById(@PathVariable Long id) {
+        RouteDTO routeDTO = routeService.getRouteById(id);
+        return ResponseEntity.ok(routeDTO);
     }
 
     @PostMapping("/add")

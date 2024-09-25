@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "bus_station_seat", schema = "bus_stationdb", catalog = "")
+@Table(name = "bus_station_seats", schema = "bus_stationdb", catalog = "")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,21 +19,13 @@ public class Seat {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Basic
-    @Column(name = "code", nullable = false, length = 5)
-    private String code;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "code_id", referencedColumnName = "id", nullable = false)
+    private Code seatCode;
 
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "car_id", referencedColumnName = "id", nullable = false)
     private Car car;
-
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
-    private Trip trip;
-
-    @Basic
-    @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable;
 }

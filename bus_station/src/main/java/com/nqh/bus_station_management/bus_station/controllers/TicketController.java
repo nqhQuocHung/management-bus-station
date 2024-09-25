@@ -1,6 +1,9 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
+import com.nqh.bus_station_management.bus_station.dtos.AddTicketRequestDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TicketDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TicketDetailDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TicketPaymentDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Ticket;
 import com.nqh.bus_station_management.bus_station.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,4 +63,59 @@ public class TicketController {
         List<TicketDTO> ticketDetails = ticketService.getInfoFromCart(cart);
         return new ResponseEntity<>(ticketDetails, HttpStatus.OK);
     }
+
+    @PostMapping("/add-cart")
+    public ResponseEntity<List<Ticket>> addTicketsToCart(@RequestBody List<AddTicketRequestDTO> requestDTOs) {
+        List<Ticket> tickets = new ArrayList<>();
+        try {
+            for (AddTicketRequestDTO requestDTO : requestDTOs) {
+                Ticket ticket = ticketService.addTicket(requestDTO);
+                tickets.add(ticket);
+            }
+            return ResponseEntity.ok(tickets);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<?> getTicketDetails(@RequestBody List<Long> ticketIds) {
+        try {
+            List<TicketDetailDTO> ticketDetails = ticketService.getTicketDetails(ticketIds);
+            return ResponseEntity.ok(ticketDetails);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No tickets found for the given IDs.");
+        }
+    }
+
+    @DeleteMapping("/ticketAndCargo/{id}")
+    public ResponseEntity<?> deleteTicketAndCargo(@PathVariable Long id) {
+        try {
+            ticketService.deleteTicketAndCargoById(id);
+            return ResponseEntity.ok("Ticket và Cargo liên quan đã được xóa thành công.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/user/{userId}/paid")
+    public ResponseEntity<List<TicketDetailDTO>> getPaidTicketsByUserId(@PathVariable Long userId) {
+        List<TicketDetailDTO> tickets = ticketService.findPaidTicketsByUserId(userId);
+        return ResponseEntity.ok(tickets);
+    }
+
+    @PutMapping("/payment")
+    public ResponseEntity<?> updatePaymentIdForTickets(@RequestBody TicketPaymentDTO request) {
+        try {
+            List<Ticket> updatedTickets = ticketService.updatePaymentIdForTickets(
+                    request.getTicketIds(),
+                    request.getPaymentId(),
+                    request.getPaymentMethodId()
+            );
+            return ResponseEntity.ok(updatedTickets);
+        } catch (Exception e) {return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

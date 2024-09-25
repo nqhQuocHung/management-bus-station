@@ -28,24 +28,15 @@ public class TripController {
         return tripService.getTripById(id);
     }
 
-    @GetMapping("/{id}/available-seats")
-    public List<Seat> getAvailableSeats(@PathVariable Long id) {
-        return tripService.getAvailableSeats(id);
-    }
-
-    @GetMapping("/{id}/unavailable-seats")
-    public List<Seat> getUnAvailableSeats(@PathVariable Long id) {
-        return tripService.getUnAvailableSeats(id);
-    }
-
-    @GetMapping("/{tripId}/seat/{seatId}")
-    public Optional<Seat> findAvailableSeat(@PathVariable Long tripId, @PathVariable Long seatId) {
-        return tripService.findAvailableSeat(tripId, seatId);
-    }
 
     @PostMapping("/create")
     public ResponseEntity<Trip> createTrip(@RequestBody TripRegisterDTO tripRegisterDTO) {
         Trip newTrip = tripService.createTrip(tripRegisterDTO);
         return ResponseEntity.ok(newTrip);
+    }
+
+    @GetMapping("/route/{routeId}")
+    public List<TripDTO> getTripsByRouteId(@PathVariable Long routeId) {
+        return tripService.getTripsByRouteId(routeId);
     }
 }

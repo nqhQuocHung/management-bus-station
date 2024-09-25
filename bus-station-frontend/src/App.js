@@ -2,16 +2,15 @@ import './App.css';
 import {
   LoadingContext,
   AuthenticationContext,
-  cartReducer,
   CartContext,
 } from './config/context';
+import cartReducer from './config/cartReducer';
 
 import {useEffect, useReducer, useRef, useState} from 'react';
 import Loading from './components/loading';
 
 import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import {apis, endpoints} from './config/apis';
 import CartIcon from './components/CartIcon';
 import AppRouter from './routes';

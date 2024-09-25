@@ -1,5 +1,6 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -35,7 +37,16 @@ public class Trip {
     @Column(name = "depart_at", nullable = false)
     private Timestamp departAt;
 
+    @Column(name = "status", nullable = false)
+    private Boolean status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id", referencedColumnName = "id", nullable = false)
+    @JsonIgnore
+    private User driver;
+
     @OneToMany(mappedBy = "trip")
+    @JsonManagedReference
     private Collection<Ticket> tickets;
 
     @ManyToOne
