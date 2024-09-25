@@ -21,7 +21,6 @@ const CreateRoute = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch the company based on the manager ID
   useEffect(() => {
     const fetchCompany = async () => {
       try {
@@ -86,37 +85,42 @@ const CreateRoute = () => {
   };
 
   // Submit form to the API
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (!validateForm()) return;
-  
-    try {
-      setIsSubmitting(true);
-      setLoading('flex');
-  
-      const api = apis(accessToken);
-      const routeData = {
-        name: formData.routeName,
-        companyId: formData.companyId,
-        seatPrice: parseFloat(formData.seatPrice),
-        cargoPrice: parseFloat(formData.cargoPrice),
-        fromStationId: formData.fromStation,
-        toStationId: formData.toStation,
-        isActive: formData.isActive,
-      };
-  
-      await api.post(endpoints.create_route, routeData);
-      alert('Route created successfully');
-      navigate('/manage-company');
-    } catch (error) {
-      console.error('Error creating route', error);
-      alert('Failed to create route');
-    } finally {
-      setIsSubmitting(false);
-      setLoading('none');
-    }
-  };
+  // Submit form to the API
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validateForm()) return;
+
+  // Log the form data to the console
+  console.log('Form Data:', formData);
+
+  try {
+    setIsSubmitting(true);
+    setLoading('flex');
+
+    const api = apis(accessToken);
+    const routeData = {
+      name: formData.routeName,
+      companyId: formData.companyId,
+      seatPrice: parseFloat(formData.seatPrice),
+      cargoPrice: parseFloat(formData.cargoPrice),
+      fromStationId: formData.fromStation,
+      toStationId: formData.toStation,
+      isActive: formData.isActive,
+    };
+
+    await api.post(endpoints.create_route, routeData);
+    alert('Route created successfully');
+    navigate('/manage-company');
+  } catch (error) {
+    console.error('Error creating route', error);
+    alert('Failed to create route');
+  } finally {
+    setIsSubmitting(false);
+    setLoading('none');
+  }
+};
+
   
 
   return (

@@ -44,7 +44,7 @@ const RouteInfo = () => {
       });
       return;
     }
-
+  
     if (selectedSeats.length === 0) {
       toast.warning('Hãy chọn ghế bạn muốn!', {
         position: 'top-center',
@@ -57,7 +57,7 @@ const RouteInfo = () => {
       });
       return;
     }
-
+  
     if (selectedSeats.length > 1 && withCargo) {
       toast.warning('Bạn chỉ có thể thêm từng vé khi có nhu cầu vận chuyển hàng!', {
         position: 'top-center',
@@ -70,7 +70,7 @@ const RouteInfo = () => {
       });
       return;
     }
-
+  
     const payload = selectedSeats.map((seat) => ({
       seatId: seat,
       tripId: tripId,
@@ -80,11 +80,14 @@ const RouteInfo = () => {
       withCargo: withCargo,
       paidAt: null,
     }));
-
+  
+    // Log payload before sending it to the API
+    console.log('Payload data before sending:', payload);
+  
     try {
       setLoading('flex');
       const response = await apis(null).post(endpoints.add_cart, payload);
-
+  
       if (response.status === 200) {
         toast.success('Thêm vào giỏ hàng thành công!', {
           position: 'top-center',
@@ -95,14 +98,14 @@ const RouteInfo = () => {
           progress: undefined,
           theme: 'colored',
         });
-
+  
         cartDispatcher({
           type: 'ADD_TO_CART',
           payload: response.data,
         });
-
+  
         setSelectedSeats([]);
-
+  
         const ticketId = response.data[0]?.id;
         if (withCargo && ticketId) {
           await createCargo(ticketId);
@@ -124,6 +127,7 @@ const RouteInfo = () => {
       setLoading('none');
     }
   };
+  
 
   const createCargo = async (ticketId) => {
     const payload = {

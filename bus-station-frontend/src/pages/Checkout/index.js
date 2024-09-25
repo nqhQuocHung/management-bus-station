@@ -19,16 +19,16 @@ const Checkout = () => {
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
-    console.log('User information:', user);
-  }, [user]);
+    fetchPaymentMethod();
+    fetchCartDetails();
+  }, [cart.key]);
 
   const fetchPaymentMethod = async () => {
     try {
       setLoading('flex');
       const response = await apis(null).get(endpoints.payment_method_list);
-      const data = response.data;
-      setPaymentMethods(data);
-      setSelectedPaymentMethod(data[0]?.id || 0);
+      setPaymentMethods(response.data);
+      setSelectedPaymentMethod(response.data[0]?.id || 0);
     } catch (ex) {
       console.error('Error fetching payment methods:', ex);
     } finally {
@@ -42,48 +42,51 @@ const Checkout = () => {
       const ticketIds = cart.data.map((item) => item.id);
       const response = await apis(null).post(endpoints.cart_details, ticketIds);
       setTickets(response.data);
+  
+      // In danh sách vé ra console
+      console.log('Danh sách vé trong giỏ hàng:', response.data);
     } catch (ex) {
       console.error('Error fetching cart details:', ex);
     } finally {
       setLoading('none');
     }
   };
-
-  useEffect(() => {
-    fetchPaymentMethod();
-  }, []);
-
-  useEffect(() => {
-    fetchCartDetails();
-  }, [cart.key]);
+  
 
   const handleCheckout = async () => {
     try {
       setLoading('flex');
+  
+      if (selectedPaymentMethod !== 2) {
+        toast.error('Vui lòng chọn phương thức thanh toán VNPAY để tiếp tục!');
+        setLoading('none');
+        return;
+      }
+  
       const amount = tickets.reduce(
-        (total, ticket) => total + (ticket.seatPrice || 0) + (ticket.cargoPrice || 0),
+        (total, ticket) =>
+          total + (ticket.seatPrice || 0) + (ticket.cargoPrice || 0),
         0
       );
-      const orderInfo = `Order for user ${user?.firstname || ''} ${user?.lastname || ''}`;
-      
-      // Mã hóa URL cho orderInfo để tránh lỗi
-      const encodedOrderInfo = encodeURIComponent(orderInfo);
-
-      console.log('Amount:', amount);
-      console.log('Order Info:', encodedOrderInfo);
-
-      // Gọi API tạo URL thanh toán với orderInfo đã mã hóa
-      const response = await apis(null).post(endpoints.payment, null, {
-        params: { amount, orderInfo: encodedOrderInfo },
+  
+      const orderInfo = `Payment for order #${Math.random().toString(36).substr(2, 9)}`;
+  
+      const ticketIds = tickets.map((ticket) => ticket.ticketId);
+      localStorage.setItem('ticketIds', JSON.stringify(ticketIds)); 
+  
+      const response = await apis(null).post(endpoints.payment_url, {
+        amount: amount,
+        orderInfo: orderInfo,
       });
-
-      console.log('Payment response:', response.data);
-
-      const paymentUrl = typeof response.data === 'string' ? response.data : response.data.paymentUrl;
-      console.log('Payment URL:', paymentUrl);
-
+  
+      const paymentUrl = response.data;
+  
       if (paymentUrl) {
-        window.location.href = paymentUrl;
+        cartDispatcher({
+          type: 'CLEAR_CART',
+        });
+  
+        window.open(paymentUrl, '_blank');
       } else {
         toast.error('Không thể tạo URL thanh toán!');
       }
@@ -94,24 +97,10 @@ const Checkout = () => {
       setLoading('none');
     }
   };
-
-  const handleVnpayReturn = async (vnpParams) => {
-    try {
-      setLoading('flex');
-      console.log('Handling VNPAY return with params:', vnpParams);
-      const response = await apis(null).get(endpoints.payment_result, {
-        params: vnpParams,
-      });
-
-      toast.success(response.data || 'Thanh toán thành công!');
-    } catch (error) {
-      toast.error('Xử lý kết quả thanh toán thất bại!');
-      console.error('Error handling VNPAY return:', error);
-    } finally {
-      cartDispatcher({ type: 'CLEAR_CART' });
-      setLoading('none');
-    }
-  };
+  
+  
+  
+  
 
   return (
     <div className="container-fluid mt-5">
@@ -177,7 +166,7 @@ const Checkout = () => {
                   Phương thức thanh toán
                 </label>
                 <select
-                  onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                  onChange={(e) => setSelectedPaymentMethod(Number(e.target.value))}
                   value={selectedPaymentMethod}
                   className="form-select"
                   id="paymentMethod"

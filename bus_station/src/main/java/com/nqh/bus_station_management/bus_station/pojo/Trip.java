@@ -1,5 +1,6 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +36,14 @@ public class Trip {
 
     @Column(name = "depart_at", nullable = false)
     private Timestamp departAt;
+
+    @Column(name = "status", nullable = false)
+    private Boolean status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id", referencedColumnName = "id", nullable = false)
+    @JsonIgnore
+    private User driver;
 
     @OneToMany(mappedBy = "trip")
     @JsonManagedReference

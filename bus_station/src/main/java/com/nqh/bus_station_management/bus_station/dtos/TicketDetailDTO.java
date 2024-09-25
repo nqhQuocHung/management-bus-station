@@ -21,4 +21,6 @@ public class TicketDetailDTO {
     private Timestamp departAt;
     private Double seatPrice;
     private Double cargoPrice;
+    private Timestamp paidAt;
+    private String paymentMethod;
 }

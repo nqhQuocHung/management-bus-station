@@ -19,7 +19,7 @@ const CompanyInfo = () => {
   const [routes, setRoutes] = useState([]);
   const [rating, setRating] = useState({ averageRating: 0, totalReviews: 0 });
   const [comments, setComments] = useState([]);
-  const [showComments, setShowComments] = useState(false); // State để quản lý hiển thị bình luận
+  const [showComments, setShowComments] = useState(false);
   const [startChat, setStartChat] = useState(false);
   const conversationKey = useRef(null);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
@@ -144,6 +144,38 @@ const CompanyInfo = () => {
     }
   };
 
+  const registerDriver = async () => {
+    if (!user) {
+      toast.error('Bạn cần đăng nhập để đăng ký làm tài xế.');
+      return;
+    }
+  
+    try {
+      setLoading('flex');
+      const api = apis(null);
+      const response = await api.post(endpoints.driver_create, null, {
+        params: {
+          userId: user.id,
+          companyId: company.id,
+        },
+      });
+      toast.success('Đăng ký tài xế thành công!');
+    } catch (ex) {
+      console.error('Error registering driver:', ex);
+      if (ex.response && ex.response.data && ex.response.data.message) {
+        if (ex.response.data.message.includes('Tài xế đã đăng ký làm việc với công ty này')) {
+          toast.error('Tài xế đã đăng ký với công ty này. Vui lòng không đăng ký trùng.');
+        } else {
+          toast.error('Không thể đăng ký tài xế, vui lòng thử lại sau.');
+        }
+      } else {
+        toast.error('Không thể đăng ký tài xế, vui lòng thử lại sau.');
+      }
+    } finally {
+      setLoading('none');
+    }
+  };
+  
   useEffect(() => {
     fetchRoutes();
     fetchCompanyInfo();
@@ -219,13 +251,21 @@ const CompanyInfo = () => {
                 </li>
                 <li>
                   {user ? (
-                    <button
-                      disabled={startChat}
-                      className="btn btn-primary"
-                      onClick={startConversation}
-                    >
-                      Tư vấn
-                    </button>
+                    <div className="d-flex">
+                      <button
+                        disabled={startChat}
+                        className="btn btn-primary me-2"
+                        onClick={startConversation}
+                      >
+                        Tư vấn
+                      </button>
+                      <button
+                        className="btn btn-success"
+                        onClick={registerDriver}
+                      >
+                        Đăng ký tài xế
+                      </button>
+                    </div>
                   ) : (
                     <Link to={'/login'} state={{ from: pathname }}>
                       Đăng nhập để chat với nhân viên nhà xe

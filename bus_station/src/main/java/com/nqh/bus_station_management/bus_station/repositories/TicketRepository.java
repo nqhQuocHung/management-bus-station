@@ -26,21 +26,28 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             "FROM Ticket t LEFT JOIN t.cargo c " +
             "WHERE YEAR(t.paidAt) = :year " +
             "AND t.trip.route.company.id = :companyId " +
+            "AND t.paidAt IS NOT NULL " +
             "GROUP BY MONTH(t.paidAt)")
     List<StatisticsDTO> calculateAnnualRevenue(@Param("year") int year, @Param("companyId") Long companyId);
 
-
     @Query("SELECT new com.nqh.bus_station_management.bus_station.dtos.StatisticsDTO(SUM(t.seatPrice), COALESCE(SUM(c.cargoPrice), 0)) " +
             "FROM Ticket t LEFT JOIN t.cargo c " +
-            "WHERE YEAR(t.paidAt) = :year AND t.trip.route.company.id = :companyId " +
+            "WHERE YEAR(t.paidAt) = :year " +
+            "AND t.trip.route.company.id = :companyId " +
+            "AND t.paidAt IS NOT NULL " +
             "GROUP BY QUARTER(t.paidAt) " +
             "ORDER BY QUARTER(t.paidAt)")
     List<StatisticsDTO> calculateQuarterlyRevenue(@Param("year") int year, @Param("companyId") Long companyId);
 
     @Query("SELECT new com.nqh.bus_station_management.bus_station.dtos.StatisticsDTO(SUM(t.seatPrice), COALESCE(SUM(c.cargoPrice), 0)) " +
             "FROM Ticket t LEFT JOIN t.cargo c " +
-            "WHERE YEAR(t.paidAt) = :year AND MONTH(t.paidAt) = :month AND DAY(t.paidAt) = :day AND t.trip.route.company.id = :companyId")
+            "WHERE YEAR(t.paidAt) = :year " +
+            "AND MONTH(t.paidAt) = :month " +
+            "AND DAY(t.paidAt) = :day " +
+            "AND t.trip.route.company.id = :companyId " +
+            "AND t.paidAt IS NOT NULL")
     List<StatisticsDTO> calculateDailyRevenue(@Param("year") int year, @Param("month") int month, @Param("day") int day, @Param("companyId") Long companyId);
+
 
     @Modifying
     @Transactional

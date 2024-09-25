@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 public class TripRegisterDTO {
     private Long routeId;
     private Long carId;
+    private Long driverId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp departAt;
     private Boolean isActive;

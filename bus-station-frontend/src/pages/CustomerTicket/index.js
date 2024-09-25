@@ -10,9 +10,7 @@ const CustomerTicket = () => {
   const { user } = useContext(AuthenticationContext);
 
   const fetchTickets = async () => {
-    // Kiểm tra nếu không có user hoặc user.id
     if (!user || !user.id) {
-      console.warn('Không lấy được thông tin người dùng hoặc ID người dùng.');
       alert('Bạn cần đăng nhập để xem vé.');
       return;
     }
@@ -72,7 +70,7 @@ const CustomerTicket = () => {
               <th>Mã ghế</th>
               <th>Khởi hành lúc</th>
               <th>Phương thức thanh toán</th>
-              <th>Đã thanh toán</th>
+              <th>Trạng thái thanh toán</th>
               <th>Hành động</th>
             </tr>
           </thead>
@@ -88,21 +86,19 @@ const CustomerTicket = () => {
                 <td>{ticket.toStation}</td>
                 <td>{ticket.seatCode}</td>
                 <td>{moment(ticket.departAt).format('LLL')}</td>
-                <td>{ticket.paymentMethod?.name || 'Không xác định'}</td>
-                <td>
-                  {ticket.paidAt ? moment(ticket.paidAt).format('LLL') : 'Chưa thanh toán'}
-                </td>
+                <td>{ticket.paidAt ? ticket.paymentMethod : 'Không xác định'}</td>
+                <td>{ticket.paidAt ? moment(ticket.paidAt).format('LLL') : 'Chưa thanh toán'}</td>
                 <td>
                   {ticket.paidAt ? (
                     <button className="btn btn-danger" disabled>
-                      Hủy vé
+                      Xóa
                     </button>
                   ) : (
                     <button
                       className="btn btn-danger"
                       onClick={() => handleDeleteTicket(index, ticket.ticketId)}
                     >
-                      Hủy vé
+                      Xóa
                     </button>
                   )}
                 </td>

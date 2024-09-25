@@ -16,7 +16,7 @@ const Grid = ({ title, breadcrumb, dataEndpoint }) => {
     try {
       setLoading('flex');
       const response = await apis(null).get(
-        `${dataEndpoint}?page=${page}&kw=${kw}`,
+        `${dataEndpoint}?page=${page}&name=${kw}`,
       );
       if (response) {
         setData(response.data.results);
@@ -47,10 +47,7 @@ const Grid = ({ title, breadcrumb, dataEndpoint }) => {
 
   return (
     <div className="container-fluid px-5 mt-5 border-bottom">
-      <nav
-        aria-label="breadcrumb"
-        className="row d-flex justify-content-between px-5"
-      >
+      <nav aria-label="breadcrumb" className="row d-flex justify-content-between px-5">
         <div className="col-md-6">
           <h2 className="px-3 fw-bolder">{title}</h2>
           <ol className="breadcrumb px-3">

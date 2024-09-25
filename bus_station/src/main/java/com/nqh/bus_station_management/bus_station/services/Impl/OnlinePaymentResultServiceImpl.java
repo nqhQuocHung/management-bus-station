@@ -9,12 +9,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class OnlinePaymentResultServiceImpl implements OnlinePaymentResultService {
 
-    private final OnlinePaymentResultRepository paymentResultRepository;
-
     @Autowired
-    public OnlinePaymentResultServiceImpl(OnlinePaymentResultRepository paymentResultRepository) {
-        this.paymentResultRepository = paymentResultRepository;
-    }
+    private  OnlinePaymentResultRepository paymentResultRepository;
+
 
     @Override
     public OnlinePaymentResult createPaymentResult(OnlinePaymentResult paymentResult) {

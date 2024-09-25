@@ -118,7 +118,6 @@ const Register = () => {
             theme: 'colored',
           });
   
-          // Reset tất cả các input về trạng thái trống
           setUsername('');
           setPassword('');
           setRePassword('');

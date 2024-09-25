@@ -55,4 +55,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("phone") String phone,
             @Param("avatar") String avatar
     );
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.role.id = 4 WHERE u.id = :userId")
+    int updateRoleToDriver(@Param("userId") Long userId);
+
 }

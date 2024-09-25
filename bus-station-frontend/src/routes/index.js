@@ -17,6 +17,7 @@ import ManagerRoute from './ManagerRoute';
 import Profile from '../pages/Profile';
 import CompanyInfo from '../pages/CompanyInfo';
 import CustomerTicket from '../pages/CustomerTicket';
+import VnpayPaymentResult from '../pages/VnpayPaymentResult';
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -103,6 +104,7 @@ const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/payment-result" element={<PaymentResult />} />
+        <Route path="/vnpay_result" element={<VnpayPaymentResult />} />
       </Routes>
     </BrowserRouter>
   );

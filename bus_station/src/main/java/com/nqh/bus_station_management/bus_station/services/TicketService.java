@@ -23,6 +23,6 @@ public interface TicketService {
     Ticket addTicket(AddTicketRequestDTO requestDTO);
     List<TicketDetailDTO> getTicketDetails(List<Long> ticketIds);
     void deleteTicketAndCargoById(Long ticketId);
-    Ticket updateTicketPayment(Long ticketId, Long paymentResultId, Long paymentMethodId);
+    List<Ticket> updatePaymentIdForTickets(List<Long> ticketIds, Long paymentResultId, Long paymentMethodId) throws Exception;
     List<TicketDetailDTO> findPaidTicketsByUserId(Long userId);
 }

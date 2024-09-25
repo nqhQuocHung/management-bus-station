@@ -15,10 +15,10 @@ import java.util.Optional;
 @Repository
 public interface CompanyRepository extends JpaRepository<TransportationCompany, Long> {
 
-    @Query("SELECT tc FROM TransportationCompany tc WHERE (:name IS NULL OR tc.name LIKE %:name%) AND tc.isActive = true AND tc.isVerified = true")
+    @Query("SELECT c FROM TransportationCompany c WHERE :name IS NULL OR c.name LIKE CONCAT(:name, '%')")
     List<TransportationCompany> list(@Param("name") String name);
 
-    @Query("SELECT COUNT(tc) FROM TransportationCompany tc WHERE (:name IS NULL OR tc.name LIKE %:name%)")
+    @Query("SELECT COUNT(c) FROM TransportationCompany c WHERE :name IS NULL OR c.name LIKE CONCAT(:name, '%')")
     Long count(@Param("name") String name);
 
     Optional<TransportationCompany> getTransportationCompanyById(Long id);
@@ -36,6 +36,7 @@ public interface CompanyRepository extends JpaRepository<TransportationCompany, 
 
     @Query("SELECT COUNT(tc) FROM TransportationCompany tc")
     long countAllCompanies();
+
 
 
 }

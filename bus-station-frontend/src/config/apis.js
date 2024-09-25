@@ -26,10 +26,12 @@ const endpoints = {
   add_cargo: '/api/cargos',
    //Xong
   payment_method_list: '/api/payment-methods',
-  payment: '/api/payment/create',
+  payment_url: '/api/payment/create',
   payment_result: '/api/payment/vnpay_return',
+  payment_bill: '/api/payment/bill',
   create_route: '/api/routes/add',
   list_station: '/api/stations/list',
+  update_payment_ticket: '/api/tickets/payment',
   get_available_seat: (tripId) => `/api/seats/available?tripId=${tripId}`,
   get_occupied_seat: (tripId) => `/api/seats/occupied/${tripId}`,
   //
@@ -37,7 +39,13 @@ const endpoints = {
   creat_trip: '/api/trips/create',
   self_ticket: '/api/v1/users/self/tickets',
   login_with_google: '/api/v1/auth/oauth2/google',
-  //Xong
+  //Driver
+  driver_list_by_company: (companyId) => `/api/drivers/company/${companyId}`,
+  driver_create: '/api/drivers/create',
+  driver_verify: (id) => `/api/drivers/verify/${id}`,
+  verified_driver_list_by_company: (companyId) => `/api/drivers/verified/company/${companyId}`,
+  driver_available: "/api/drivers/available",
+  //
   statistics_ticket_year: (year) => `/api/statistics/annual/${year}`,
   statistics_ticket_quarterly: (year) => `/api/statistics/quarterly/${year}`,
   statistics_ticket_day: (year, month, day) =>

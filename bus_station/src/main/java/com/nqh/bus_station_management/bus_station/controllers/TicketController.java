@@ -3,6 +3,7 @@ package com.nqh.bus_station_management.bus_station.controllers;
 import com.nqh.bus_station_management.bus_station.dtos.AddTicketRequestDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TicketDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TicketDetailDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TicketPaymentDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Ticket;
 import com.nqh.bus_station_management.bus_station.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,4 +104,18 @@ public class TicketController {
         List<TicketDetailDTO> tickets = ticketService.findPaidTicketsByUserId(userId);
         return ResponseEntity.ok(tickets);
     }
+
+    @PutMapping("/payment")
+    public ResponseEntity<?> updatePaymentIdForTickets(@RequestBody TicketPaymentDTO request) {
+        try {
+            List<Ticket> updatedTickets = ticketService.updatePaymentIdForTickets(
+                    request.getTicketIds(),
+                    request.getPaymentId(),
+                    request.getPaymentMethodId()
+            );
+            return ResponseEntity.ok(updatedTickets);
+        } catch (Exception e) {return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

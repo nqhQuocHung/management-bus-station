@@ -17,9 +17,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class TicketServiceImpl implements TicketService {
+    @Autowired
+    private  TicketRepository ticketRepository;
 
-    private final TicketRepository ticketRepository;
-    private final SeatRepository seatRepository;
+    @Autowired
+    private  SeatRepository seatRepository;
 
     @Autowired
     private RouteService routeService;
@@ -41,11 +43,6 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private PaymentMethodRepository paymentMethodRepository;
-    @Autowired
-    public TicketServiceImpl(TicketRepository ticketRepository, SeatRepository seatRepository) {
-        this.ticketRepository = ticketRepository;
-        this.seatRepository = seatRepository;
-    }
 
     @Override
     public void saveAllTickets(List<Ticket> tickets) {
@@ -166,8 +163,11 @@ public class TicketServiceImpl implements TicketService {
                 .departAt(ticket.getTrip() != null ? ticket.getTrip().getDepartAt() : null)
                 .seatPrice(ticket.getSeatPrice())
                 .cargoPrice(ticket.getCargo() != null ? ticket.getCargo().getCargoPrice() : 0.0)
+                .paidAt(ticket.getPaidAt())
+                .paymentMethod(ticket.getPaymentMethod() != null ? ticket.getPaymentMethod().getName() : null)
                 .build();
     }
+
 
     @Override
     @Transactional
@@ -182,22 +182,34 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket updateTicketPayment(Long ticketId, Long paymentResultId, Long paymentMethodId) {
-        Optional<Ticket> optionalTicket = ticketRepository.findById(ticketId);
-        if (optionalTicket.isPresent()) {
-            Ticket ticket = optionalTicket.get();
-            OnlinePaymentResult paymentResult = paymentResultRepository.findById(paymentResultId)
-                    .orElseThrow(() -> new RuntimeException("Payment result not found"));
-            PaymentMethod paymentMethod = paymentMethodRepository.findById(paymentMethodId)
-                    .orElseThrow(() -> new RuntimeException("Payment method not found"));
-            ticket.setPaymentResult(paymentResult);
-            ticket.setPaidAt(new Timestamp(System.currentTimeMillis()));
-            ticket.setPaymentMethod(paymentMethod);
-            return ticketRepository.save(ticket);
-        } else {
-            throw new RuntimeException("Ticket not found");
+    public List<Ticket> updatePaymentIdForTickets(List<Long> ticketIds, Long paymentResultId, Long paymentMethodId) throws Exception {
+        Optional<OnlinePaymentResult> paymentResultOptional = paymentResultRepository.findById(paymentResultId);
+        if (!paymentResultOptional.isPresent()) {
+            throw new Exception("Payment result not found with id: " + paymentResultId);
         }
+        OnlinePaymentResult paymentResult = paymentResultOptional.get();
+
+        Optional<PaymentMethod> paymentMethodOptional = paymentMethodRepository.findById(paymentMethodId);
+        if (!paymentMethodOptional.isPresent()) {
+            throw new Exception("Payment method not found with id: " + paymentMethodId);
+        }
+        PaymentMethod paymentMethod = paymentMethodOptional.get();
+
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        if (tickets.isEmpty()) {
+            throw new Exception("No tickets found with the provided ids");
+        }
+
+        for (Ticket ticket : tickets) {
+            ticket.setPaymentResult(paymentResult);
+            ticket.setPaymentMethod(paymentMethod);
+            ticket.setPaidAt(new Timestamp(System.currentTimeMillis()));
+        }
+
+        return ticketRepository.saveAll(tickets);
     }
+
+
 
     @Override
     public List<TicketDetailDTO> findPaidTicketsByUserId(Long userId) {
