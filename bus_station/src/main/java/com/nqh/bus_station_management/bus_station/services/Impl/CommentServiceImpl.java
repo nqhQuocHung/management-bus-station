@@ -32,6 +32,7 @@ public class CommentServiceImpl implements CommentService {
                 .companyId(comment.getCompany().getId())
                 .content(comment.getContent())
                 .rating(comment.getRating())
+                .createdAt(comment.getCreatedAt())
                 .avatar(user != null ? user.getAvatar() : null)
                 .firstname(user != null ? user.getFirstname() : null)
                 .lastname(user != null ? user.getLastname() : null)

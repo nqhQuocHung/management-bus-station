@@ -36,4 +36,7 @@ public interface CompanyService {
 
     void toggleCargoTransport(Long companyId);
 
+    long getVerifiedCompanyCount();
+
+    long getActiveCompanyCount();
 }

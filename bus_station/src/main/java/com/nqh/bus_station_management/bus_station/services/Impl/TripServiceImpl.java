@@ -128,4 +128,9 @@ public class TripServiceImpl implements TripService {
             throw new RuntimeException("Trip not found with id: " + id);
         }
     }
+
+    @Override
+    public long getActiveTripCount() {
+        return tripRepository.countActiveTrips();
+    }
 }

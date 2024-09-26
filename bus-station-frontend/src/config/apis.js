@@ -5,8 +5,9 @@ const BASE_URL = 'http://localhost:8080';
 const endpoints = {
   // Authentication
   login: '/api/auth/authenticate',
-  register: '/api/v1/auth/register',
   login_with_google: '/api/v1/auth/oauth2/google',
+  forgot_password: '/api/auth/forgot-password',
+  change_password: '/api/auth/change-password',
 
   // User Management
   update_user: (id) => `/api/users/${id}`,
@@ -76,6 +77,9 @@ const endpoints = {
   statistics_ticket_year: (year) => `/api/statistics/annual/${year}`,
   statistics_ticket_quarterly: (year) => `/api/statistics/quarterly/${year}`,
   statistics_ticket_day: (year, month, day) => `/api/statistics/daily/${year}/${month}/${day}`,
+  statistics_user: "/api/statistics/user-statistics",
+  statistics_ticket: "/api/statistics/annual-revenue",
+  statistics_bar: "/api/statistics/bar-data",
 
   // Comments and Ratings
   get_comments_by_company: (companyId) => `/api/comments/company/${companyId}`,

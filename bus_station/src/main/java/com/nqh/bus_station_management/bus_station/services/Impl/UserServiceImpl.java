@@ -1,9 +1,6 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
-import com.nqh.bus_station_management.bus_station.dtos.UserDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserRegisterDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserUpdateDTO;
+import com.nqh.bus_station_management.bus_station.dtos.*;
 import com.nqh.bus_station_management.bus_station.mappers.UserDTOMapper;
 import com.nqh.bus_station_management.bus_station.mappers.UserProfileDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.Role;
@@ -159,4 +156,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.existsByEmail(email);
     }
 
+    @Override
+    public List<StatisticsUserDTO> getUserStatistics() {
+        return userRepository.countUsersByRole();
+    }
 }

@@ -180,4 +180,13 @@ public class CompanyServiceImpl implements CompanyService {
         );
     }
 
+    @Override
+    public long getVerifiedCompanyCount() {
+        return companyRepository.countVerifiedCompanies();
+    }
+
+    @Override
+    public long getActiveCompanyCount() {
+        return companyRepository.countActiveCompanies();
+    }
 }

@@ -1,0 +1,87 @@
+.admin-dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.admin-header {
+    background-color: #007bff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.admin-content {
+    display: flex;
+    flex: 1;
+}
+
+.admin-sidebar {
+    background-color: #f8f9fa;
+    width: 250px;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+.admin-sidebar button {
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: block;
+    width: 100%;
+    text-align: left;
+}
+
+.admin-sidebar button:hover {
+    text-decoration: underline;
+}
+
+.admin-sidebar label {
+    font-weight: bold;
+    margin-right: 10px;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.admin-sidebar select {
+    padding: 5px;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.admin-main h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.admin-chart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Thêm phần chỉnh sửa cho ô chọn năm */
+#year-select {
+    margin-top: 10px;
+    padding: 5px;
+    width: 100%;
+    font-size: 16px;
+}

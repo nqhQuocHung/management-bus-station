@@ -196,12 +196,12 @@ const ManageCompany = () => {
   return (
     <>
       <ToastContainer />
-      <div className="custom-button-container">
+      <div className="mc-button-container">
         <Link to="/create-route">
-          <button className="custom-button">Đăng ký tuyến</button>
+          <button className="mc-button">Đăng ký tuyến</button>
         </Link>
         <Link to="/register-trip">
-          <button className="custom-button">Đăng kí chuyến</button>
+          <button className="mc-button">Đăng kí chuyến</button>
         </Link>
         <Link
           to={{
@@ -209,34 +209,34 @@ const ManageCompany = () => {
             state: { companyId },
           }}
         >
-          <button className="custom-button">Quản lý tài xế</button>
+          <button className="mc-button">Quản lý tài xế</button>
         </Link>
-        <button className="custom-button" onClick={showConfirmationDialog}>
+        <button className="mc-button" onClick={showConfirmationDialog}>
           {isCargoTransport ? 'Hủy chuyển hàng' : 'Đăng kí chuyển hàng'}
         </button>
         <ChatIcon />
       </div>
       {showConfirmation && (
-        <div className="custom-confirmation-overlay">
-          <div className="custom-confirmation-dialog">
+        <div className="mc-confirmation-overlay">
+          <div className="mc-confirmation-dialog">
             <p>
               {isCargoTransport
                 ? 'Bạn chắc chắn muốn hủy đăng kí vận chuyển hàng hóa không?'
                 : 'Bạn chắc chắn muốn đăng kí vận chuyển hàng hóa không?'}
             </p>
-            <button className="custom-button" onClick={handleRegisterCargo}>
+            <button className="mc-button" onClick={handleRegisterCargo}>
               OK
             </button>
-            <button className="custom-button" onClick={hideConfirmationDialog}>
+            <button className="mc-button" onClick={hideConfirmationDialog}>
               Hủy
             </button>
           </div>
         </div>
       )}
-      <div className="custom-stats-chart-container">
-        <div className="custom-stats-button-container">
+      <div className="mc-stats-chart-container">
+        <div className="mc-stats-button-container">
           <button
-            className="custom-button"
+            className="mc-button"
             onClick={() => {
               setSelectedOption('month');
               handleFetchStats('month');
@@ -245,7 +245,7 @@ const ManageCompany = () => {
             Thống kê theo tháng
           </button>
           <button
-            className="custom-button"
+            className="mc-button"
             onClick={() => {
               setSelectedOption('quarter');
               handleFetchStats('quarter');
@@ -254,7 +254,7 @@ const ManageCompany = () => {
             Thống kê theo quý
           </button>
           <button
-            className="custom-button"
+            className="mc-button"
             onClick={() => {
               setSelectedOption('day');
               handleFetchStats('day');
@@ -266,18 +266,18 @@ const ManageCompany = () => {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="custom-date-input"
+            className="mc-date-input"
           />
         </div>
-        <div className="custom-chart-and-heading-container">
-          <h2 className="custom-heading">
-            Báo cáo doanh thu của công ty <span className="company-name">{companyName}</span>
+        <div className="mc-chart-and-heading-container">
+          <h2 className="mc-heading">
+            Báo cáo doanh thu của công ty <span className="mc-company-name">{companyName}</span>
           </h2>
-          <div className="custom-chart-container">{renderChart()}</div>
+          <div className="mc-chart-container">{renderChart()}</div>
         </div>
       </div>
     </>
   );
-};
+}  
 
 export default ManageCompany;

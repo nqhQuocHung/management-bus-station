@@ -222,4 +222,8 @@ public class TicketServiceImpl implements TicketService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<StatisticsAdminDTO> calculateMonthlyRevenueAdmin(int year) {
+        return ticketRepository.calculateMonthlyRevenueAdmin(year);
+    }
 }

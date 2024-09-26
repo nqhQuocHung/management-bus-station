@@ -43,7 +43,6 @@ const Checkout = () => {
       const response = await apis(null).post(endpoints.cart_details, ticketIds);
       setTickets(response.data);
   
-      // In danh sách vé ra console
       console.log('Danh sách vé trong giỏ hàng:', response.data);
     } catch (ex) {
       console.error('Error fetching cart details:', ex);

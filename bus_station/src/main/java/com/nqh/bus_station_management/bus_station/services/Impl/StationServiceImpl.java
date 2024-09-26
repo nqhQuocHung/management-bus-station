@@ -43,4 +43,9 @@ public class StationServiceImpl implements StationService {
     public void deleteStationById(Long id) {
         stationRepository.deleteById(id);
     }
+
+    @Override
+    public long getTotalStationCount() {
+        return stationRepository.count();
+    }
 }

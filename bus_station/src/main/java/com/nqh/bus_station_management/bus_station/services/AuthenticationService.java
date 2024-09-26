@@ -1,9 +1,7 @@
 package com.nqh.bus_station_management.bus_station.services;
 
-import com.nqh.bus_station_management.bus_station.dtos.AuthenticationRequest;
-import com.nqh.bus_station_management.bus_station.dtos.AuthenticationResponse;
-import com.nqh.bus_station_management.bus_station.dtos.LoginWithGoogleRequest;
-import com.nqh.bus_station_management.bus_station.dtos.RegisterRequest;
+import com.nqh.bus_station_management.bus_station.dtos.*;
+import com.nqh.bus_station_management.bus_station.pojo.User;
 
 public interface AuthenticationService {
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
@@ -11,4 +9,8 @@ public interface AuthenticationService {
     AuthenticationResponse register(RegisterRequest registerRequest);
 
     AuthenticationResponse loginWithGoogle(LoginWithGoogleRequest data);
+
+    void forgotPassword(ForgotPasswordRequestDTO forgotPasswordRequestDTO);
+
+    void changePassword(User user, ChangePasswordRequestDTO changePasswordRequest);
 }

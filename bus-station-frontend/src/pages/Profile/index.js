@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import './styles.css';
 import { AuthenticationContext, LoadingContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
+import { toast } from 'react-toastify';
 
 const Profile = () => {
   const { user, setUser } = useContext(AuthenticationContext);
@@ -51,7 +52,7 @@ const Profile = () => {
       });
       return response.data;
     } catch (error) {
-      console.error('Failed to upload image:', error);
+      toast.error('Không thể tải lên ảnh đại diện!');
       return null;
     } finally {
       setLoading('none');
@@ -63,11 +64,11 @@ const Profile = () => {
     if (!isConfirmed) {
       return;
     }
-  
+
     setLoading('flex');
     try {
       const avatarUrl = await uploadAvatarAndGetUrl() || currentAvatar;
-  
+
       const formData = {
         firstName: userInfo.firstName,
         lastName: userInfo.lastName,
@@ -76,9 +77,9 @@ const Profile = () => {
         phone: userInfo.phone,
         avatar: avatarUrl,
       };
-  
+
       const accessToken = localStorage.getItem('accessToken');
-  
+
       const response = await apis(accessToken).patch(
         endpoints.update_user(user['id']),
         formData,
@@ -88,17 +89,18 @@ const Profile = () => {
           },
         }
       );
-  
+
       setUser(response.data);
-  
+      toast.success('Cập nhật thông tin thành công!');
+      
     } catch (ex) {
+      toast.error('Cập nhật thông tin thất bại!');
       console.error('Failed to update user:', ex);
     } finally {
       setIsChanged(false);
       setLoading('none');
     }
   };
-  
 
   return (
     <div className="container mt-5 shadow p-3 mb-5 bg-body rounded">

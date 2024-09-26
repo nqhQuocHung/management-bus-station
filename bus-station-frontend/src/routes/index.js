@@ -20,6 +20,8 @@ import CustomerTicket from '../pages/CustomerTicket';
 import VnpayPaymentResult from '../pages/VnpayPaymentResult';
 import DriverList from '../pages/DriverList';
 import ManageWork from '../pages/ManageWork';
+import ChangePassword from '../pages/ChangePassword';
+import AdminDashboard from '../pages/AdminDashboard';
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -87,6 +89,22 @@ const AppRouter = () => {
             }
           />
           <Route
+            path="/admin"
+            element={
+              <AuthenticatedRoute>
+                <AdminDashboard/>
+              </AuthenticatedRoute>
+            }
+          />
+           <Route
+            path="/change-password"
+            element={
+              <AuthenticatedRoute>
+                <ChangePassword />
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
             path="/manage-company"
             element={
               <ManagerRoute>
@@ -120,7 +138,6 @@ const AppRouter = () => {
           />
         </Route>
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/driver-work" element={<ManageWork/>} /> */}
         <Route path="/register" element={<Register />} />
         <Route path="/vnpay_result" element={<VnpayPaymentResult />} />
       </Routes>

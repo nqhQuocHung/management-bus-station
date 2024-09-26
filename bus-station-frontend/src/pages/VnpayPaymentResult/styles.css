@@ -1,35 +1,77 @@
 .payment-result-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 0 auto;
-    background-color: #fff;
-  }
-  
-  .payment-details {
-    margin-bottom: 20px;
-  }
-  
-  .home-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .home-button:hover {
-    background-color: #0056b3;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 30px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.payment-details {
+  margin-bottom: 25px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #eef2f7;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  font-size: 16px;
+}
+
+.payment-details p {
+  margin: 10px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.ticket-list {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.ticket-list h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #444;
+}
+
+.ticket-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.ticket-list li {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ticket-list li p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.navigate-home-button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 18px;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navigate-home-button:hover {
+  background-color: #005bb5;
+}
+

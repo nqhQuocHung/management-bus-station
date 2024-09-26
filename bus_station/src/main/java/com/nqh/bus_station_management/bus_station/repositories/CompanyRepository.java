@@ -21,8 +21,6 @@ public interface CompanyRepository extends JpaRepository<TransportationCompany, 
     @Query("SELECT COUNT(c) FROM TransportationCompany c WHERE :name IS NULL OR c.name LIKE CONCAT(:name, '%')")
     Long count(@Param("name") String name);
 
-    Optional<TransportationCompany> getTransportationCompanyById(Long id);
-
     List<TransportationCompany> findByIsVerifiedFalse();
 
     TransportationCompany findByManagerId(Long id);
@@ -37,6 +35,9 @@ public interface CompanyRepository extends JpaRepository<TransportationCompany, 
     @Query("SELECT COUNT(tc) FROM TransportationCompany tc")
     long countAllCompanies();
 
+    @Query("SELECT COUNT(tc) FROM TransportationCompany tc WHERE tc.isVerified = true")
+    long countVerifiedCompanies();
 
-
+    @Query("SELECT COUNT(tc) FROM TransportationCompany tc WHERE tc.isActive = true")
+    long countActiveCompanies();
 }
