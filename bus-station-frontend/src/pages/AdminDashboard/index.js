@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Bar, Line, Pie } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,8 +14,8 @@ import {
   Legend,
 } from 'chart.js';
 import './styles.css';
-import axios from 'axios';
 import { apis, endpoints } from '../../config/apis';
+import { LoadingContext } from '../../config/context';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
@@ -32,11 +33,11 @@ const AdminDashboard = () => {
     labels: [],
     datasets: [],
   });
-  const [loading, setLoading] = useState(false);
   const [year, setYear] = useState(2024);
+  const { setLoading } = useContext(LoadingContext);
   const accessToken = localStorage.getItem('accessToken');
-
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
 
   const generateYears = (startYear, range) => {
     const years = [];
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchBarStats = async () => {
       if (chartType === 'bar') {
-        setLoading(true);
+        setLoading('flex');
         try {
           const api = apis(accessToken);
           const response = await api.get(endpoints.statistics_bar);
@@ -85,18 +86,18 @@ const AdminDashboard = () => {
         } catch (error) {
           console.error('Error fetching bar statistics:', error);
         } finally {
-          setLoading(false);
+          setLoading('none');
         }
       }
     };
 
     fetchBarStats();
-  }, [chartType]);
+  }, [chartType, accessToken, setLoading]);
 
   useEffect(() => {
     const fetchRevenueStats = async () => {
       if (chartType === 'line') {
-        setLoading(true);
+        setLoading('flex');
         try {
           const api = apis(accessToken);
           const response = await api.get(`${endpoints.statistics_ticket}?year=${year}`);
@@ -128,18 +129,18 @@ const AdminDashboard = () => {
         } catch (error) {
           console.error('Error fetching revenue statistics:', error);
         } finally {
-          setLoading(false);
+          setLoading('none');
         }
       }
     };
 
     fetchRevenueStats();
-  }, [chartType, year]);
+  }, [chartType, year, accessToken, setLoading]);
 
   useEffect(() => {
     const fetchUserStats = async () => {
       if (chartType === 'pie') {
-        setLoading(true);
+        setLoading('flex');
         try {
           const api = apis(accessToken);
           const response = await api.get(endpoints.statistics_user);
@@ -161,13 +162,13 @@ const AdminDashboard = () => {
         } catch (error) {
           console.error('Error fetching user statistics:', error);
         } finally {
-          setLoading(false);
+          setLoading('none');
         }
       }
     };
 
     fetchUserStats();
-  }, [chartType]);
+  }, [chartType, accessToken, setLoading]);
 
   const handleChartTypeChange = (e) => {
     setChartType(e.target.value);
@@ -179,19 +180,10 @@ const AdminDashboard = () => {
 
   const renderChart = () => {
     if (chartType === 'bar') {
-      if (loading) {
-        return <p>Loading...</p>;
-      }
       return <Bar data={barData} />;
     } else if (chartType === 'line') {
-      if (loading) {
-        return <p>Loading...</p>;
-      }
       return <Line data={revenueData} />;
     } else if (chartType === 'pie') {
-      if (loading) {
-        return <p>Loading...</p>;
-      }
       return <Pie data={userStats} />;
     }
     return <Bar data={barData} />;
@@ -201,11 +193,14 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <div className="admin-content">
         <div className="admin-sidebar">
-          <button className="admin-btn" onClick={() => window.location.href = '/admin-company'}>
+          <button className="admin-btn" onClick={() => navigate('/admin-company')}>
             Quản lý công ty
           </button>
-          <button className="admin-btn" onClick={() => window.location.href = '/admin-station'}>
-            Quản lý trạm xe
+          <button className="admin-btn" onClick={() => navigate('/admin-station')}>
+            Danh sách trạm xe
+          </button>
+          <button className="admin-btn" onClick={() => navigate('/admin-create-station')}>
+            Thêm trạm xe
           </button>
           <div>
             <label htmlFor="report-type">Báo cáo:</label>

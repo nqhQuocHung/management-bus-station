@@ -22,6 +22,9 @@ import DriverList from '../pages/DriverList';
 import ManageWork from '../pages/ManageWork';
 import ChangePassword from '../pages/ChangePassword';
 import AdminDashboard from '../pages/AdminDashboard';
+import AdminManageCompany from '../pages/AdminManageCompany';
+import CreateStation from '../pages/CreateStation';
+import StationList from '../pages/StationList/StationList';
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -93,6 +96,30 @@ const AppRouter = () => {
             element={
               <AuthenticatedRoute>
                 <AdminDashboard/>
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
+            path="/admin-company"
+            element={
+              <AuthenticatedRoute>
+                <AdminManageCompany/>
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
+            path="/admin-create-station"
+            element={
+              <AuthenticatedRoute>
+                <CreateStation/>
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
+            path="/admin-station"
+            element={
+              <AuthenticatedRoute>
+                <StationList/>
               </AuthenticatedRoute>
             }
           />

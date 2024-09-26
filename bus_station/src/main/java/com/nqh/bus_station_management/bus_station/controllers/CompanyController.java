@@ -107,4 +107,10 @@ public class CompanyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to toggle cargo transport status.");
         }
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<CompanyDTO>> getAllCompanies() {
+        List<CompanyDTO> companyList = companyService.getAllCompanies();
+        return ResponseEntity.ok(companyList);
+    }
 }

@@ -21,6 +21,8 @@ const endpoints = {
   company_list: '/api/companies',
   company_list_idName: '/api/companies/name-id',
   register_company: '/api/companies/register',
+  company_list_admin: '/api/companies/list',
+  verify_company: (id) => `/api/companies/verify/${id}`,
   get_company_managerid: (id) => `/api/companies/manager/${id}`,
   companyInfo: (id) => `/api/companies/${id}`,
 
@@ -72,6 +74,7 @@ const endpoints = {
   
   // Station Management
   list_station: '/api/stations/list',
+  create_station: '/api/stations',
 
   // Statistics
   statistics_ticket_year: (year) => `/api/statistics/annual/${year}`,
