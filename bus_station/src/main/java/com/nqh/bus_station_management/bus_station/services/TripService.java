@@ -14,4 +14,5 @@ public interface TripService {
     TripDTO tripInfo(Long id);
     List<TripDTO> getTripsByRouteId(Long routeId);
     List<TripPublicDTO> getTripsByDriverId(Long driverId);
+    Trip updateTripStatus(Long id, Boolean status);
 }

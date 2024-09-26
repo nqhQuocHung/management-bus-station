@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 public class TripPublicDTO {
     private Long id;
     private String routeName;
+    private Double cargoPrice;
+    private Double seatPrice;
     private String carNumber;
     private Timestamp departAt;
     private Boolean status;

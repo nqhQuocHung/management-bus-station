@@ -10,6 +10,7 @@ import com.nqh.bus_station_management.bus_station.repositories.RouteRepository;
 import com.nqh.bus_station_management.bus_station.repositories.TripRepository;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.services.TripService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,9 +108,24 @@ public class TripServiceImpl implements TripService {
         return new TripPublicDTO(
                 trip.getId(),
                 trip.getRoute().getName(),
+                trip.getRoute().getCargoPrice(),
+                trip.getRoute().getSeatPrice(),
                 trip.getCar().getCarNumber(),
                 trip.getDepartAt(),
                 trip.getStatus()
         );
+    }
+
+    @Override
+    public Trip updateTripStatus(Long id, Boolean status) {
+        Optional<Trip> tripOptional = tripRepository.findById(id);
+
+        if (tripOptional.isPresent()) {
+            Trip trip = tripOptional.get();
+            trip.setStatus(status);
+            return tripRepository.save(trip);
+        } else {
+            throw new RuntimeException("Trip not found with id: " + id);
+        }
     }
 }

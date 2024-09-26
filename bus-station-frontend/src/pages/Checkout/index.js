@@ -58,7 +58,7 @@ const Checkout = () => {
       setLoading('flex');
   
       if (selectedPaymentMethod !== 2) {
-        toast.error('Vui lòng chọn phương thức thanh toán VNPAY để tiếp tục!');
+        toast.error('Chúng tôi chỉ mới hỗ trợ được thanh toán online bằng VNPAY!');
         setLoading('none');
         return;
       }
