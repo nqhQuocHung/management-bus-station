@@ -45,7 +45,7 @@ const endpoints = {
   driver_verify: (id) => `/api/drivers/verify/${id}`,
   verified_driver_list_by_company: (companyId) => `/api/drivers/verified/company/${companyId}`,
   driver_available: "/api/drivers/available",
-  //
+  get_trips_by_driver: (id) => `/api/trips/driver/${id}`,
   statistics_ticket_year: (year) => `/api/statistics/annual/${year}`,
   statistics_ticket_quarterly: (year) => `/api/statistics/quarterly/${year}`,
   statistics_ticket_day: (year, month, day) =>

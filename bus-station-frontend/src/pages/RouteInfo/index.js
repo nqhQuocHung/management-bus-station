@@ -81,9 +81,6 @@ const RouteInfo = () => {
       paidAt: null,
     }));
   
-    // Log payload before sending it to the API
-    console.log('Payload data before sending:', payload);
-  
     try {
       setLoading('flex');
       const response = await apis(null).post(endpoints.add_cart, payload);
@@ -106,10 +103,10 @@ const RouteInfo = () => {
   
         setSelectedSeats([]);
   
-        const ticketId = response.data[0]?.id;
-        if (withCargo && ticketId) {
-          await createCargo(ticketId);
+        if (withCargo) {
+          await createCargo(response.data[0]?.id);
         }
+  
         fetchTripSeatDetails();
       }
     } catch (ex) {
@@ -128,7 +125,6 @@ const RouteInfo = () => {
     }
   };
   
-
   const createCargo = async (ticketId) => {
     const payload = {
       receiverName: cargoInfo.receiverName,

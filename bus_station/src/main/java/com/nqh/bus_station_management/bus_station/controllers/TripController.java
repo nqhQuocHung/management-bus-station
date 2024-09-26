@@ -1,6 +1,7 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
 import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Seat;
 import com.nqh.bus_station_management.bus_station.pojo.Trip;
@@ -16,12 +17,9 @@ import java.util.Optional;
 @RequestMapping("/api/trips")
 public class TripController {
 
-    private final TripService tripService;
-
     @Autowired
-    public TripController(TripService tripService) {
-        this.tripService = tripService;
-    }
+    private  TripService tripService;
+
 
     @GetMapping("/{id}")
     public Optional<Trip> getTripById(@PathVariable Long id) {
@@ -38,5 +36,14 @@ public class TripController {
     @GetMapping("/route/{routeId}")
     public List<TripDTO> getTripsByRouteId(@PathVariable Long routeId) {
         return tripService.getTripsByRouteId(routeId);
+    }
+
+    @GetMapping("/driver/{driverId}")
+    public ResponseEntity<List<TripPublicDTO>> getTripsByDriverId(@PathVariable Long driverId) {
+        List<TripPublicDTO> trips = tripService.getTripsByDriverId(driverId);
+        if (trips.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(trips);
     }
 }

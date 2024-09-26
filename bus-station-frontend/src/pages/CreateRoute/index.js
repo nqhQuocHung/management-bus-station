@@ -3,6 +3,8 @@ import './styles.css';
 import { apis, endpoints } from '../../config/apis';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateRoute = () => {
   const [stations, setStations] = useState([]);
@@ -43,7 +45,6 @@ const CreateRoute = () => {
     }
   }, [user, accessToken, setLoading]);
 
-  // Fetch all available stations
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -61,7 +62,6 @@ const CreateRoute = () => {
     fetchStations();
   }, [accessToken, setLoading]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -70,61 +70,56 @@ const CreateRoute = () => {
     });
   };
 
-  // Validate form input before submission
   const validateForm = () => {
     const { fromStation, toStation, routeName, seatPrice, cargoPrice } = formData;
     if (!fromStation || !toStation || !routeName || !seatPrice || !cargoPrice) {
-      alert('Please fill in all the required fields.');
+      toast.error('Please fill in all the required fields.');
       return false;
     }
     if (fromStation === toStation) {
-      alert('Departure and destination stations cannot be the same.');
+      toast.error('Departure and destination stations cannot be the same.');
       return false;
     }
     return true;
   };
 
-  // Submit form to the API
-  // Submit form to the API
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  // Log the form data to the console
-  console.log('Form Data:', formData);
+    console.log('Form Data:', formData);
 
-  try {
-    setIsSubmitting(true);
-    setLoading('flex');
+    try {
+      setIsSubmitting(true);
+      setLoading('flex');
 
-    const api = apis(accessToken);
-    const routeData = {
-      name: formData.routeName,
-      companyId: formData.companyId,
-      seatPrice: parseFloat(formData.seatPrice),
-      cargoPrice: parseFloat(formData.cargoPrice),
-      fromStationId: formData.fromStation,
-      toStationId: formData.toStation,
-      isActive: formData.isActive,
-    };
+      const api = apis(accessToken);
+      const routeData = {
+        name: formData.routeName,
+        companyId: formData.companyId,
+        seatPrice: parseFloat(formData.seatPrice),
+        cargoPrice: parseFloat(formData.cargoPrice),
+        fromStationId: formData.fromStation,
+        toStationId: formData.toStation,
+        isActive: formData.isActive,
+      };
 
-    await api.post(endpoints.create_route, routeData);
-    alert('Route created successfully');
-    navigate('/manage-company');
-  } catch (error) {
-    console.error('Error creating route', error);
-    alert('Failed to create route');
-  } finally {
-    setIsSubmitting(false);
-    setLoading('none');
-  }
-};
-
-  
+      await api.post(endpoints.create_route, routeData);
+      toast.success('Route created successfully');
+      navigate('/manage-company');
+    } catch (error) {
+      console.error('Error creating route', error);
+      toast.error('Failed to create route');
+    } finally {
+      setIsSubmitting(false);
+      setLoading('none');
+    }
+  };
 
   return (
     <div>
+      <ToastContainer />
       <form onSubmit={handleSubmit} className="custom-route-form">
         <div className="custom-form-group">
           <label>Nơi đi:</label>

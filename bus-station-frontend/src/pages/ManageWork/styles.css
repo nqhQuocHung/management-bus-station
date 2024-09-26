@@ -1,0 +1,49 @@
+.manage-work-container {
+    margin: 20px;
+  }
+  
+  .work-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .work-table th, .work-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .work-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .work-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .work-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .completed-status {
+    font-weight: bold;
+    color: #28a745;
+  }
+  
+  .complete-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .complete-button:hover {
+    background-color: #0056b3;
+  }
+  

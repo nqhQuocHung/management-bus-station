@@ -209,8 +209,8 @@ const Checkout = () => {
                 {tickets.map((ticket, index) => (
                   <tr key={index}>
                     <td>
-                      <p>{ticket.routeName}</p>
                       <p>{ticket.companyName}</p>
+                      <p>{ticket.routeName}</p>
                     </td>
                     <td>
                       <p>

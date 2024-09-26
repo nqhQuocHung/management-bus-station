@@ -14,6 +14,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 ChartJS.register(
   CategoryScale,
@@ -66,7 +68,7 @@ const ManageCompany = () => {
       const dateObj = new Date(date);
 
       if (isNaN(dateObj.getTime())) {
-        alert('Ngày không hợp lệ. Vui lòng chọn lại.');
+        toast.error('Ngày không hợp lệ. Vui lòng chọn lại.');
         return;
       }
 
@@ -102,13 +104,13 @@ const ManageCompany = () => {
       const response = await api.patch(endpoints.register_cargo(companyId), payload);
       if (response.status === 200) {
         setIsCargoTransport(!isCargoTransport);
-        alert(isCargoTransport ? 'Hủy đăng kí thành công!' : 'Đăng kí thành công!');
+        toast.success(isCargoTransport ? 'Hủy đăng kí thành công!' : 'Đăng kí thành công!');
       } else {
-        alert('Thao tác không thành công!');
+        toast.error('Thao tác không thành công!');
       }
     } catch (error) {
       console.error('Error registering cargo:', error);
-      alert('Có lỗi xảy ra trong quá trình thao tác.');
+      toast.error('Có lỗi xảy ra trong quá trình thao tác.');
     } finally {
       setLoading('none');
     }
@@ -124,7 +126,7 @@ const ManageCompany = () => {
 
   const handleFetchStats = (type) => {
     if (!date) {
-      alert('Please select a date before fetching statistics.');
+      toast.error('Vui lòng chọn ngày trước khi lấy thống kê.');
       return;
     }
     fetchStats(type);
@@ -164,14 +166,14 @@ const ManageCompany = () => {
       labels,
       datasets: [
         {
-          label: 'Total Ticket Revenue',
+          label: 'Doanh thu vé',
           data: ticketData,
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 1,
         },
         {
-          label: 'Total Cargo Revenue',
+          label: 'Doanh thu hàng hóa',
           data: cargoData,
           backgroundColor: 'rgba(153, 102, 255, 0.2)',
           borderColor: 'rgba(153, 102, 255, 1)',
@@ -193,12 +195,21 @@ const ManageCompany = () => {
 
   return (
     <>
+      <ToastContainer />
       <div className="custom-button-container">
         <Link to="/create-route">
           <button className="custom-button">Đăng ký tuyến</button>
         </Link>
         <Link to="/register-trip">
           <button className="custom-button">Đăng kí chuyến</button>
+        </Link>
+        <Link
+          to={{
+            pathname: '/company_drivers',
+            state: { companyId },
+          }}
+        >
+          <button className="custom-button">Quản lý tài xế</button>
         </Link>
         <button className="custom-button" onClick={showConfirmationDialog}>
           {isCargoTransport ? 'Hủy chuyển hàng' : 'Đăng kí chuyển hàng'}
@@ -217,7 +228,7 @@ const ManageCompany = () => {
               OK
             </button>
             <button className="custom-button" onClick={hideConfirmationDialog}>
-              Cancel
+              Hủy
             </button>
           </div>
         </div>

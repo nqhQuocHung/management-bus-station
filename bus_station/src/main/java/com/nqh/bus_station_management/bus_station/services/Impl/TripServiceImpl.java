@@ -1,6 +1,7 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
 import com.nqh.bus_station_management.bus_station.mappers.TripDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.*;
@@ -92,5 +93,23 @@ public class TripServiceImpl implements TripService {
                 .filter(trip -> trip.getDepartAt().toLocalDateTime().isAfter(LocalDateTime.now()))
                 .map(tripDTOMapper)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TripPublicDTO> getTripsByDriverId(Long driverId) {
+        List<Trip> trips = tripRepository.findByDriverId(driverId);
+        return trips.stream()
+                .map(this::mapToTripPublicDTO)
+                .collect(Collectors.toList());
+    }
+
+    private TripPublicDTO mapToTripPublicDTO(Trip trip) {
+        return new TripPublicDTO(
+                trip.getId(),
+                trip.getRoute().getName(),
+                trip.getCar().getCarNumber(),
+                trip.getDepartAt(),
+                trip.getStatus()
+        );
     }
 }

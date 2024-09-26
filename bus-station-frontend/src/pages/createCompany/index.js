@@ -3,6 +3,8 @@ import './styles.css';
 import { apis, endpoints } from '../../config/apis';
 import { AuthenticationContext, LoadingContext } from '../../config/context';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateCompany = () => {
   const { user } = useContext(AuthenticationContext);
@@ -79,12 +81,13 @@ const CreateCompany = () => {
         const api = apis(accessToken);
         await api.post(endpoints.register_company, newCompanyData);
         setIsSubmitted(true);
+        toast.success('Công ty đã được đăng ký thành công!');
       } else {
-        alert("Failed to upload avatar.");
+        toast.error("Failed to upload avatar.");
       }
     } catch (error) {
       console.error("Failed to create new company:", error);
-      alert("Failed to create new company.");
+      toast.error("Failed to create new company.");
     } finally {
       setLoading('none');
     }
@@ -92,6 +95,7 @@ const CreateCompany = () => {
 
   return (
     <div className="custom-form-container">
+      <ToastContainer />
       <h2>Đăng kí công ty mới</h2>
       {!isSubmitted ? (
         <form id="newCompanyForm" encType="multipart/form-data">
@@ -113,7 +117,7 @@ const CreateCompany = () => {
 
           <div className="custom-button-group">
             <button type="button" className="custom-btn custom-btn-primary" onClick={handleSubmit}>Xác nhận</button>
-            <button type="button" className="custom-btn custom-btn-secondary" onClick={() => navigate('/')}>Hủy</button>
+            <button type="button" className="custom-btn custom-btn-secondary" onClick={() => navigate('/')}>Quay lại</button>
           </div>
         </form>
       ) : (

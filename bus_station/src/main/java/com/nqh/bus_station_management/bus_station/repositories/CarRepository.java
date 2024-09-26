@@ -16,6 +16,7 @@ public interface CarRepository extends JpaRepository<Car, Long> {
     List<Car> findCarsByCompanyId(@Param("busStationId") Long busStationId);
 
     @Query("SELECT c FROM Car c WHERE c.company.id = :busStationId AND c.id NOT IN " +
-            "(SELECT t.car.id FROM Trip t WHERE DATE(t.departAt) = :date)")
+            "(SELECT t.car.id FROM Trip t WHERE DATE(t.departAt) = :date AND t.status = false)")
     List<Car> findAvailableCarsByCompanyAndDate(@Param("busStationId") Long busStationId, @Param("date") Date date);
+
 }

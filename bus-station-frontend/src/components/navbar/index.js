@@ -113,6 +113,13 @@ const Navbar = () => {
                       </Link>
                     </li>
                   )}
+                  {user.role === 'DRIVER' && (
+                    <li>
+                      <Link className="nav-link" to="/driver-work">
+                       Xem lịch trình
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <button
                       onClick={() => {
