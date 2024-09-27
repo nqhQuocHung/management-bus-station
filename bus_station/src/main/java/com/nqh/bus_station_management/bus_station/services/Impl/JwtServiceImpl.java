@@ -11,8 +11,12 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.springframework.security.core.GrantedAuthority;
+
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -28,6 +32,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private String buildToken(UserDetails userDetails, Map<String, Object> extraClaims, long expiration) {
+        extraClaims.put("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
+
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -36,6 +44,7 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(getSignInKey())
                 .compact();
     }
+
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
@@ -76,5 +85,11 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         return extractUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    @Override
+    public List<String> extractRoles(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("roles", List.class);
     }
 }

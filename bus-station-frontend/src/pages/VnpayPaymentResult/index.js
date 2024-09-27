@@ -8,6 +8,7 @@ const VnpayPaymentResult = () => {
   const { setLoading } = useContext(LoadingContext);
   const [paymentData, setPaymentData] = useState(null);
   const [ticketIds, setTicketIds] = useState([]);
+  const accessToken = localStorage.getItem('accessToken');
   const [tickets, setTickets] = useState([]);
   const navigate = useNavigate();
 
@@ -17,11 +18,10 @@ const VnpayPaymentResult = () => {
         setLoading('flex');
         
         const storedTicketIds = localStorage.getItem('ticketIds');
-        let parsedTicketIds = [];  // Khởi tạo biến parsedTicketIds
+        let parsedTicketIds = [];
         if (storedTicketIds) {
-          parsedTicketIds = JSON.parse(storedTicketIds);  // Gán giá trị sau khi parse
+          parsedTicketIds = JSON.parse(storedTicketIds);
           setTicketIds(parsedTicketIds);
-          console.log('Ticket IDs:', parsedTicketIds);
         }
 
         const queryParams = new URLSearchParams(window.location.search);
@@ -57,8 +57,7 @@ const VnpayPaymentResult = () => {
           paymentMethodId: 2
         };
 
-        const updateResponse = await apis().put(endpoints.update_payment_ticket, payload);
-        console.log('Cập nhật payment_id thành công:', updateResponse.data);
+        await apis(accessToken).put(endpoints.update_payment_ticket, payload);
       } catch (error) {
         console.error('Error updating ticket payment:', error);
       }
@@ -66,9 +65,8 @@ const VnpayPaymentResult = () => {
 
     const fetchTicketDetails = async (ticketIds) => {
       try {
-        const response = await apis().post(endpoints.get_ticket_details, { ticketIds });
+        const response = await apis(accessToken).post(endpoints.get_ticket_details, { ticketIds });
         setTickets(response.data);
-        console.log('Tickets:', response.data);
       } catch (error) {
         console.error('Error fetching ticket details:', error);
       }

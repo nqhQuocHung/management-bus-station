@@ -18,6 +18,7 @@ import html2canvas from 'html2canvas';
 import './styles.css';
 import { apis, endpoints } from '../../config/apis';
 import { LoadingContext } from '../../config/context';
+const accessToken = localStorage.getItem('accessToken');
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 

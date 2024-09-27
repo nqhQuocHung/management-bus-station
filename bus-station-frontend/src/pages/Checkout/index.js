@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 const Checkout = () => {
   const { user } = useContext(AuthenticationContext);
   const { setLoading } = useContext(LoadingContext);
+  const accessToken = localStorage.getItem('accessToken');
   const { cart, cartDispatcher } = useContext(CartContext);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(0);
@@ -26,7 +27,7 @@ const Checkout = () => {
   const fetchPaymentMethod = async () => {
     try {
       setLoading('flex');
-      const response = await apis(null).get(endpoints.payment_method_list);
+      const response = await apis(accessToken).get(endpoints.payment_method_list);
       setPaymentMethods(response.data);
       setSelectedPaymentMethod(response.data[0]?.id || 0);
     } catch (ex) {
@@ -40,7 +41,7 @@ const Checkout = () => {
     try {
       setLoading('flex');
       const ticketIds = cart.data.map((item) => item.id);
-      const response = await apis(null).post(endpoints.cart_details, ticketIds);
+      const response = await apis(accessToken).post(endpoints.cart_details, ticketIds);
       setTickets(response.data);
   
       console.log('Danh sách vé trong giỏ hàng:', response.data);
@@ -73,7 +74,7 @@ const Checkout = () => {
       const ticketIds = tickets.map((ticket) => ticket.ticketId);
       localStorage.setItem('ticketIds', JSON.stringify(ticketIds)); 
   
-      const response = await apis(null).post(endpoints.payment_url, {
+      const response = await apis(accessToken).post(endpoints.payment_url, {
         amount: amount,
         orderInfo: orderInfo,
       });

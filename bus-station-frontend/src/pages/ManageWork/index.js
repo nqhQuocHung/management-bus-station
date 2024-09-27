@@ -63,7 +63,7 @@ const ManageWork = () => {
       setLoading('flex');
       const orderInfo = `Payment for ticket #${Math.random().toString(36).substr(2, 9)}`;
       const amount = parseFloat(ticketInfo.totalPrice.replace(/[^0-9]/g, ''));
-      const response = await apis(null).post(endpoints.payment_url, {
+      const response = await apis(accessToken).post(endpoints.payment_url, {
         amount: amount,
         orderInfo: orderInfo,
       });

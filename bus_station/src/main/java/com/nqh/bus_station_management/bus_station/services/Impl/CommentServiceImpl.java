@@ -1,8 +1,10 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
+import com.nqh.bus_station_management.bus_station.dtos.CommentCreateDTO;
 import com.nqh.bus_station_management.bus_station.dtos.CommentDTO;
 import com.nqh.bus_station_management.bus_station.dtos.RatingDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Comment;
+import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.repositories.CommentRepository;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
@@ -47,8 +49,14 @@ public class CommentServiceImpl implements CommentService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Comment createComment(Comment comment) {
+    public Comment createComment(CommentCreateDTO commentCreateDTO, User user, TransportationCompany company) {
+        Comment comment = Comment.builder()
+                .content(commentCreateDTO.getContent())
+                .rating(commentCreateDTO.getRating())
+                .user(user)
+                .company(company)
+                .build();
+
         return commentRepository.save(comment);
     }
 

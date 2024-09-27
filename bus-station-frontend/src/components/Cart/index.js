@@ -10,6 +10,7 @@ import * as ultils from '../../config/utils';
 const Cart = () => {
   const { cart, cartDispatcher } = useContext(CartContext);
   const [tickets, setTickets] = useState([]);
+  const accessToken = localStorage.getItem('accessToken');
 
   const handleDeleteCart = async (ticketId) => {
     if (!ticketId) {
@@ -18,7 +19,7 @@ const Cart = () => {
     }
 
     try {
-      const response = await apis(null).delete(endpoints.ticket(ticketId));
+      const response = await apis(accessToken).delete(endpoints.ticket(ticketId));
 
       if (response.status === 200 || response.status === 204) {
         cartDispatcher({
@@ -66,7 +67,7 @@ const Cart = () => {
     try {
       const ticketIds = cart['data'].map((item) => item.id);
       if (ticketIds.length > 0) {
-        const response = await apis(null).post(endpoints.cart_details, ticketIds);
+        const response = await apis(accessToken).post(endpoints.cart_details, ticketIds);
         setTickets(response.data);
       } else {
         setTickets([]);

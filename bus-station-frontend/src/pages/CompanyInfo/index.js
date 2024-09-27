@@ -25,6 +25,7 @@ const CompanyInfo = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
+  const accessToken = localStorage.getItem('accessToken');
 
   const fetchCompanyInfo = async () => {
     try {
@@ -115,21 +116,26 @@ const CompanyInfo = () => {
       toast.error('Vui lòng nhập số sao hợp lệ (1-5).');
       return;
     }
-
+  
     if (!user) {
       toast.error('Bạn cần đăng nhập để thực hiện đánh giá.');
       return;
     }
-
+  
     try {
       setLoading('flex');
+  
       const payload = {
         content: newComment,
         rating: newRating,
-        user: { id: user.id },
-        company: { id: company.id },
+        userId: user.id, 
+        companyId: company.id
       };
-      await apis(null).post(endpoints.create_comment(id), payload);
+  
+      console.log('Form Data:', payload);
+  
+      await apis(accessToken).post(endpoints.create_comment(id), payload);
+  
       toast.success('Đánh giá thành công!');
       setShowRatingDialog(false);
       setNewRating(0);
@@ -143,6 +149,8 @@ const CompanyInfo = () => {
       setLoading('none');
     }
   };
+  
+  
 
   const registerDriver = async () => {
     if (!user) {
@@ -152,7 +160,7 @@ const CompanyInfo = () => {
   
     try {
       setLoading('flex');
-      const api = apis(null);
+      const api = apis(accessToken);
       const response = await api.post(endpoints.driver_create, null, {
         params: {
           userId: user.id,

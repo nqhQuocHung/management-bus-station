@@ -38,25 +38,53 @@ public class SecurityConfiguration {
     }
 
     private List<String> publicUrl = List.of("/",
-            "/api/auth/**",
+            "/api/auth/authenticate",
+            "/api/auth/register",
+            "/api/auth/forgot-password",
+            "/api/auth/oauth2/google",
             "/api/companies/**",
-            "/api/cargos/**"
+            "/api/comments/**",
+            "/api/comments/count/all",
+            "/api/payment-methods",
+            "/api/routes/**",
+            "/api/seats/**",
+            "/api/trips/**",
+            "/api/upload/**",
+            "/api/users/register",
+            "/api/payment/bill",
+            "api/tickets/details"
     );
 
 
     private List<String> companyManagerUrl = List.of("/",
             "/api/statistics/**",
-            "/api/cars/**"
+            "/api/cars/**",
+            "/api/companies/manager/company/**",
+            "/api/companies/manager/**",
+            "/api/companies/cargo/**",
+            "/api/drivers/company/**",
+            "/api/drivers/verify/**",
+            "/api/drivers/available",
+            "/api/routes/add",
+            "/api/routes/company/**",
+            "/api/statistics/annual/**",
+            "/api/statistics/quarterly/**",
+            "/api/statistics/daily/**",
+            "/api/trips/create"
 
     );
 
     private List<String> driverUrl = List.of("/",
-            ""
+            "/api/trips/driver/**"
     );
 
 
     private List<String> adminUrl = List.of("/",
-           ""
+           "/api/admin/**",
+            "/api/companies/verify/**",
+            "/api/statistics/user-statistics",
+            "/api/statistics/annual-revenue",
+            "/api/statistics/bar-data"
     );
 
 
@@ -67,9 +95,16 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/companies/count/**").authenticated()
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(publicUrl.toArray(new String[0])).permitAll()
+
+                        .requestMatchers(companyManagerUrl.toArray(new String[0])).hasRole("COMPANY_MANAGER")
+
+                        .requestMatchers(driverUrl.toArray(new String[0])).hasRole("DRIVER")
+
+                        .requestMatchers(adminUrl.toArray(new String[0])).hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -78,8 +113,6 @@ public class SecurityConfiguration {
 
         return http.build();
     }
-
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
