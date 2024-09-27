@@ -13,6 +13,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import './styles.css';
 import { apis, endpoints } from '../../config/apis';
 import { LoadingContext } from '../../config/context';
@@ -189,6 +191,36 @@ const AdminDashboard = () => {
     return <Bar data={barData} />;
   };
 
+  const exportReportToPDF = async (existingFile) => {
+    let pdf;
+  
+    if (!existingFile) {
+      pdf = new jsPDF();
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(16); 
+      pdf.text('Bus Station Data Statistics', 105, 20, null, null, 'center');
+    } else {
+      pdf = existingFile;
+      pdf.addPage();
+    }
+  
+    const pieChartElement = document.querySelector('.admin-chart canvas');
+    
+    if (pieChartElement) {
+      const pieCanvas = await html2canvas(pieChartElement, { scale: 2 });
+      const pieImage = pieCanvas.toDataURL('image/png');
+      pdf.addImage(pieImage, 'PNG', 35, 40, 140, 140);
+    }
+  
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const fileName = `report_${day}-${month}-${year}.pdf`;
+  
+    pdf.save(fileName);
+  };
+  
   return (
     <div className="admin-dashboard">
       <div className="admin-content">
@@ -201,6 +233,9 @@ const AdminDashboard = () => {
           </button>
           <button className="admin-btn" onClick={() => navigate('/admin-create-station')}>
             Thêm trạm xe
+          </button>
+          <button className="admin-btn export-btn" onClick={() => exportReportToPDF(null)}>
+            Xuất báo cáo PDF
           </button>
           <div>
             <label htmlFor="report-type">Báo cáo:</label>

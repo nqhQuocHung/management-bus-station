@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './styles.css';
 import { AuthenticationContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
+import { LoadingContext } from '../../config/context';
 
 const PasswordChange = () => {
   const [oldPassword, setOldPassword] = useState('');
@@ -12,6 +13,7 @@ const PasswordChange = () => {
   const [showPass, setShowPass] = useState(false);
 
   const { user } = useContext(AuthenticationContext);
+  const { setLoading } = useContext(LoadingContext); 
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
 
@@ -32,6 +34,8 @@ const PasswordChange = () => {
     }
 
     try {
+      setLoading('flex'); 
+
       const api = apis(accessToken);
       await api.post(endpoints.change_password, {
         currentPassword: oldPassword,
@@ -54,6 +58,8 @@ const PasswordChange = () => {
         autoClose: 3000,
         theme: 'colored',
       });
+    } finally {
+      setLoading('none');
     }
   };
 

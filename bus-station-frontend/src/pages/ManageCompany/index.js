@@ -14,6 +14,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -193,6 +195,29 @@ const ManageCompany = () => {
     return <Bar data={data} options={options} />;
   };
 
+  const exportReportToPDF = async () => {
+    const chartElement = document.querySelector('.mc-chart-container canvas');
+    if (!chartElement || !companyName) return;
+
+    const canvas = await html2canvas(chartElement);
+    const chartImage = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF();
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(16);
+    pdf.text(`Bus Station Revenue Report - ${companyName}`, 105, 20, null, null, 'center');
+
+    pdf.addImage(chartImage, 'PNG', 15, 30, 180, 100);
+
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const fileName = `${companyName}_report_${day}-${month}-${year}.pdf`;
+
+    pdf.save(fileName);
+  };
+
   return (
     <>
       <ToastContainer />
@@ -235,6 +260,9 @@ const ManageCompany = () => {
       )}
       <div className="mc-stats-chart-container">
         <div className="mc-stats-button-container">
+          <button className="mc-button export-button" onClick={exportReportToPDF}>
+            Xuất báo cáo PDF
+          </button>
           <button
             className="mc-button"
             onClick={() => {
@@ -278,6 +306,6 @@ const ManageCompany = () => {
       </div>
     </>
   );
-}  
+};
 
 export default ManageCompany;
