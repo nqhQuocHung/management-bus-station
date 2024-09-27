@@ -80,7 +80,7 @@ const Profile = () => {
 
       const accessToken = localStorage.getItem('accessToken');
 
-      const response = await apis(accessToken).patch(
+      const response = await apis(accessToken).put(
         endpoints.update_user(user['id']),
         formData,
         {

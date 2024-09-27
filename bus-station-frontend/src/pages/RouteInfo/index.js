@@ -23,6 +23,7 @@ const RouteInfo = () => {
   const [showCargoForm, setShowCargoForm] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const mapRef = useRef(null);
+  const accessToken = localStorage.getItem('accessToken');
   const [cargoInfo, setCargoInfo] = useState({
     receiverName: '',
     receiverEmail: '',
@@ -83,7 +84,7 @@ const RouteInfo = () => {
   
     try {
       setLoading('flex');
-      const response = await apis(null).post(endpoints.add_cart, payload);
+      const response = await apis(accessToken).post(endpoints.add_cart, payload);
   
       if (response.status === 200) {
         toast.success('Thêm vào giỏ hàng thành công!', {
@@ -138,7 +139,7 @@ const RouteInfo = () => {
 
     try {
       setLoading('flex');
-      await apis(null).post(endpoints.add_cargo, payload);
+      await apis(accessToken).post(endpoints.add_cargo, payload);
     } catch (error) {
       console.error('Error creating cargo:', error.response ? error.response.data : error);
     } finally {
@@ -160,7 +161,7 @@ const RouteInfo = () => {
   const fetchAllTrips = async () => {
     setLoading('flex');
     try {
-      const response = await apis(null).get(endpoints.route_trip_list(id));
+      const response = await apis(accessToken).get(endpoints.route_trip_list(id));
       if (response) {
         setTrips(response['data']);
         setTripId(response['data'][0]['id']);
@@ -175,7 +176,7 @@ const RouteInfo = () => {
   const fetchRouteInfo = async () => {
     try {
       setLoading('flex');
-      const response = await apis(null).get(endpoints.route_info(id));
+      const response = await apis(accessToken).get(endpoints.route_info(id));
       const data = response['data'];
       setRoute(data);
     } catch (ex) {
@@ -188,7 +189,7 @@ const RouteInfo = () => {
   const fetchTripSeatDetails = async () => {
     setLoading('flex');
     try {
-      const response = await apis(null).get(endpoints.get_available_seat(tripId));
+      const response = await apis(accessToken).get(endpoints.get_available_seat(tripId));
       const availableSeats = response.data;
 
       setSeatDetails(

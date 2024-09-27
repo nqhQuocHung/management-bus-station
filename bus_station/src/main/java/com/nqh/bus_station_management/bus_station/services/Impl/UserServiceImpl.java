@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .email(userRegisterDTO.getEmail())
                 .phone(userRegisterDTO.getPhone())
                 .avatar(userRegisterDTO.getAvatar())
-                .isActive(false)
+                .isActive(true)
                 .role(new Role(1L, "USER"))
                 .build();
 
@@ -159,5 +159,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public List<StatisticsUserDTO> getUserStatistics() {
         return userRepository.countUsersByRole();
+    }
+
+    @Override
+    public Optional<User> findUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 }

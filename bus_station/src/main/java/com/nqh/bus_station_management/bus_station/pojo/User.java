@@ -1,8 +1,6 @@
 package com.nqh.bus_station_management.bus_station.pojo;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -70,7 +68,7 @@ public class User implements UserDetails {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private Role role;
 
     @Override
@@ -105,7 +103,7 @@ public class User implements UserDetails {
         return this.isActive;
     }
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    @JsonManagedReference(value = "user-comment")
     private Set<Comment> comments;
 }

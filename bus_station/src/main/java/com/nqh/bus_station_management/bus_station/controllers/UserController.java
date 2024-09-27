@@ -12,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
-import java.io.IOException;
 
 
 @RestController
@@ -46,17 +44,11 @@ public class UserController {
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         User updatedUser = userService.updateUser(id, userUpdateDTO);
-
-        if (updatedUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with id " + id);
-        }
-
         return ResponseEntity.ok(updatedUser);
     }
-
 
     @GetMapping("/role/{roleId}")
     public ResponseEntity<List<UserDTO>> findActiveUsersByRoleId(@PathVariable Long roleId) {

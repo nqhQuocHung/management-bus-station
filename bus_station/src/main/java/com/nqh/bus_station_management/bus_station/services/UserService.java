@@ -18,4 +18,5 @@ public interface UserService {
     UserDetails loadUserByUsername(String username);
     boolean isEmailExist(String email);
     List<StatisticsUserDTO> getUserStatistics();
+    Optional<User> findUserById(Long userId);
 }
