@@ -11,9 +11,25 @@
   justify-content: center;
   align-items: center;
   padding: 1rem;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+.grid-item:hover {
+  transform: scale(1.05);
+  background-color: #b1d9e0;
+}
+
+.grid-item a {
+  text-decoration: none;
+}
+
+.grid-item a:hover {
+  text-decoration: none;
 }
 
 .grid-item > .image-container > img {
   width: 10rem;
   height: 10rem;
+  border-radius: 10px;
 }
