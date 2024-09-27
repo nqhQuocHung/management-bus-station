@@ -168,4 +168,54 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 upperCaseRule, digitRule);
         return password;
     }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequestDTO forgotPasswordRequest) {
+        User user = userRepository.findByUsernameAndEmail(
+                forgotPasswordRequest.getUsername(),
+                forgotPasswordRequest.getEmail()
+        ).orElseThrow(() -> new IllegalArgumentException("User not found with the provided username and email"));
+
+        String newPassword = user.getUsername();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        String subject = "Yêu cầu đặt lại mật khẩu tại Bus Station";
+        String message = String.format(
+                "<html>" +
+                        "<body>" +
+                        "<p>Xin chào %s,</p>" +
+                        "<p>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>" +
+                        "<p>Mật khẩu tạm thời mới của bạn là: <strong>%s</strong></p>" +
+                        "<p>Vui lòng đăng nhập với mật khẩu tạm thời này và thay đổi mật khẩu mới ngay lập tức để bảo vệ tài khoản của bạn.</p>" +
+                        "<p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng liên hệ với chúng tôi ngay lập tức.</p>" +
+                        "<br>" +
+                        "<p>Trân trọng,</p>" +
+                        "<p>Đội ngũ hỗ trợ Bus Station</p>" +
+                        "</body>" +
+                        "</html>",
+                user.getLastname() + " " + user.getFirstname(),
+                newPassword
+        );
+        emailService.sendHtmlEmail(user.getEmail(), subject, message);
+    }
+
+    @Override
+    public void changePassword(User user, ChangePasswordRequestDTO changePasswordRequest) {
+        if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không đúng.");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+
+        String subject = "Thông báo: Đổi mật khẩu thành công";
+        String message = String.format(
+                "<p>Xin chào %s %s,</p>" +
+                        "<p>Bạn đã thay đổi mật khẩu thành công. Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi ngay lập tức.</p>" +
+                        "<p>Trân trọng,<br>Đội ngũ hỗ trợ</p>",
+                user.getLastname(), user.getFirstname()
+        );
+        emailService.sendHtmlEmail(user.getEmail(), subject, message);
+    }
+
 }

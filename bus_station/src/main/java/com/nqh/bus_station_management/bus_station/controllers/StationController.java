@@ -12,12 +12,9 @@ import java.util.Optional;
 @RequestMapping("/api/stations")
 public class StationController {
 
-    private final StationService stationService;
-
     @Autowired
-    public StationController(StationService stationService) {
-        this.stationService = stationService;
-    }
+    private  StationService stationService;
+
 
     @GetMapping("/list")
     public List<Station> getAllStations() {

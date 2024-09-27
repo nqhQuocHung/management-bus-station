@@ -17,4 +17,6 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     void deleteById(Long id);
 
     Optional<Station> getStationById(Long id);
+
+    long count();
 }

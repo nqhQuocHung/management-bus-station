@@ -48,6 +48,7 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
+
 		<!-- Validation API via Spring Boot Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -14,6 +14,10 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 ChartJS.register(
   CategoryScale,
@@ -66,7 +70,7 @@ const ManageCompany = () => {
       const dateObj = new Date(date);
 
       if (isNaN(dateObj.getTime())) {
-        alert('Ngày không hợp lệ. Vui lòng chọn lại.');
+        toast.error('Ngày không hợp lệ. Vui lòng chọn lại.');
         return;
       }
 
@@ -102,13 +106,13 @@ const ManageCompany = () => {
       const response = await api.patch(endpoints.register_cargo(companyId), payload);
       if (response.status === 200) {
         setIsCargoTransport(!isCargoTransport);
-        alert(isCargoTransport ? 'Hủy đăng kí thành công!' : 'Đăng kí thành công!');
+        toast.success(isCargoTransport ? 'Hủy đăng kí thành công!' : 'Đăng kí thành công!');
       } else {
-        alert('Thao tác không thành công!');
+        toast.error('Thao tác không thành công!');
       }
     } catch (error) {
       console.error('Error registering cargo:', error);
-      alert('Có lỗi xảy ra trong quá trình thao tác.');
+      toast.error('Có lỗi xảy ra trong quá trình thao tác.');
     } finally {
       setLoading('none');
     }
@@ -124,7 +128,7 @@ const ManageCompany = () => {
 
   const handleFetchStats = (type) => {
     if (!date) {
-      alert('Please select a date before fetching statistics.');
+      toast.error('Vui lòng chọn ngày trước khi lấy thống kê.');
       return;
     }
     fetchStats(type);
@@ -164,14 +168,14 @@ const ManageCompany = () => {
       labels,
       datasets: [
         {
-          label: 'Total Ticket Revenue',
+          label: 'Doanh thu vé',
           data: ticketData,
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 1,
         },
         {
-          label: 'Total Cargo Revenue',
+          label: 'Doanh thu hàng hóa',
           data: cargoData,
           backgroundColor: 'rgba(153, 102, 255, 0.2)',
           borderColor: 'rgba(153, 102, 255, 1)',
@@ -191,41 +195,76 @@ const ManageCompany = () => {
     return <Bar data={data} options={options} />;
   };
 
+  const exportReportToPDF = async () => {
+    const chartElement = document.querySelector('.mc-chart-container canvas');
+    if (!chartElement || !companyName) return;
+
+    const canvas = await html2canvas(chartElement);
+    const chartImage = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF();
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(16);
+    pdf.text(`Bus Station Revenue Report - ${companyName}`, 105, 20, null, null, 'center');
+
+    pdf.addImage(chartImage, 'PNG', 15, 30, 180, 100);
+
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const fileName = `${companyName}_report_${day}-${month}-${year}.pdf`;
+
+    pdf.save(fileName);
+  };
+
   return (
     <>
-      <div className="custom-button-container">
+      <ToastContainer />
+      <div className="mc-button-container">
         <Link to="/create-route">
-          <button className="custom-button">Đăng ký tuyến</button>
+          <button className="mc-button">Đăng ký tuyến</button>
         </Link>
         <Link to="/register-trip">
-          <button className="custom-button">Đăng kí chuyến</button>
+          <button className="mc-button">Đăng kí chuyến</button>
         </Link>
-        <button className="custom-button" onClick={showConfirmationDialog}>
+        <Link
+          to={{
+            pathname: '/company_drivers',
+            state: { companyId },
+          }}
+        >
+          <button className="mc-button">Quản lý tài xế</button>
+        </Link>
+        <button className="mc-button" onClick={showConfirmationDialog}>
           {isCargoTransport ? 'Hủy chuyển hàng' : 'Đăng kí chuyển hàng'}
         </button>
         <ChatIcon />
       </div>
       {showConfirmation && (
-        <div className="custom-confirmation-overlay">
-          <div className="custom-confirmation-dialog">
+        <div className="mc-confirmation-overlay">
+          <div className="mc-confirmation-dialog">
             <p>
               {isCargoTransport
                 ? 'Bạn chắc chắn muốn hủy đăng kí vận chuyển hàng hóa không?'
                 : 'Bạn chắc chắn muốn đăng kí vận chuyển hàng hóa không?'}
             </p>
-            <button className="custom-button" onClick={handleRegisterCargo}>
+            <button className="mc-button" onClick={handleRegisterCargo}>
               OK
             </button>
-            <button className="custom-button" onClick={hideConfirmationDialog}>
-              Cancel
+            <button className="mc-button" onClick={hideConfirmationDialog}>
+              Hủy
             </button>
           </div>
         </div>
       )}
-      <div className="custom-stats-chart-container">
-        <div className="custom-stats-button-container">
+      <div className="mc-stats-chart-container">
+        <div className="mc-stats-button-container">
+          <button className="mc-button export-button" onClick={exportReportToPDF}>
+            Xuất báo cáo PDF
+          </button>
           <button
-            className="custom-button"
+            className="mc-button"
             onClick={() => {
               setSelectedOption('month');
               handleFetchStats('month');
@@ -234,7 +273,7 @@ const ManageCompany = () => {
             Thống kê theo tháng
           </button>
           <button
-            className="custom-button"
+            className="mc-button"
             onClick={() => {
               setSelectedOption('quarter');
               handleFetchStats('quarter');
@@ -243,7 +282,7 @@ const ManageCompany = () => {
             Thống kê theo quý
           </button>
           <button
-            className="custom-button"
+            className="mc-button"
             onClick={() => {
               setSelectedOption('day');
               handleFetchStats('day');
@@ -255,14 +294,14 @@ const ManageCompany = () => {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="custom-date-input"
+            className="mc-date-input"
           />
         </div>
-        <div className="custom-chart-and-heading-container">
-          <h2 className="custom-heading">
-            Báo cáo doanh thu của công ty <span className="company-name">{companyName}</span>
+        <div className="mc-chart-and-heading-container">
+          <h2 className="mc-heading">
+            Báo cáo doanh thu của công ty <span className="mc-company-name">{companyName}</span>
           </h2>
-          <div className="custom-chart-container">{renderChart()}</div>
+          <div className="mc-chart-container">{renderChart()}</div>
         </div>
       </div>
     </>

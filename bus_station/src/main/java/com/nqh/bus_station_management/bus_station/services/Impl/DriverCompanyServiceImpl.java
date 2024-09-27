@@ -9,6 +9,7 @@ import com.nqh.bus_station_management.bus_station.repositories.DriverCompanyRepo
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.repositories.RoleRepository;
 import com.nqh.bus_station_management.bus_station.services.DriverCompanyService;
+import com.nqh.bus_station_management.bus_station.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,9 @@ public class DriverCompanyServiceImpl implements DriverCompanyService {
     @Autowired
     private  RoleRepository roleRepository;
 
+    @Autowired
+    EmailService emailService;
+
     @Override
     @Transactional
     public DriverCompany createDriverCompany(User user, TransportationCompany company) {
@@ -44,24 +48,33 @@ public class DriverCompanyServiceImpl implements DriverCompanyService {
 
     @Override
     @Transactional
-    public DriverCompany updateVerifiedStatus(Long driverCompanyId) {
-        DriverCompany driverCompany = driverCompanyRepository.findById(driverCompanyId)
-                .orElseThrow(() -> new IllegalArgumentException("DriverCompany not found"));
+    public DriverCompany updateVerifiedStatus(Long userId) {
+        DriverCompany driverCompany = driverCompanyRepository.findByDriverId(userId);
 
         boolean currentStatus = driverCompany.getVerified();
         driverCompany.setVerified(!currentStatus);
 
+        User user = driverCompany.getUser();
+
         if (!currentStatus) {
-            User user = driverCompany.getUser();
             Role driverRole = roleRepository.findById(4L)
                     .orElseThrow(() -> new IllegalArgumentException("Role DRIVER not found"));
-
             user.setRole(driverRole);
-            userRepository.save(user);
+
+            emailService.sendDriverApprovalEmail(user.getEmail(), user.getLastname(), user.getFirstname());
+        } else {
+            Role defaultRole = roleRepository.findById(1L)
+                    .orElseThrow(() -> new IllegalArgumentException("Default role not found"));
+            user.setRole(defaultRole);
+
+            emailService.sendDriverSuspensionEmail(user.getEmail(), user.getLastname(), user.getFirstname());
         }
 
+        userRepository.save(user);
         return driverCompanyRepository.save(driverCompany);
     }
+
+
 
 
     @Override

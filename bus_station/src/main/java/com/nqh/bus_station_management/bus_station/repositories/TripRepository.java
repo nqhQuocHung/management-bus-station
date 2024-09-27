@@ -12,10 +12,15 @@ import java.util.List;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
+    @Query("SELECT t FROM Trip t WHERE t.driver.id = :driverId")
+    List<Trip> findByDriverId(@Param("driverId") Long driverId);
 
     @Query("SELECT t FROM Trip t WHERE t.id = :id")
     Trip getById(@Param("id") Long id);
 
     List<Trip> findByRouteId(Long routeId);
+
+    @Query("SELECT COUNT(t) FROM Trip t WHERE t.isActive = true")
+    long countActiveTrips();
 }
 

@@ -43,7 +43,6 @@ const Checkout = () => {
       const response = await apis(null).post(endpoints.cart_details, ticketIds);
       setTickets(response.data);
   
-      // In danh sách vé ra console
       console.log('Danh sách vé trong giỏ hàng:', response.data);
     } catch (ex) {
       console.error('Error fetching cart details:', ex);
@@ -58,7 +57,7 @@ const Checkout = () => {
       setLoading('flex');
   
       if (selectedPaymentMethod !== 2) {
-        toast.error('Vui lòng chọn phương thức thanh toán VNPAY để tiếp tục!');
+        toast.error('Chúng tôi chỉ mới hỗ trợ được thanh toán online bằng VNPAY!');
         setLoading('none');
         return;
       }
@@ -209,8 +208,8 @@ const Checkout = () => {
                 {tickets.map((ticket, index) => (
                   <tr key={index}>
                     <td>
-                      <p>{ticket.routeName}</p>
                       <p>{ticket.companyName}</p>
+                      <p>{ticket.routeName}</p>
                     </td>
                     <td>
                       <p>

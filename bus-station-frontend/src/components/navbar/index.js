@@ -113,6 +113,25 @@ const Navbar = () => {
                       </Link>
                     </li>
                   )}
+                  {user.role === 'DRIVER' && (
+                    <li>
+                      <Link className="nav-link" to="/driver-work">
+                       Xem lịch trình
+                      </Link>
+                    </li>
+                  )}
+                  {user.role === 'ADMIN' && (
+                    <li>
+                      <Link className="nav-link" to="/admin">
+                       Quản lý bến xe
+                      </Link>
+                    </li>
+                  )}
+                   <li>
+                    <Link to={'/change-password'} className="nav-link">
+                      Đổi mật khẩu
+                    </Link>
+                  </li>
                   <li>
                     <button
                       onClick={() => {

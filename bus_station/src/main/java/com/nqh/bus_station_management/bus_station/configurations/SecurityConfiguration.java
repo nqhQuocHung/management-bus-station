@@ -37,12 +37,37 @@ public class SecurityConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    private List<String> publicUrl = List.of("/",
+            "/api/auth/**",
+            "/api/companies/**",
+            "/api/cargos/**"
+    );
+
+
+    private List<String> companyManagerUrl = List.of("/",
+            "/api/statistics/**",
+            "/api/cars/**"
+
+    );
+
+    private List<String> driverUrl = List.of("/",
+            ""
+    );
+
+
+    private List<String> adminUrl = List.of("/",
+           ""
+    );
+
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/companies/count/**").authenticated()
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)

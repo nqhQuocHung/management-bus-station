@@ -1,9 +1,6 @@
 package com.nqh.bus_station_management.bus_station.services;
 
-import com.nqh.bus_station_management.bus_station.dtos.UserDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserRegisterDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserUpdateDTO;
+import com.nqh.bus_station_management.bus_station.dtos.*;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,4 +17,5 @@ public interface UserService {
     UserDTO toDTO(User user);
     UserDetails loadUserByUsername(String username);
     boolean isEmailExist(String email);
+    List<StatisticsUserDTO> getUserStatistics();
 }

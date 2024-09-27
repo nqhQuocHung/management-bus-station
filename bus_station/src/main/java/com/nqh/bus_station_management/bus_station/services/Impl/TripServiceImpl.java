@@ -1,6 +1,7 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
+import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
 import com.nqh.bus_station_management.bus_station.mappers.TripDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.*;
@@ -9,6 +10,7 @@ import com.nqh.bus_station_management.bus_station.repositories.RouteRepository;
 import com.nqh.bus_station_management.bus_station.repositories.TripRepository;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.services.TripService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,5 +94,43 @@ public class TripServiceImpl implements TripService {
                 .filter(trip -> trip.getDepartAt().toLocalDateTime().isAfter(LocalDateTime.now()))
                 .map(tripDTOMapper)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TripPublicDTO> getTripsByDriverId(Long driverId) {
+        List<Trip> trips = tripRepository.findByDriverId(driverId);
+        return trips.stream()
+                .map(this::mapToTripPublicDTO)
+                .collect(Collectors.toList());
+    }
+
+    private TripPublicDTO mapToTripPublicDTO(Trip trip) {
+        return new TripPublicDTO(
+                trip.getId(),
+                trip.getRoute().getName(),
+                trip.getRoute().getCargoPrice(),
+                trip.getRoute().getSeatPrice(),
+                trip.getCar().getCarNumber(),
+                trip.getDepartAt(),
+                trip.getStatus()
+        );
+    }
+
+    @Override
+    public Trip updateTripStatus(Long id, Boolean status) {
+        Optional<Trip> tripOptional = tripRepository.findById(id);
+
+        if (tripOptional.isPresent()) {
+            Trip trip = tripOptional.get();
+            trip.setStatus(status);
+            return tripRepository.save(trip);
+        } else {
+            throw new RuntimeException("Trip not found with id: " + id);
+        }
+    }
+
+    @Override
+    public long getActiveTripCount() {
+        return tripRepository.countActiveTrips();
     }
 }

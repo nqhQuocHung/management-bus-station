@@ -1,8 +1,8 @@
 package com.nqh.bus_station_management.bus_station.repositories;
 
+import com.nqh.bus_station_management.bus_station.dtos.StatisticsAdminDTO;
 import com.nqh.bus_station_management.bus_station.dtos.StatisticsDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Ticket;
-import com.nqh.bus_station_management.bus_station.pojo.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -47,6 +47,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             "AND t.trip.route.company.id = :companyId " +
             "AND t.paidAt IS NOT NULL")
     List<StatisticsDTO> calculateDailyRevenue(@Param("year") int year, @Param("month") int month, @Param("day") int day, @Param("companyId") Long companyId);
+
+    @Query("SELECT new com.nqh.bus_station_management.bus_station.dtos.StatisticsAdminDTO(SUM(t.seatPrice), COALESCE(SUM(c.cargoPrice), 0), MONTH(t.paidAt)) " +
+            "FROM Ticket t LEFT JOIN t.cargo c " +
+            "WHERE YEAR(t.paidAt) = :year " +
+            "AND t.paidAt IS NOT NULL " +
+            "GROUP BY MONTH(t.paidAt) " +
+            "ORDER BY MONTH(t.paidAt)")
+    List<StatisticsAdminDTO> calculateMonthlyRevenueAdmin(@Param("year") int year);
 
 
     @Modifying

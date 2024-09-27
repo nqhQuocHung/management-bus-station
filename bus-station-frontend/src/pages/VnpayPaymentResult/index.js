@@ -8,6 +8,7 @@ const VnpayPaymentResult = () => {
   const { setLoading } = useContext(LoadingContext);
   const [paymentData, setPaymentData] = useState(null);
   const [ticketIds, setTicketIds] = useState([]);
+  const [tickets, setTickets] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,9 +17,11 @@ const VnpayPaymentResult = () => {
         setLoading('flex');
         
         const storedTicketIds = localStorage.getItem('ticketIds');
+        let parsedTicketIds = [];  // Khởi tạo biến parsedTicketIds
         if (storedTicketIds) {
-          const parsedTicketIds = JSON.parse(storedTicketIds);
+          parsedTicketIds = JSON.parse(storedTicketIds);  // Gán giá trị sau khi parse
           setTicketIds(parsedTicketIds);
+          console.log('Ticket IDs:', parsedTicketIds);
         }
 
         const queryParams = new URLSearchParams(window.location.search);
@@ -36,7 +39,8 @@ const VnpayPaymentResult = () => {
         setPaymentData(paymentDetails);
 
         const paymentId = response.data.id;
-        await updateTicketPayment(ticketIds, paymentId);
+        await updateTicketPayment(parsedTicketIds, paymentId); 
+        await fetchTicketDetails(parsedTicketIds);
 
       } catch (err) {
         console.error('Error fetching payment data or creating bill:', err);
@@ -50,7 +54,7 @@ const VnpayPaymentResult = () => {
         const payload = {
           ticketIds: ticketIds,
           paymentId: paymentId,
-          paymentMethodId: 2 // Cập nhật phương thức thanh toán là 2
+          paymentMethodId: 2
         };
 
         const updateResponse = await apis().put(endpoints.update_payment_ticket, payload);
@@ -60,20 +64,46 @@ const VnpayPaymentResult = () => {
       }
     };
 
+    const fetchTicketDetails = async (ticketIds) => {
+      try {
+        const response = await apis().post(endpoints.get_ticket_details, { ticketIds });
+        setTickets(response.data);
+        console.log('Tickets:', response.data);
+      } catch (error) {
+        console.error('Error fetching ticket details:', error);
+      }
+    };
+
     fetchPaymentResult();
   }, [setLoading]);
 
   return (
     <div className="payment-result-container">
-      <h2>Payment Result</h2>
+      <h2>Kết quả thanh toán</h2>
       {paymentData && (
         <div className="payment-details">
           <p><strong>Tổng hóa đơn:</strong> {paymentData.amount ? `${paymentData.amount / 100} VND` : ''}</p>
           <p><strong>Mã ngân hàng:</strong> {paymentData.bankCode}</p>
           <p><strong>Mã giao dịch:</strong> {paymentData.transactionNo}</p>
-          <p><strong>Trạng thái:</strong> Payment successful</p>
+          <p><strong>Trạng thái:</strong> Thanh toán thành công</p>
         </div>
       )}
+
+      {tickets.length > 0 && (
+        <div className="ticket-list">
+          <h3>Danh sách vé nhận được:</h3>
+          <ul>
+            {tickets.map(ticket => (
+              <li key={ticket.id}>
+                <p><strong>Mã vé:</strong> {ticket.code}</p>
+                <p><strong>Chuyến đi:</strong> {ticket.routeName}</p>
+                <p><strong>Ghế:</strong> {ticket.seatNumber}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <button onClick={() => navigate('/')}>
         Về Trang Chủ
       </button>

@@ -11,4 +11,5 @@ public interface StationService {
     Station saveStation(Station station);
     void updateStation(Station station);
     void deleteStationById(Long id);
+    long getTotalStationCount();
 }

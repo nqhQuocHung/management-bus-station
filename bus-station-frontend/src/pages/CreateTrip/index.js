@@ -3,6 +3,8 @@ import './styles.css';
 import { apis, endpoints } from '../../config/apis';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateTrip = () => {
   const [routes, setRoutes] = useState([]);
@@ -64,7 +66,7 @@ const CreateTrip = () => {
     if (formData.departAt) {
       handleFetchDrivers(formData.departAt);
     }
-  }, [formData.departAt]); // useEffect để gọi lại hàm khi departAt thay đổi
+  }, [formData.departAt]);
 
   const handleFetchCars = async (departAt) => {
     if (!departAt || !companyId) return;
@@ -133,11 +135,11 @@ const CreateTrip = () => {
       };
 
       await api.post(endpoints.creat_trip, tripData);
-      alert('Trip created successfully');
+      toast.success('Tạo chuyến thành công');
       navigate(-1);
     } catch (error) {
       console.error('Error creating trip', error);
-      alert('Failed to create trip');
+      toast.error('Tạo chuyến thất bại');
     } finally {
       setLoading('none');
     }
@@ -145,15 +147,16 @@ const CreateTrip = () => {
 
   return (
     <div>
+      <ToastContainer />
       <form onSubmit={handleSubmit} className="custom-trip-form">
         <div className="custom-form-group">
-          <label>Route:</label>
+          <label>Tuyến:</label>
           <select
             name="routeId"
             value={formData.routeId}
             onChange={handleChange}
           >
-            <option value="">Select Route</option>
+            <option value="">Chọn tuyến</option>
             {routes.map((route) => (
               <option key={route.id} value={route.id}>
                 {`${route.id} - ${route.name}`}
@@ -162,7 +165,7 @@ const CreateTrip = () => {
           </select>
         </div>
         <div className="custom-form-group">
-          <label>Depart At:</label>
+          <label>Giờ khởi hành:</label>
           <input
             type="datetime-local"
             name="departAt"
@@ -171,9 +174,9 @@ const CreateTrip = () => {
           />
         </div>
         <div className="custom-form-group">
-          <label>Car:</label>
+          <label>Xe:</label>
           <select name="carId" value={formData.carId} onChange={handleChange}>
-            <option value="">Select Car</option>
+            <option value="">Chọn xe</option>
             {cars.map((car) => (
               <option key={car.id} value={car.id}>
                 {`${car.id} - ${car.carNumber}`}
@@ -182,13 +185,13 @@ const CreateTrip = () => {
           </select>
         </div>
         <div className="custom-form-group">
-          <label>Driver:</label>
+          <label>Tài xế:</label>
           <select
             name="driverId"
             value={formData.driverId}
             onChange={handleChange}
           >
-            <option value="">Select Driver</option>
+            <option value="">Chọn tài xế</option>
             {drivers.map((driver) => (
               <option key={driver.id} value={driver.id}>
                 {`${driver.id} - ${driver.firstname} ${driver.lastname}`}
@@ -198,14 +201,14 @@ const CreateTrip = () => {
         </div>
         <div className="custom-button-group">
           <button type="submit" className="custom-btn custom-btn-primary">
-            Confirm
+            Xác nhận
           </button>
           <button
             type="button"
             className="custom-btn custom-btn-secondary"
             onClick={() => navigate(-1)}
           >
-            Cancel
+            Hủy
           </button>
         </div>
       </form>

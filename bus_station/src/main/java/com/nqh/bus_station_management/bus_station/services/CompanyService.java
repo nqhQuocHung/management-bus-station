@@ -32,8 +32,14 @@ public interface CompanyService {
     TransportationCompany findByManagerId(Long id);
 
     long countAllCompanies();
+
     public List<CompanyPublicDTO> getNameId();
 
     void toggleCargoTransport(Long companyId);
 
+    long getVerifiedCompanyCount();
+
+    long getActiveCompanyCount();
+
+    List<CompanyDTO> getAllCompanies();
 }

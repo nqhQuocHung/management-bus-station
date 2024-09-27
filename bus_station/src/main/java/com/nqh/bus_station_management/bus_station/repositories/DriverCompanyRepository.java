@@ -16,20 +16,9 @@ import java.util.List;
 @Repository
 public interface DriverCompanyRepository extends JpaRepository<DriverCompany, Long> {
 
-    @Transactional
-    default DriverCompany createDriverCompany(User user, TransportationCompany company, Boolean verified) {
-        DriverCompany driverCompany = DriverCompany.builder()
-                .user(user)
-                .company(company)
-                .verified(verified)
-                .build();
-        return save(driverCompany);
-    }
+    @Query("SELECT dc FROM DriverCompany dc WHERE dc.user.id = :driverId")
+    DriverCompany findByDriverId(@Param("driverId") Long driverId);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE DriverCompany dc SET dc.verified = :verified WHERE dc.id = :id")
-    void updateVerified(@Param("id") Long id, @Param("verified") Boolean verified);
 
     @Query("SELECT dc FROM DriverCompany dc WHERE dc.company.id = :companyId")
     List<DriverCompany> findDriversByCompanyId(@Param("companyId") Long companyId);
@@ -40,6 +29,7 @@ public interface DriverCompanyRepository extends JpaRepository<DriverCompany, Lo
     boolean existsByUserIdAndCompanyId(Long userId, Long companyId);
 
     @Query("SELECT d FROM DriverCompany d WHERE d.company.id = :companyId AND d.user.id NOT IN " +
-            "(SELECT t.driver.id FROM Trip t WHERE DATE(t.departAt) = :date)")
+            "(SELECT t.driver.id FROM Trip t WHERE DATE(t.departAt) = :date AND t.status = false)")
     List<DriverCompany> findAvailableDriversByCompanyAndDate(@Param("companyId") Long companyId, @Param("date") Date date);
+
 }

@@ -1,0 +1,176 @@
+.manage-work-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.work-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.work-table th, .work-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.work-table th {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+.work-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.work-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.complete-button, .create-ticket-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.complete-button:hover, .create-ticket-button:hover {
+  background-color: #0056b3;
+}
+
+.completed-status {
+  font-weight: bold;
+  color: #28a745;
+}
+
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  animation: slideDown 0.4s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dialog h3 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 18px;
+}
+
+.dialog label {
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
+}
+
+.dialog input[type="text"], .dialog select {
+  padding: 8px;
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.dialog input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.dialog select {
+  cursor: pointer;
+}
+
+.dialog button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100px;
+  margin: 5px;
+}
+
+.dialog .cancel-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.dialog .cancel-button:hover {
+  background-color: #c82333;
+}
+
+.dialog .create-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.dialog .create-button:hover {
+  background-color: #0056b3;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .dialog {
+    width: 90%;
+  }
+
+  .dialog-buttons {
+    flex-direction: column;
+  }
+
+  .dialog-buttons button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.qr-code {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.qr-code img {
+  width: 150px;
+  height: 150px;
+}
+

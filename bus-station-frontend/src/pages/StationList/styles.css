@@ -1,0 +1,47 @@
+.station-list-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .station-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .station-table th, .station-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .station-table th {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .station-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .station-table tr:hover {
+    background-color: #ddd;
+  }
+  
+  a {
+    color: #3498db;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  

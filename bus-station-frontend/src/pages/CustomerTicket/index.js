@@ -3,6 +3,7 @@ import './styles.css';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
 import moment from 'moment';
+import jsPDF from 'jspdf';
 
 const CustomerTicket = () => {
   const [tickets, setTickets] = useState([]);
@@ -51,6 +52,66 @@ const CustomerTicket = () => {
     }
   };
 
+  const exportTicketToPDF = (ticket) => {
+    const pdf = new jsPDF();
+    
+    // Set font size for titles and content
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(16);
+    pdf.text('Ticket Information', 10, 10);
+    
+    pdf.setFontSize(12); // Smaller font for details
+    
+    // Add ticket details
+    pdf.text(`Ticket ID: ${ticket.ticketId}`, 10, 20);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Route:', 10, 30);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${ticket.routeName}`, 40, 30);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Company:', 10, 40);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${ticket.companyName}`, 40, 40);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Departure Station:', 10, 50);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${ticket.fromStation}`, 50, 50);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Arrival Station:', 10, 60);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${ticket.toStation}`, 50, 60);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Seat:', 10, 70);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${ticket.seatCode}`, 50, 70);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Departure Time:', 10, 80);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${moment(ticket.departAt).format('LLL')}`, 50, 80);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Payment Method:', 10, 90);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${ticket.paymentMethod}`, 50, 90);
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Payment Time:', 10, 100);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${moment(ticket.paidAt).format('LLL')}`, 50, 100);
+    
+    const currentDate = moment().format('DD-MM-YYYY');
+    const fileName = `${user.username}_${currentDate}.pdf`;
+    
+    pdf.save(fileName);
+};
+
+
   return (
     <div className="container mt-5 shadow p-3 mb-5 bg-body rounded">
       <div className="row">
@@ -90,8 +151,11 @@ const CustomerTicket = () => {
                 <td>{ticket.paidAt ? moment(ticket.paidAt).format('LLL') : 'Chưa thanh toán'}</td>
                 <td>
                   {ticket.paidAt ? (
-                    <button className="btn btn-danger" disabled>
-                      Xóa
+                    <button
+                      className="btn btn-success"
+                      onClick={() => exportTicketToPDF(ticket)}
+                    >
+                      In vé
                     </button>
                   ) : (
                     <button
