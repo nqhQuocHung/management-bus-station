@@ -5149,3 +5149,6 @@ Caused by: java.sql.SQLException: Data truncated for column 'transaction_no' at 
 2024-10-03T14:19:24.890+07:00  INFO 18620 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
 2024-10-03T14:19:24.890+07:00  INFO 18620 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2024-10-03T14:19:24.891+07:00  INFO 18620 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-03T17:03:39.450+07:00  INFO 18620 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-10-03T17:03:39.473+07:00  INFO 18620 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2024-10-03T17:03:39.480+07:00  INFO 18620 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
