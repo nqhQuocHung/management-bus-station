@@ -63,6 +63,26 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    public Map<String, Object> listVerifiedCompanies(Map<String, String> params) {
+        String name = params.get("name");
+        int page = params.get("page") != null ? Integer.parseInt(params.get("page")) : 1;
+        int pageSize = Integer.parseInt(environment.getProperty("company.pageSize", "10"));
+        List<TransportationCompany> companies = companyRepository.getListVerified(name);
+        int totalCompanies = companies.size();
+
+        int totalPages = (int) Math.ceil((double) totalCompanies / pageSize);
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalCompanies);
+        List<TransportationCompany> paginatedCompanies = companies.subList(startIndex, endIndex);
+        Map<String, Object> response = new HashMap<>();
+        response.put("results", paginatedCompanies);
+        response.put("total", totalCompanies);
+        response.put("pageTotal", totalPages);
+
+        return response;
+    }
+
+    @Override
     public Long countCompanies(Map<String, String> params) {
         String name = params.get("name");
         return companyRepository.count(name);
@@ -156,30 +176,30 @@ public class CompanyServiceImpl implements CompanyService {
 
             String htmlContent = newVerifiedStatus
                     ? String.format(
-                    "<html>" +
-                            "<body>" +
-                            "<p>Xin chào %s,</p>" +
-                            "<p>Chúng tôi vui mừng thông báo rằng công ty <strong>%s</strong> của bạn đã được xác thực thành công.</p>" +
-                            "<p>Bạn có thể truy cập vào hệ thống để quản lý các dịch vụ của mình.</p>" +
-                            "<br>" +
-                            "<p>Trân trọng,</p>" +
-                            "<p>Đội ngũ hỗ trợ Bus Station</p>" +
-                            "</body>" +
-                            "</html>",
+                    "<html><body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;\">"
+                            + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;\">"
+                            + "<h2 style=\"color: #28a745; text-align: center;\">Xác thực thành công</h2>"
+                            + "<p>Xin chào %s,</p>"
+                            + "<p>Công ty <strong>%s</strong> của bạn đã được xác thực thành công. Bạn có thể truy cập hệ thống để quản lý các dịch vụ của mình.</p>"
+                            + "<p style=\"text-align: right;\">Trân trọng,<br>Đội ngũ hỗ trợ Bus Station</p>"
+                            + "</div>"
+                            + "<div style=\"text-align: center; padding: 10px; font-size: 12px; color: #777;\">"
+                            + "<p>Email này được gửi tự động, vui lòng không trả lời.</p>"
+                            + "</div></body></html>",
                     company.getManager().getFirstname() + " " + company.getManager().getLastname(),
                     company.getName()
             )
                     : String.format(
-                    "<html>" +
-                            "<body>" +
-                            "<p>Xin chào %s,</p>" +
-                            "<p>Chúng tôi xin thông báo rằng xác thực của công ty <strong>%s</strong> đã bị hủy bỏ.</p>" +
-                            "<p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với đội ngũ hỗ trợ để biết thêm chi tiết.</p>" +
-                            "<br>" +
-                            "<p>Trân trọng,</p>" +
-                            "<p>Đội ngũ hỗ trợ Bus Station</p>" +
-                            "</body>" +
-                            "</html>",
+                    "<html><body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;\">"
+                            + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;\">"
+                            + "<h2 style=\"color: #dc3545; text-align: center;\">Xác thực bị hủy bỏ</h2>"
+                            + "<p>Xin chào %s,</p>"
+                            + "<p>Xác thực của công ty <strong>%s</strong> đã bị hủy bỏ. Nếu bạn có thắc mắc, vui lòng liên hệ đội ngũ hỗ trợ để biết thêm chi tiết.</p>"
+                            + "<p style=\"text-align: right;\">Trân trọng,<br>Đội ngũ hỗ trợ Bus Station</p>"
+                            + "</div>"
+                            + "<div style=\"text-align: center; padding: 10px; font-size: 12px; color: #777;\">"
+                            + "<p>Email này được gửi tự động, vui lòng không trả lời.</p>"
+                            + "</div></body></html>",
                     company.getManager().getFirstname() + " " + company.getManager().getLastname(),
                     company.getName()
             );
@@ -188,6 +208,7 @@ public class CompanyServiceImpl implements CompanyService {
             throw new EntityNotFoundException("Không tìm thấy công ty với ID: " + id);
         }
     }
+
 
 
     @Override

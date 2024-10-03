@@ -2,8 +2,11 @@ package com.nqh.bus_station_management.bus_station.services.Impl;
 
 import com.nqh.bus_station_management.bus_station.dtos.CarDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Car;
+import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.repositories.CarRepository;
+import com.nqh.bus_station_management.bus_station.repositories.CompanyRepository;
 import com.nqh.bus_station_management.bus_station.services.CarService;
+import com.nqh.bus_station_management.bus_station.services.SeatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +16,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class CarServiceImpl implements CarService {
-
-    private final CarRepository carRepository;
+    @Autowired
+    private CarRepository carRepository;
 
     @Autowired
-    public CarServiceImpl(CarRepository carRepository) {
-        this.carRepository = carRepository;
-    }
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private SeatService seatService;
 
     @Override
     public List<CarDTO> getCarsByCompanyId(Long companyId) {
@@ -36,5 +40,18 @@ public class CarServiceImpl implements CarService {
                 .id(car.getId())
                 .carNumber(car.getCarNumber())
                 .build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Car createCar(String carNumber, Long companyId) {
+        TransportationCompany company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Company with ID " + companyId + " not found"));
+        Car car = new Car();
+        car.setCarNumber(carNumber);
+        car.setCompany(company);
+        Car savedCar = carRepository.save(car);
+        seatService.createSeatsForCar(savedCar.getId());
+
+        return savedCar;
     }
 }

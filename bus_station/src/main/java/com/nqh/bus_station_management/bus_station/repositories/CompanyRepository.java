@@ -23,11 +23,10 @@ public interface CompanyRepository extends JpaRepository<TransportationCompany, 
 
     List<TransportationCompany> findByIsVerifiedFalse();
 
-    TransportationCompany findByManagerId(Long id);
+    @Query("SELECT c FROM TransportationCompany c WHERE (:name IS NULL OR c.name LIKE CONCAT(:name, '%')) AND c.isVerified = true")
+    List<TransportationCompany> getListVerified(@Param("name") String name);
 
-    @Modifying
-    @Query("UPDATE TransportationCompany tc SET tc.isVerified = true WHERE tc.id = :id")
-    void verifyCompany(@Param("id") Long id);
+    TransportationCompany findByManagerId(Long id);
 
     @Query("SELECT new com.nqh.bus_station_management.bus_station.dtos.CompanyDTO(tc.id, tc.name, tc.avatar, tc.phone, tc.email, tc.isVerified, tc.isActive, tc.isCargoTransport, tc.manager.id) FROM TransportationCompany tc WHERE tc.id = :companyId")
     CompanyDTO getCompanyAndManager(@Param("companyId") Long companyId);

@@ -1,6 +1,7 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
 import com.nqh.bus_station_management.bus_station.dtos.CarDTO;
+import com.nqh.bus_station_management.bus_station.pojo.Car;
 import com.nqh.bus_station_management.bus_station.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -33,5 +34,11 @@ public class CarController {
 
         List<CarDTO> availableCars = carService.getAvailableCarsByCompanyAndDate(busStationId, date);
         return ResponseEntity.ok(availableCars);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Car> createNewCar(@RequestParam("carNumber") String carNumber, @RequestParam("companyId") Long companyId) {
+        Car newCar = carService.createCar(carNumber, companyId);
+        return ResponseEntity.ok(newCar);
     }
 }

@@ -57,7 +57,6 @@ public class SecurityConfiguration {
 
 
     private List<String> companyManagerUrl = List.of("/",
-            "/api/statistics/**",
             "/api/cars/**",
             "/api/companies/manager/company/**",
             "/api/companies/manager/**",

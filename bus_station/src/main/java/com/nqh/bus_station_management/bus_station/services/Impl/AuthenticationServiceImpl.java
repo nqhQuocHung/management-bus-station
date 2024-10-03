@@ -182,18 +182,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String subject = "Yêu cầu đặt lại mật khẩu tại Bus Station";
         String message = String.format(
-                "<html>" +
-                        "<body>" +
-                        "<p>Xin chào %s,</p>" +
-                        "<p>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>" +
-                        "<p>Mật khẩu tạm thời mới của bạn là: <strong>%s</strong></p>" +
-                        "<p>Vui lòng đăng nhập với mật khẩu tạm thời này và thay đổi mật khẩu mới ngay lập tức để bảo vệ tài khoản của bạn.</p>" +
-                        "<p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng liên hệ với chúng tôi ngay lập tức.</p>" +
-                        "<br>" +
-                        "<p>Trân trọng,</p>" +
-                        "<p>Đội ngũ hỗ trợ Bus Station</p>" +
-                        "</body>" +
-                        "</html>",
+                "<html><body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;\">"
+                        + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;\">"
+                        + "<h2 style=\"color: #007bff; text-align: center;\">Đặt lại mật khẩu</h2>"
+                        + "<p>Xin chào %s,</p>"
+                        + "<p>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>"
+                        + "<p>Mật khẩu tạm thời mới của bạn là: <strong>%s</strong></p>"
+                        + "<p>Vui lòng đăng nhập với mật khẩu tạm thời này và thay đổi mật khẩu mới ngay lập tức để bảo vệ tài khoản của bạn.</p>"
+                        + "<p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng liên hệ với chúng tôi ngay lập tức.</p>"
+                        + "<p style=\"text-align: right;\">Trân trọng,<br>Đội ngũ hỗ trợ Bus Station</p>"
+                        + "</div>"
+                        + "<div style=\"text-align: center; padding: 10px; font-size: 12px; color: #777;\">"
+                        + "<p>Email này được gửi tự động, vui lòng không trả lời.</p>"
+                        + "</div></body></html>",
                 user.getLastname() + " " + user.getFirstname(),
                 newPassword
         );
@@ -210,9 +211,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String subject = "Thông báo: Đổi mật khẩu thành công";
         String message = String.format(
-                "<p>Xin chào %s %s,</p>" +
-                        "<p>Bạn đã thay đổi mật khẩu thành công. Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi ngay lập tức.</p>" +
-                        "<p>Trân trọng,<br>Đội ngũ hỗ trợ</p>",
+                "<html><body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;\">"
+                        + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;\">"
+                        + "<h2 style=\"color: #28a745; text-align: center;\">Đổi mật khẩu thành công</h2>"
+                        + "<p>Xin chào %s %s,</p>"
+                        + "<p>Bạn đã thay đổi mật khẩu thành công. Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi ngay lập tức.</p>"
+                        + "<p style=\"text-align: right;\">Trân trọng,<br>Đội ngũ hỗ trợ</p>"
+                        + "</div>"
+                        + "<div style=\"text-align: center; padding: 10px; font-size: 12px; color: #777;\">"
+                        + "<p>Email này được gửi tự động, vui lòng không trả lời.</p>"
+                        + "</div></body></html>",
                 user.getLastname(), user.getFirstname()
         );
         emailService.sendHtmlEmail(user.getEmail(), subject, message);

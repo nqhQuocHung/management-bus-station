@@ -18,12 +18,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/companies")
 public class CompanyController {
-
-    private final CompanyService companyService;
-
     @Autowired
-    public CompanyController(CompanyService companyService) {
-        this.companyService = companyService;
+    private  CompanyService companyService;
+
+    @GetMapping("/verified")
+    public Map<String, Object> listVerifiedCompanies(@RequestParam Map<String, String> params) {
+        return companyService.listVerifiedCompanies(params);
     }
 
     @GetMapping

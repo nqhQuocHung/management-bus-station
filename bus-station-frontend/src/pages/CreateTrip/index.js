@@ -97,7 +97,6 @@ const CreateTrip = () => {
     try {
       setLoading('flex');
       const api = apis(accessToken);
-
       const response = await api.get(endpoints.driver_available, {
         params: {
           date: departAt.split('T')[0],
