@@ -25,6 +25,7 @@ import AdminDashboard from '../pages/AdminDashboard';
 import AdminManageCompany from '../pages/AdminManageCompany';
 import CreateStation from '../pages/CreateStation';
 import StationList from '../pages/StationList/StationList';
+import CreateCar from '../pages/CreateCar';
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -80,6 +81,14 @@ const AppRouter = () => {
             element={
               <AuthenticatedRoute>
                 <CreateCompany />
+              </AuthenticatedRoute>
+            }
+          />
+          <Route
+            path="/create-car"
+            element={
+              <AuthenticatedRoute>
+                <CreateCar/>
               </AuthenticatedRoute>
             }
           />

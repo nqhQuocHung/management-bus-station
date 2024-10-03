@@ -13,6 +13,8 @@ public interface CompanyService {
 
     Map<String, Object> listCompanies(Map<String, String> params);
 
+    Map<String, Object> listVerifiedCompanies(Map<String, String> params);
+
     Long countCompanies(Map<String, String> params);
 
     Optional<TransportationCompany> getCompanyById(Long id);
@@ -33,7 +35,7 @@ public interface CompanyService {
 
     long countAllCompanies();
 
-    public List<CompanyPublicDTO> getNameId();
+    List<CompanyPublicDTO> getNameId();
 
     void toggleCargoTransport(Long companyId);
 

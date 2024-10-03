@@ -228,6 +228,9 @@ const ManageCompany = () => {
         <Link to="/register-trip">
           <button className="mc-button">Đăng kí chuyến</button>
         </Link>
+        <Link to="/create-car">
+          <button className="mc-button">Đăng kí xe</button>
+        </Link>
         <Link
           to={{
             pathname: '/company_drivers',

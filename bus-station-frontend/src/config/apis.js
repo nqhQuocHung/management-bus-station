@@ -18,7 +18,8 @@ const endpoints = {
   get_user_by_role: (id) => `/admin/users/role/${id}`,
 
   // Company Management
-  company_list: '/api/companies',
+  verified_company_list: '/api/companies',
+  company_list: '/api/companies/verified',
   company_list_idName: '/api/companies/name-id',
   register_company: '/api/companies/register',
   company_list_admin: '/api/companies/list',
@@ -67,6 +68,8 @@ const endpoints = {
 
   // Car Management
   available_cars: '/api/cars/available',
+  create_car: '/api/cars/create',
+  get_car_by_company:(id) => `api/cars/company/${id}`,
 
   // Cargo Management
   add_cargo: '/api/cargos',

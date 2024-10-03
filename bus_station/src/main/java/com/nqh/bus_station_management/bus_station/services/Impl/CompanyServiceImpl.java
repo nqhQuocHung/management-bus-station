@@ -63,6 +63,26 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    public Map<String, Object> listVerifiedCompanies(Map<String, String> params) {
+        String name = params.get("name");
+        int page = params.get("page") != null ? Integer.parseInt(params.get("page")) : 1;
+        int pageSize = Integer.parseInt(environment.getProperty("company.pageSize", "10"));
+        List<TransportationCompany> companies = companyRepository.getListVerified(name);
+        int totalCompanies = companies.size();
+
+        int totalPages = (int) Math.ceil((double) totalCompanies / pageSize);
+        int startIndex = (page - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, totalCompanies);
+        List<TransportationCompany> paginatedCompanies = companies.subList(startIndex, endIndex);
+        Map<String, Object> response = new HashMap<>();
+        response.put("results", paginatedCompanies);
+        response.put("total", totalCompanies);
+        response.put("pageTotal", totalPages);
+
+        return response;
+    }
+
+    @Override
     public Long countCompanies(Map<String, String> params) {
         String name = params.get("name");
         return companyRepository.count(name);
