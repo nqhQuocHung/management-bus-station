@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,8 @@ import org.springframework.security.core.GrantedAuthority;
 @Service
 public class JwtServiceImpl implements JwtService {
 
-    private final String SECRET_KEY = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
+    @Value("${jwt.secretKey}")
+    private String SECRET_KEY;
 
     private final long expiration = 1000 * 60 * 60 * 24;
 
