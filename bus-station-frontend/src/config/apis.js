@@ -8,6 +8,8 @@ const endpoints = {
   login_with_google: '/api/v1/auth/oauth2/google',
   forgot_password: '/api/auth/forgot-password',
   change_password: '/api/auth/change-password',
+  login_with_otp: '/api/auth/login-otp',
+  get_otp: '/api/auth/send-otp',
 
   // User Management
   update_user: (id) => `/api/users/${id}`,

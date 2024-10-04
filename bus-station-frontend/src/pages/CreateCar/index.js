@@ -59,14 +59,13 @@ const CreateCar = () => {
       setLoading('flex');
       const apiInstance = apis(accessToken);
   
-      // Gửi request với query parameters như trong Postman
       const url = `${endpoints.create_car}?carNumber=${carNumber}&companyId=${companyId}`;
   
-      await apiInstance.post(url);  // Không cần body, vì dữ liệu đã gửi qua URL
+      await apiInstance.post(url);
       toast.success('Tạo xe thành công!');
-      setCarNumber('');  // Reset lại carNumber sau khi tạo thành công
-      setShowDialog(false);  // Đóng dialog
-      fetchCars(companyId);  // Cập nhật danh sách xe
+      setCarNumber('');
+      setShowDialog(false);
+      fetchCars(companyId);
     } catch (error) {
       toast.error('Có lỗi xảy ra khi tạo xe');
     } finally {

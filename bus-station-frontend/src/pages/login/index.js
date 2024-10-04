@@ -6,14 +6,14 @@ import { apis, endpoints } from '../../config/apis';
 import { toast } from 'react-toastify';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import * as validator from '../../config/validator';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isOtpDialogVisible, setIsOtpDialogVisible] = useState(false);
+  const [otp, setOtp] = useState('');
   const { setLoading } = useContext(LoadingContext);
   const { setUser } = useContext(AuthenticationContext);
   const location = useLocation();
@@ -75,24 +75,35 @@ const Login = () => {
     }
   };
 
-  const handleLoginWithGoogle = async ({ credential }) => {
+  const handleRequestOtp = async () => {
+    if (!username.trim()) {
+      toast.error('Vui lòng nhập tên tài khoản', {
+        position: 'top-center',
+        autoClose: 4000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+      return;
+    }
+  
     try {
       setLoading('flex');
-      const { email, family_name, given_name, name, picture } = jwtDecode(credential);
-      const response = await apis(null).post(endpoints['login_with_google'], {
-        firstName: family_name,
-        lastName: given_name,
-        username: email,
-        email: email,
-        avatar: picture,
+      await apis(null).post(endpoints.get_otp, null, { params: { username } });
+      toast.success('OTP đã được gửi tới email của bạn', {
+        position: 'top-center',
+        autoClose: 4000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
       });
-      const data = response['data'];
-      localStorage.setItem('accessToken', data['accessToken']);
-      setUser(data['userDetails']);
-      navigator(from);
-    } catch (ex) {
-      console.error(ex);
-      toast.error('Error when processing your request', {
+      setIsOtpDialogVisible(true);
+    } catch (error) {
+      toast.error('Lỗi khi xử lý yêu cầu của bạn', {
         position: 'top-center',
         autoClose: 4000,
         closeOnClick: true,
@@ -105,6 +116,41 @@ const Login = () => {
       setLoading('none');
     }
   };
+
+  const handleLoginWithOtp = async () => {
+    try {
+      setLoading('flex');
+      const response = await apis(null).post(endpoints.login_with_otp, null, {
+        params: { 
+          username: username, 
+          otp: otp 
+        }
+      });
+      
+      const data = response.data;
+      localStorage.setItem('accessToken', data.accessToken);
+      setUser(data.userDetails);
+      navigator(from);
+    } catch (error) {
+      console.error("Login with OTP failed", error);
+      toast.error('OTP không hợp lệ hoặc đã hết hạn', {
+        position: 'top-center',
+        autoClose: 4000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+    } finally {
+      setLoading('none');
+    }
+  };
+  
+  const handleResendOtp = () => {
+    handleRequestOtp();
+  };
+
   const handleForgotPassword = async () => {
     try {
       if (!email) {
@@ -190,34 +236,19 @@ const Login = () => {
                     </div>
                   </>
                 ) : (
-                  <>
-                    <div className="mb-3">
-                      <label htmlFor="username" className="form-label">
-                        Tên tài khoản
-                      </label>
-                      <input
-                        className="form-control form-control-lg"
-                        id="username"
-                        name="username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="email" className="form-label">
-                        Email
-                      </label>
-                      <input
-                        className="form-control form-control-lg"
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                  </>
+                  <div className="mb-3">
+                    <label htmlFor="email" className="form-label">
+                      Email
+                    </label>
+                    <input
+                      className="form-control form-control-lg"
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
                 )}
 
                 <div className="d-flex justify-content-between mb-3">
@@ -244,14 +275,25 @@ const Login = () => {
                 </div>
 
                 {!isForgotPassword ? (
-                  <button
-                    onClick={callLogin}
-                    type="button"
-                    className="btn btn-primary btn-lg"
-                    style={{ width: '100%' }}
-                  >
-                    Đăng nhập
-                  </button>
+                  <>
+                    <button
+                      onClick={callLogin}
+                      type="button"
+                      className="btn btn-primary btn-lg"
+                      style={{ width: '100%' }}
+                    >
+                      Đăng nhập
+                    </button>
+                    <span className="d-block text-center my-4 text-muted">-- hoặc --</span>
+                    <button
+                      onClick={handleRequestOtp}
+                      type="button"
+                      className="btn btn-outline-primary btn-lg"
+                      style={{ width: '100%' }}
+                    >
+                      Đăng nhập bằng OTP
+                    </button>
+                  </>
                 ) : (
                   <button
                     onClick={handleForgotPassword}
@@ -262,35 +304,33 @@ const Login = () => {
                     Xác nhận
                   </button>
                 )}
-
-                {!isForgotPassword && (
-                  <>
-                    <span className="d-block text-center my-4 text-muted">-- hoặc --</span>
-
-                    <GoogleLogin
-                      onSuccess={(credentialResponse) => {
-                        handleLoginWithGoogle(credentialResponse);
-                      }}
-                      onError={() => {
-                        toast.error('Access denied when login with Google', {
-                          position: 'top-center',
-                          autoClose: 4000,
-                          closeOnClick: true,
-                          pauseOnHover: true,
-                          draggable: true,
-                          progress: undefined,
-                          theme: 'colored',
-                        });
-                      }}
-                    />
-                  </>
-                )}
               </form>
             </div>
           </div>
         </div>
       </div>
       <div className="col-md-6 rightImage"></div>
+
+      {isOtpDialogVisible && (
+        <div className="otp-dialog">
+          <button
+            onClick={() => setIsOtpDialogVisible(false)}
+            className="close-btn"
+          >
+            &times;
+          </button>
+          <h4>Nhập OTP</h4>
+          <input
+            type="text"
+            className="form-control"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="Nhập OTP của bạn"
+          />
+          <button onClick={handleLoginWithOtp} className="btn btn-primary mt-3">Xác nhận OTP</button>
+          <button onClick={handleResendOtp} className="btn btn-link mt-2">Gửi lại OTP</button>
+        </div>
+      )}
     </div>
   );
 };
