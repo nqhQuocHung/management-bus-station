@@ -121,5 +121,26 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public void sendOtpEmail(String to, String otp) {
+        String subject = "Mã OTP của bạn";
+        String message = "<html><body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;\">"
+                + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;\">"
+                + "<h2 style=\"text-align: center; color: #007bff;\">Mã OTP của bạn</h2>"
+                + "<p>Chào bạn,</p>"
+                + "<p>Để tiếp tục đăng nhập, vui lòng sử dụng mã OTP sau:</p>"
+                + "<h3 style=\"text-align: center; font-size: 24px;\">" + otp + "</h3>"
+                + "<p style=\"font-size: 16px; color: #555;\">Mã OTP này có hiệu lực trong vòng 5 phút.</p>"
+                + "<p style=\"text-align: right; font-size: 16px; color: #555;\">Trân trọng,</p>"
+                + "<p style=\"text-align: right; font-size: 16px; color: #007bff;\">Đội ngũ hỗ trợ</p>"
+                + "</div>"
+                + "<div style=\"text-align: center; padding: 10px; font-size: 12px; color: #777;\">"
+                + "<p>Email này được gửi tự động, vui lòng không trả lời.</p>"
+                + "</div>"
+                + "</body></html>";
+
+        sendHtmlEmail(to, subject, message);
+    }
+
 
 }

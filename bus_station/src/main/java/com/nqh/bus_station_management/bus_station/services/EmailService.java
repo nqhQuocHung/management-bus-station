@@ -7,4 +7,5 @@ public interface EmailService {
     void sendDriverApprovalEmail(String to, String lastName, String firstName);
     void sendDriverSuspensionEmail(String to, String lastName, String firstName);
     void sendHtmlEmail(String to, String subject, String htmlContent);
+    void sendOtpEmail(String to, String otp);
 }

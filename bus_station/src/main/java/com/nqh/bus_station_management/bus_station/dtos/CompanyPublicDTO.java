@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class CompanyPublicDTO {
     private Long id;
     private String name;
+    private Boolean isCargo;
 }
