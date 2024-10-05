@@ -1,15 +1,11 @@
 package com.nqh.bus_station_management.bus_station.services.Impl;
 
-import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
-import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
-import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
+import com.nqh.bus_station_management.bus_station.dtos.*;
+import com.nqh.bus_station_management.bus_station.mappers.PassengerSeatDTOMapper;
 import com.nqh.bus_station_management.bus_station.mappers.TripDTOMapper;
-import com.nqh.bus_station_management.bus_station.mappers.UserProfileDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.*;
 import com.nqh.bus_station_management.bus_station.repositories.*;
 import com.nqh.bus_station_management.bus_station.services.TripService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -133,11 +129,11 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public List<UserProfileDTO> getPassengersByTripId(Long tripId) {
+    public List<PassengerSeatDTO> getPassengersByTripId(Long tripId) {
         List<Ticket> tickets = ticketRepository.findByTripId(tripId);
         return tickets.stream()
-                .map(Ticket::getCustomer)
-                .map(UserProfileDTOMapper::toDTO)
+                .map(PassengerSeatDTOMapper::mapToPassengerSeatDTO)
                 .collect(Collectors.toList());
     }
+
 }

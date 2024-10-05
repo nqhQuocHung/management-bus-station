@@ -30,7 +30,7 @@ const ManageWork = () => {
         const api = apis(accessToken);
         const response = await api.get(endpoints.get_trips_by_driver(user.id));
         setTrips(response.data);
-      } catch (error) {
+      } catch {
         setTrips([]);
       } finally {
         setLoading('none');
@@ -52,7 +52,6 @@ const ManageWork = () => {
           trip.id === tripId ? { ...trip, status: true } : trip
         )
       );
-    } catch (error) {
     } finally {
       setLoading('none');
     }
@@ -61,19 +60,15 @@ const ManageWork = () => {
   const handleCreateTicket = async () => {
     try {
       setLoading('flex');
-      const orderInfo = `Payment for ticket #${Math.random()
-        .toString(36)
-        .substr(2, 9)}`;
-      const amount = parseFloat(ticketInfo.totalPrice.replace(/[^0-9]/g, ''));
+      const orderInfo = `Payment for ticket #${Math.random().toString(36).substr(2, 9)}`;
+      const amount = parseFloat((ticketInfo.totalPrice || '').replace(/[^0-9]/g, ''));
       const response = await apis(accessToken).post(endpoints.payment_url, {
         amount: amount,
         orderInfo: orderInfo,
       });
-
       const paymentUrl = response.data;
       setPaymentUrl(paymentUrl);
       setIsTicketCreated(true);
-    } catch (error) {
     } finally {
       setLoading('none');
     }
@@ -87,8 +82,6 @@ const ManageWork = () => {
       setPassengerList(response.data);
       setIsPassengerList(true);
       setShowDialog(true);
-    } catch (error) {
-      setPassengerList([]);
     } finally {
       setLoading('none');
     }
@@ -96,15 +89,11 @@ const ManageWork = () => {
 
   const calculateTotalPrice = () => {
     const basePrice = parseFloat(ticketInfo.seatPrice) || 0;
-    const cargoFee = ticketInfo.includeCargo
-      ? parseFloat(ticketInfo.cargoPrice) || 0
-      : 0;
+    const cargoFee = ticketInfo.includeCargo ? parseFloat(ticketInfo.cargoPrice) || 0 : 0;
     const discountPercentage = parseFloat(ticketInfo.discount) || 0;
     const discountAmount = (basePrice + cargoFee) * (discountPercentage / 100);
     const totalPrice = basePrice + cargoFee - discountAmount;
-    const formattedTotalPrice =
-      Math.round(totalPrice).toLocaleString('vi-VN') + ' VND';
-
+    const formattedTotalPrice = Math.round(totalPrice).toLocaleString('vi-VN') + ' VND';
     setTicketInfo((prev) => ({ ...prev, totalPrice: formattedTotalPrice }));
   };
 
@@ -219,15 +208,21 @@ const ManageWork = () => {
                       <th>Tên khách hàng</th>
                       <th>Email</th>
                       <th>Số điện thoại</th>
+                      <th>Mã ghế</th>
                     </tr>
                   </thead>
                   <tbody>
                     {passengerList.map((passenger, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{passenger.firstname} {passenger.lastname}</td>
+                        <td>{passenger.firstName} {passenger.lastName}</td>
                         <td>{passenger.email}</td>
                         <td>{passenger.phone}</td>
+                        <td>
+                          {passenger.seatCode && passenger.seatCode.includes('code=')
+                            ? passenger.seatCode.split('code=')[1].replace(')', '')
+                            : 'N/A'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

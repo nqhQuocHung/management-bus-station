@@ -1,11 +1,7 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
-import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
-import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
-import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
-import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
+import com.nqh.bus_station_management.bus_station.dtos.*;
 import com.nqh.bus_station_management.bus_station.pojo.Trip;
-import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.services.TripService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -55,8 +51,8 @@ public class TripController {
     }
 
     @GetMapping("/{tripId}/passengers")
-    public ResponseEntity<List<UserProfileDTO>> getPassengersByTripId(@PathVariable Long tripId) {
-        List<UserProfileDTO> passengers = tripService.getPassengersByTripId(tripId);
+    public ResponseEntity<List<PassengerSeatDTO>> getPassengersByTripId(@PathVariable Long tripId) {
+        List<PassengerSeatDTO> passengers = tripService.getPassengersByTripId(tripId);
         return ResponseEntity.ok(passengers);
     }
 }
