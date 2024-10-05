@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import './styles.css';
-
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
 import { toast } from 'react-toastify';
@@ -46,26 +45,23 @@ const Login = () => {
 
     try {
       setLoading('flex');
-      const response = await apis(null)
-        .post(endpoints.login, {
-          username: username,
-          password: password,
-        })
-        .catch((error) => {
-          if (error.response.status === 400) {
-            toast.error(error.response.data.errors[0], {
-              position: 'top-center',
-              autoClose: 4000,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: 'colored',
-            });
-          }
-        });
+      const response = await apis(null).post(endpoints.login, {
+        username,
+        password,
+      }).catch((error) => {
+        if (error.response.status === 400) {
+          toast.error(error.response.data.errors[0], {
+            position: 'top-center',
+            autoClose: 4000,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'colored',
+          });
+        }
+      });
       const data = response.data;
-
       localStorage.setItem('accessToken', data.accessToken);
       setUser(data['userDetails']);
       navigator(from);
@@ -88,7 +84,7 @@ const Login = () => {
       });
       return;
     }
-  
+
     try {
       setLoading('flex');
       await apis(null).post(endpoints.get_otp, null, { params: { username } });
@@ -122,8 +118,8 @@ const Login = () => {
       setLoading('flex');
       const response = await apis(null).post(endpoints.login_with_otp, null, {
         params: { 
-          username: username, 
-          otp: otp 
+          username, 
+          otp 
         }
       });
       
@@ -132,7 +128,6 @@ const Login = () => {
       setUser(data.userDetails);
       navigator(from);
     } catch (error) {
-      console.error("Login with OTP failed", error);
       toast.error('OTP không hợp lệ hoặc đã hết hạn', {
         position: 'top-center',
         autoClose: 4000,
@@ -152,23 +147,24 @@ const Login = () => {
   };
 
   const handleForgotPassword = async () => {
+    if (!username.trim() || !email.trim()) {
+      toast.error('Vui lòng nhập đầy đủ tên tài khoản và email', {
+        position: 'top-center',
+        autoClose: 4000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+      return;
+    }
+
     try {
-      if (!email) {
-        toast.error('Vui lòng nhập email của bạn', {
-          position: 'top-center',
-          autoClose: 4000,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'colored',
-        });
-        return;
-      }
       setLoading('flex');
-      const response = await apis(null).post(endpoints.forgot_password, {
-        username: username,
-        email: email,
+      await apis(null).post(endpoints.forgot_password, {
+        username,
+        email,
       });
       toast.success('Mật khẩu mới đã được gửi tới email của bạn', {
         position: 'top-center',
@@ -236,19 +232,34 @@ const Login = () => {
                     </div>
                   </>
                 ) : (
-                  <div className="mb-3">
-                    <label htmlFor="email" className="form-label">
-                      Email
-                    </label>
-                    <input
-                      className="form-control form-control-lg"
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
+                  <>
+                    <div className="mb-3">
+                      <label htmlFor="username" className="form-label">
+                        Tên tài khoản
+                      </label>
+                      <input
+                        className="form-control form-control-lg"
+                        id="username"
+                        name="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label htmlFor="email" className="form-label">
+                        Email
+                      </label>
+                      <input
+                        className="form-control form-control-lg"
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </>
                 )}
 
                 <div className="d-flex justify-content-between mb-3">

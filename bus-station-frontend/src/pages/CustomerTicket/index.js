@@ -3,7 +3,8 @@ import './styles.css';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
 import moment from 'moment';
-import jsPDF from 'jspdf';
+import { PDFDocument, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 
 const CustomerTicket = () => {
   const [tickets, setTickets] = useState([]);
@@ -52,65 +53,81 @@ const CustomerTicket = () => {
     }
   };
 
-  const exportTicketToPDF = (ticket) => {
-    const pdf = new jsPDF();
-    
-    // Set font size for titles and content
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(16);
-    pdf.text('Ticket Information', 10, 10);
-    
-    pdf.setFontSize(12); // Smaller font for details
-    
-    // Add ticket details
-    pdf.text(`Ticket ID: ${ticket.ticketId}`, 10, 20);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Route:', 10, 30);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${ticket.routeName}`, 40, 30);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Company:', 10, 40);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${ticket.companyName}`, 40, 40);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Departure Station:', 10, 50);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${ticket.fromStation}`, 50, 50);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Arrival Station:', 10, 60);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${ticket.toStation}`, 50, 60);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Seat:', 10, 70);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${ticket.seatCode}`, 50, 70);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Departure Time:', 10, 80);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${moment(ticket.departAt).format('LLL')}`, 50, 80);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Payment Method:', 10, 90);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${ticket.paymentMethod}`, 50, 90);
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Payment Time:', 10, 100);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`${moment(ticket.paidAt).format('LLL')}`, 50, 100);
-    
-    const currentDate = moment().format('DD-MM-YYYY');
-    const fileName = `${user.username}_${currentDate}.pdf`;
-    
-    pdf.save(fileName);
-};
-
+  const exportTicketToPDF = async (ticket) => {
+    try {
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.registerFontkit(fontkit);
+  
+      const fontUrl = '/font/Roboto-Regular.ttf'; 
+      const fontBytes = await fetch(fontUrl).then((res) => res.arrayBuffer());
+  
+      const customFont = await pdfDoc.embedFont(fontBytes);
+  
+      const page = pdfDoc.addPage([600, 400]);
+      const { height } = page.getSize();
+  
+      const leftMargin = 50;
+      const lineSpacing = 20;
+      let yPosition = height - 50;
+  
+      page.drawText('Thông tin vé', {
+        x: leftMargin,
+        y: yPosition,
+        size: 18,
+        font: customFont,
+        color: rgb(0.1, 0.1, 0.1),
+      });
+  
+      page.setFontSize(12);
+      yPosition -= lineSpacing * 1.5;
+      page.drawText(`Mã vé: ${ticket.ticketId}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Chuyến: ${ticket.routeName}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Công ty: ${ticket.companyName}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Bến khởi hành: ${ticket.fromStation}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Bến đến: ${ticket.toStation}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Mã ghế: ${ticket.seatCode}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Giá vé: ${ticket.seatPrice.toLocaleString('vi-VN')} VND`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      if (ticket.cargoPrice && ticket.cargoPrice > 0) {
+        yPosition -= lineSpacing;
+        page.drawText(`Giá giao hàng: ${ticket.cargoPrice.toLocaleString('vi-VN')} VND`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+      }
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Giờ khởi hành: ${moment(ticket.departAt).format('LLL')}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Phương thức thanh toán: ${ticket.paymentMethod}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      yPosition -= lineSpacing;
+      page.drawText(`Thời gian thanh toán: ${moment(ticket.paidAt).format('LLL')}`, { x: leftMargin, y: yPosition, size: 12, font: customFont, color: rgb(0, 0, 0) });
+  
+      const pdfBytes = await pdfDoc.save();
+  
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `ticket_${ticket.ticketId}.pdf`;
+      link.click();
+    } catch (error) {
+      console.error('Lỗi khi tạo PDF:', error);
+    }
+  };
+  
+  
+  
 
   return (
     <div className="container mt-5 shadow p-3 mb-5 bg-body rounded">
