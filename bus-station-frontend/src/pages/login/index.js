@@ -128,7 +128,9 @@ const Login = () => {
       setUser(data.userDetails);
       navigator(from);
     } catch (error) {
-      toast.error('OTP không hợp lệ hoặc đã hết hạn', {
+      const errorMessage = error.response?.data || 'Có lỗi xảy ra, vui lòng thử lại sau.';
+  
+      toast.error(errorMessage, {
         position: 'top-center',
         autoClose: 4000,
         closeOnClick: true,
@@ -141,6 +143,7 @@ const Login = () => {
       setLoading('none');
     }
   };
+  
   
   const handleResendOtp = () => {
     handleRequestOtp();
