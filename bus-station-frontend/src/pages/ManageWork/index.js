@@ -11,6 +11,8 @@ const ManageWork = () => {
   const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [isPassengerList, setIsPassengerList] = useState(false);
+  const [passengerList, setPassengerList] = useState([]);
   const [ticketInfo, setTicketInfo] = useState({
     seatPrice: 0,
     cargoPrice: 0,
@@ -19,7 +21,7 @@ const ManageWork = () => {
     totalPrice: 0
   });
   const [paymentUrl, setPaymentUrl] = useState('');
-  const [isTicketCreated, setIsTicketCreated] = useState(false); 
+  const [isTicketCreated, setIsTicketCreated] = useState(false);
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -29,7 +31,6 @@ const ManageWork = () => {
         const response = await api.get(endpoints.get_trips_by_driver(user.id));
         setTrips(response.data);
       } catch (error) {
-        console.error('Error fetching trips:', error);
         setTrips([]);
       } finally {
         setLoading('none');
@@ -46,13 +47,12 @@ const ManageWork = () => {
       setLoading('flex');
       const api = apis(accessToken);
       await api.put(endpoints.update_trip_status(tripId), { status: true });
-      setTrips((prevTrips) => 
-        prevTrips.map((trip) => 
+      setTrips((prevTrips) =>
+        prevTrips.map((trip) =>
           trip.id === tripId ? { ...trip, status: true } : trip
         )
       );
     } catch (error) {
-      console.error('Error marking trip as complete:', error);
     } finally {
       setLoading('none');
     }
@@ -61,7 +61,9 @@ const ManageWork = () => {
   const handleCreateTicket = async () => {
     try {
       setLoading('flex');
-      const orderInfo = `Payment for ticket #${Math.random().toString(36).substr(2, 9)}`;
+      const orderInfo = `Payment for ticket #${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
       const amount = parseFloat(ticketInfo.totalPrice.replace(/[^0-9]/g, ''));
       const response = await apis(accessToken).post(endpoints.payment_url, {
         amount: amount,
@@ -72,7 +74,21 @@ const ManageWork = () => {
       setPaymentUrl(paymentUrl);
       setIsTicketCreated(true);
     } catch (error) {
-      console.error('Error creating payment:', error);
+    } finally {
+      setLoading('none');
+    }
+  };
+
+  const fetchPassengerList = async (tripId) => {
+    try {
+      setLoading('flex');
+      const api = apis(accessToken);
+      const response = await api.get(endpoints.get_list_passengers(tripId));
+      setPassengerList(response.data);
+      setIsPassengerList(true);
+      setShowDialog(true);
+    } catch (error) {
+      setPassengerList([]);
     } finally {
       setLoading('none');
     }
@@ -80,11 +96,14 @@ const ManageWork = () => {
 
   const calculateTotalPrice = () => {
     const basePrice = parseFloat(ticketInfo.seatPrice) || 0;
-    const cargoFee = ticketInfo.includeCargo ? parseFloat(ticketInfo.cargoPrice) || 0 : 0;
+    const cargoFee = ticketInfo.includeCargo
+      ? parseFloat(ticketInfo.cargoPrice) || 0
+      : 0;
     const discountPercentage = parseFloat(ticketInfo.discount) || 0;
     const discountAmount = (basePrice + cargoFee) * (discountPercentage / 100);
     const totalPrice = basePrice + cargoFee - discountAmount;
-    const formattedTotalPrice = Math.round(totalPrice).toLocaleString('vi-VN') + ' VND';
+    const formattedTotalPrice =
+      Math.round(totalPrice).toLocaleString('vi-VN') + ' VND';
 
     setTicketInfo((prev) => ({ ...prev, totalPrice: formattedTotalPrice }));
   };
@@ -96,7 +115,7 @@ const ManageWork = () => {
         cargoPrice: selectedTrip.cargoPrice,
         includeCargo: false,
         discount: '10',
-        totalPrice: selectedTrip.seatPrice
+        totalPrice: selectedTrip.seatPrice,
       });
     }
   }, [selectedTrip]);
@@ -107,6 +126,7 @@ const ManageWork = () => {
 
   const openDialog = (trip) => {
     setSelectedTrip(trip);
+    setIsPassengerList(false);
     setShowDialog(true);
   };
 
@@ -161,13 +181,21 @@ const ManageWork = () => {
                   </td>
                   <td>
                     {!trip.status && (
-                      <button
-                        className="create-ticket-button"
-                        onClick={() => openDialog(trip)}
-                      >
-                        Tạo vé
-                      </button>
+                      <>
+                        <button
+                          className="create-ticket-button"
+                          onClick={() => openDialog(trip)}
+                        >
+                          Tạo vé
+                        </button>
+                      </>
                     )}
+                    <button
+                      className="view-passenger-button"
+                      onClick={() => fetchPassengerList(trip.id)}
+                    >
+                      Xem hành khách
+                    </button>
                   </td>
                 </tr>
               </React.Fragment>
@@ -178,21 +206,38 @@ const ManageWork = () => {
         <p>Không có công việc nào để hiển thị.</p>
       )}
 
-      {showDialog && selectedTrip && (
-        <div className="dialog-overlay">
-          <div className="dialog">
-            {isTicketCreated ? (
+      {showDialog && (
+        <div className="dialog-overlay" onClick={closeDialog}>
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+            {isPassengerList ? (
               <>
-                <QRCodeComponent paymentUrl={paymentUrl} /> {/* Hiển thị mã QR */}
-                <div className="dialog-buttons">
-                  <button className="create-button" onClick={closeDialog}>OK</button>
-                </div>
+                <h3>Danh sách hành khách</h3>
+                <table className="passenger-table">
+                  <thead>
+                    <tr>
+                      <th>Số thứ tự</th>
+                      <th>Tên khách hàng</th>
+                      <th>Email</th>
+                      <th>Số điện thoại</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {passengerList.map((passenger, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{passenger.firstname} {passenger.lastname}</td>
+                        <td>{passenger.email}</td>
+                        <td>{passenger.phone}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </>
             ) : (
               <>
                 <h3>Tạo vé cho chuyến {selectedTrip.routeName}</h3>
                 <p>Giá vé: {ticketInfo.seatPrice} VND</p>
-                
+
                 <label>
                   <input
                     type="checkbox"
@@ -203,7 +248,10 @@ const ManageWork = () => {
                 </label>
 
                 <label>Giảm giá (%):</label>
-                <select value={ticketInfo.discount} onChange={handleDiscountChange}>
+                <select
+                  value={ticketInfo.discount}
+                  onChange={handleDiscountChange}
+                >
                   <option value="10">10%</option>
                   <option value="20">20%</option>
                   <option value="30">30%</option>
@@ -220,9 +268,22 @@ const ManageWork = () => {
                   readOnly
                 />
 
+                {isTicketCreated && paymentUrl && (
+                  <div className="qr-code">
+                    <h4>Quét mã QR để thanh toán</h4>
+                    <QRCodeComponent value={paymentUrl} />
+                  </div>
+                )}
+
                 <div className="dialog-buttons">
-                  <button className="create-button" onClick={handleCreateTicket}>Tạo vé</button>
-                  <button onClick={closeDialog} className="cancel-button">Hủy</button>
+                  {!isTicketCreated && (
+                    <button className="create-button" onClick={handleCreateTicket}>
+                      Tạo vé
+                    </button>
+                  )}
+                  <button onClick={closeDialog} className="cancel-button">
+                    Hủy
+                  </button>
                 </div>
               </>
             )}

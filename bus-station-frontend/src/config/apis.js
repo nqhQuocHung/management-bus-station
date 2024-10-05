@@ -41,6 +41,7 @@ const endpoints = {
   update_trip_status: (id) => `/api/trips/${id}/status`,
   get_trips_by_driver: (id) => `/api/trips/driver/${id}`,
   route_trip_list: (id) => `/api/trips/route/${id}`,
+  get_list_passengers: (id) => `/api/trips/${id}/passengers`,
   
   // Route Management
   route_list: '/api/routes',

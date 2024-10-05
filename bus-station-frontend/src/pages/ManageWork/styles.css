@@ -1,12 +1,19 @@
 .manage-work-container {
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .work-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .work-table th, .work-table td {
@@ -17,7 +24,7 @@
 }
 
 .work-table th {
-  background-color: #4CAF50;
+  background-color: #28a745;
   color: white;
   font-weight: bold;
 }
@@ -27,10 +34,11 @@
 }
 
 .work-table tr:hover {
-  background-color: #f1f1f1;
+  background-color: #e9ecef;
+  cursor: pointer;
 }
 
-.complete-button, .create-ticket-button {
+.complete-button, .create-ticket-button, .view-passenger-button {
   padding: 8px 16px;
   background-color: #007bff;
   color: white;
@@ -39,10 +47,20 @@
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
+  margin: 5px;
+  min-width: 100px;
 }
 
-.complete-button:hover, .create-ticket-button:hover {
+.complete-button:hover, .create-ticket-button:hover, .view-passenger-button:hover {
   background-color: #0056b3;
+}
+
+.view-passenger-button {
+  background-color: #ffc107;
+}
+
+.view-passenger-button:hover {
+  background-color: #e0a800;
 }
 
 .completed-status {
@@ -56,7 +74,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,18 +83,20 @@
 
 .dialog {
   background-color: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 8px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 1000px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
-  animation: slideDown 0.4s ease-in-out;
+  animation: slideDown 0.3s ease-in-out;
 }
 
 @keyframes slideDown {
   from {
-    transform: translateY(-20px);
+    transform: translateY(-30px);
     opacity: 0;
   }
   to {
@@ -88,26 +108,29 @@
 .dialog h3 {
   margin-top: 0;
   text-align: center;
-  font-size: 18px;
+  font-size: 24px;
+  color: #333;
 }
 
 .dialog label {
   font-weight: bold;
   margin-top: 10px;
   display: block;
+  color: #555;
 }
 
-.dialog input[type="text"], .dialog select {
-  padding: 8px;
+.dialog input[type='text'], .dialog select {
+  padding: 10px;
   width: 100%;
-  margin-top: 5px;
+  margin-top: 10px;
   margin-bottom: 15px;
   border-radius: 4px;
   border: 1px solid #ccc;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
-.dialog input[type="checkbox"] {
+.dialog input[type='checkbox'] {
   margin-right: 8px;
 }
 
@@ -121,8 +144,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
-  width: 100px;
-  margin: 5px;
+  min-width: 120px;
 }
 
 .dialog .cancel-button {
@@ -135,23 +157,29 @@
 }
 
 .dialog .create-button {
-  background-color: #007bff;
+  background-color: #28a745;
   color: white;
 }
 
 .dialog .create-button:hover {
-  background-color: #0056b3;
+  background-color: #218838;
 }
 
 .dialog-buttons {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-between; 
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.dialog-buttons button {
+  width: 48%;
 }
 
 @media (max-width: 600px) {
   .dialog {
     width: 90%;
+    max-height: 85vh;
   }
 
   .dialog-buttons {
@@ -172,5 +200,33 @@
 .qr-code img {
   width: 150px;
   height: 150px;
+  border-radius: 4px;
 }
 
+.passenger-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.passenger-table th, .passenger-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+  word-wrap: break-word; 
+}
+
+.passenger-table th {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.passenger-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.passenger-table tr:hover {
+  background-color: #f1f1f1;
+}

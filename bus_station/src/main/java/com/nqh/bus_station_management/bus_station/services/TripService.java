@@ -3,7 +3,9 @@ package com.nqh.bus_station_management.bus_station.services;
 import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
 import com.nqh.bus_station_management.bus_station.pojo.Trip;
+import com.nqh.bus_station_management.bus_station.pojo.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +18,5 @@ public interface TripService {
     List<TripPublicDTO> getTripsByDriverId(Long driverId);
     Trip updateTripStatus(Long id, Boolean status);
     long getActiveTripCount();
+    List<UserProfileDTO> getPassengersByTripId(Long tripId);
 }

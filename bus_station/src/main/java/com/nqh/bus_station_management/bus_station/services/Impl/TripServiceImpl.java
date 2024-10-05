@@ -3,12 +3,11 @@ package com.nqh.bus_station_management.bus_station.services.Impl;
 import com.nqh.bus_station_management.bus_station.dtos.TripDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripPublicDTO;
 import com.nqh.bus_station_management.bus_station.dtos.TripRegisterDTO;
+import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
 import com.nqh.bus_station_management.bus_station.mappers.TripDTOMapper;
+import com.nqh.bus_station_management.bus_station.mappers.UserProfileDTOMapper;
 import com.nqh.bus_station_management.bus_station.pojo.*;
-import com.nqh.bus_station_management.bus_station.repositories.CarRepository;
-import com.nqh.bus_station_management.bus_station.repositories.RouteRepository;
-import com.nqh.bus_station_management.bus_station.repositories.TripRepository;
-import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
+import com.nqh.bus_station_management.bus_station.repositories.*;
 import com.nqh.bus_station_management.bus_station.services.TripService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +27,11 @@ import java.time.ZoneId;
 @Transactional
 public class TripServiceImpl implements TripService {
 
-    private final TripRepository tripRepository;
-    private final TripDTOMapper tripDTOMapper;
+    @Autowired
+    private  TripRepository tripRepository;
+
+    @Autowired
+    private  TripDTOMapper tripDTOMapper;
 
     @Autowired
     private CarRepository carRepository;
@@ -40,12 +42,8 @@ public class TripServiceImpl implements TripService {
     @Autowired
     private UserRepository userRepository;
 
-
     @Autowired
-    public TripServiceImpl(TripRepository tripRepository, TripDTOMapper tripDTOMapper) {
-        this.tripRepository = tripRepository;
-        this.tripDTOMapper = tripDTOMapper;
-    }
+    private TicketRepository ticketRepository;
 
 
     @Override
@@ -132,5 +130,14 @@ public class TripServiceImpl implements TripService {
     @Override
     public long getActiveTripCount() {
         return tripRepository.countActiveTrips();
+    }
+
+    @Override
+    public List<UserProfileDTO> getPassengersByTripId(Long tripId) {
+        List<Ticket> tickets = ticketRepository.findByTripId(tripId);
+        return tickets.stream()
+                .map(Ticket::getCustomer)
+                .map(UserProfileDTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
