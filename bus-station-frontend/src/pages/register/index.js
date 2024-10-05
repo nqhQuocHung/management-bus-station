@@ -5,7 +5,7 @@ import * as validator from '../../config/validator';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -19,6 +19,7 @@ const Register = () => {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const { setLoading } = useContext(LoadingContext);
   const { setUser } = useContext(AuthenticationContext);
+  const navigate = useNavigate();
 
   const validate = () => {
     if (password !== rePassword) {
@@ -127,6 +128,8 @@ const Register = () => {
           setPhone('');
           setAvatar(null);
           setAvatarPreview(null);
+
+          navigate('/login');
         }
       } catch (error) {
         console.log(error);
@@ -144,7 +147,6 @@ const Register = () => {
       }
     }
   };
-  
 
   return (
     <div className="row" style={{ height: '100vh' }}>

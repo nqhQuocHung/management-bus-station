@@ -45,7 +45,7 @@ const RouteInfo = () => {
       });
       return;
     }
-  
+
     if (selectedSeats.length === 0) {
       toast.warning('Hãy chọn ghế bạn muốn!', {
         position: 'top-center',
@@ -58,7 +58,7 @@ const RouteInfo = () => {
       });
       return;
     }
-  
+
     if (selectedSeats.length > 1 && withCargo) {
       toast.warning('Bạn chỉ có thể thêm từng vé khi có nhu cầu vận chuyển hàng!', {
         position: 'top-center',
@@ -71,7 +71,7 @@ const RouteInfo = () => {
       });
       return;
     }
-  
+
     const payload = selectedSeats.map((seat) => ({
       seatId: seat,
       tripId: tripId,
@@ -81,11 +81,11 @@ const RouteInfo = () => {
       withCargo: withCargo,
       paidAt: null,
     }));
-  
+
     try {
       setLoading('flex');
       const response = await apis(accessToken).post(endpoints.add_cart, payload);
-  
+
       if (response.status === 200) {
         toast.success('Thêm vào giỏ hàng thành công!', {
           position: 'top-center',
@@ -96,18 +96,18 @@ const RouteInfo = () => {
           progress: undefined,
           theme: 'colored',
         });
-  
+
         cartDispatcher({
           type: 'ADD_TO_CART',
           payload: response.data,
         });
-  
+
         setSelectedSeats([]);
-  
+
         if (withCargo) {
           await createCargo(response.data[0]?.id);
         }
-  
+
         fetchTripSeatDetails();
       }
     } catch (ex) {
@@ -125,7 +125,7 @@ const RouteInfo = () => {
       setLoading('none');
     }
   };
-  
+
   const createCargo = async (ticketId) => {
     const payload = {
       receiverName: cargoInfo.receiverName,
@@ -178,6 +178,7 @@ const RouteInfo = () => {
       setLoading('flex');
       const response = await apis(accessToken).get(endpoints.route_info(id));
       const data = response['data'];
+      console.log("Dữ liệu API trả về:", data);
       setRoute(data);
     } catch (ex) {
       console.error(ex);
@@ -223,7 +224,7 @@ const RouteInfo = () => {
         center: { lat: 21.028511, lng: 105.804817 },
         zoom: 15,
       });
-  
+
       map.addListener('click', (event) => {
         handleMapClick(event);
       });
@@ -284,6 +285,7 @@ const RouteInfo = () => {
                       allowFullScreen={true}
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
+                      title="Map from start station"
                     ></iframe>
                   </div>
                   <div className="col-md-6">
@@ -295,6 +297,7 @@ const RouteInfo = () => {
                       allowFullScreen={true}
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
+                      title="Map to end station"
                     ></iframe>
                   </div>
                 </li>
@@ -302,21 +305,23 @@ const RouteInfo = () => {
             </div>
             <div className="mt-5 d-flex align-items-center">
               <button onClick={addToCart} className="btn btn-primary">Thêm vào giỏ hàng</button>
-              <div className="form-check ms-3">
-                <input
-                  checked={withCargo}
-                  className="form-check-input"
-                  type="checkbox"
-                  onChange={(event) => {
-                    setWithCargo(event.target.checked);
-                    setShowCargoForm(event.target.checked);
-                  }}
-                  id="flexCheckChecked"
-                />
-                <label className="form-check-label" htmlFor="flexCheckChecked">
-                  Có giao hàng
-                </label>
-              </div>
+              {route.company.isCargo && (
+                <div className="form-check ms-3">
+                  <input
+                    checked={withCargo}
+                    className="form-check-input"
+                    type="checkbox"
+                    onChange={(event) => {
+                      setWithCargo(event.target.checked);
+                      setShowCargoForm(event.target.checked);
+                    }}
+                    id="flexCheckChecked"
+                  />
+                  <label className="form-check-label" htmlFor="flexCheckChecked">
+                    Có giao hàng
+                  </label>
+                </div>
+              )}
             </div>
 
             {showCargoForm && (

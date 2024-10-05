@@ -106,7 +106,7 @@ const ManageCompany = () => {
       const response = await api.patch(endpoints.register_cargo(companyId), payload);
       if (response.status === 200) {
         setIsCargoTransport(!isCargoTransport);
-        toast.success(isCargoTransport ? 'Hủy đăng kí thành công!' : 'Đăng kí thành công!');
+        toast.success(isCargoTransport ? 'Đăng kí thành công!' : 'Hủy đăng kí thành công!');
       } else {
         toast.error('Thao tác không thành công!');
       }
@@ -240,7 +240,7 @@ const ManageCompany = () => {
           <button className="mc-button">Quản lý tài xế</button>
         </Link>
         <button className="mc-button" onClick={showConfirmationDialog}>
-          {isCargoTransport ? 'Hủy chuyển hàng' : 'Đăng kí chuyển hàng'}
+          {isCargoTransport ? 'Đăng kí chuyển hàng' : 'Hủy chuyển hàng'}
         </button>
         <ChatIcon />
       </div>

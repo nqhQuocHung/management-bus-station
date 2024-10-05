@@ -74,4 +74,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Query("SELECT t FROM Ticket t WHERE t.customer.id = :userId")
     List<Ticket> findTicketsByUserIdAndPaidAtNotNull(@Param("userId") Long userId);
+
+    @Query("SELECT t FROM Ticket t WHERE t.trip.id = :tripId AND t.paidAt IS NOT NULL")
+    List<Ticket> findByTripId(@Param("tripId") Long tripId);
 }

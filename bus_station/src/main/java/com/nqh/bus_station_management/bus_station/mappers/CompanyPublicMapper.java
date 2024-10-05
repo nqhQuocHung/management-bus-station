@@ -13,6 +13,7 @@ public class CompanyPublicMapper implements Function<TransportationCompany, Comp
         return CompanyPublicDTO.builder()
                 .id(transportationCompany.getId())
                 .name(transportationCompany.getName())
+                .isCargo(transportationCompany.getIsCargoTransport())
                 .build();
     }
 }

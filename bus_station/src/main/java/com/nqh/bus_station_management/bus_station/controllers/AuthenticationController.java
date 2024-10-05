@@ -66,4 +66,16 @@ public class AuthenticationController {
         authenticationService.changePassword(user, changePasswordRequest);
         return ResponseEntity.ok("Đổi mật khẩu thành công.");
     }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<String> sendOtp(@RequestParam String username) {
+        authenticationService.sendOtp(username);
+        return ResponseEntity.ok("OTP đã được gửi tới email của bạn.");
+    }
+
+    @PostMapping("/login-otp")
+    public ResponseEntity<AuthenticationResponse> loginWithOtp(@RequestParam String username, @RequestParam String otp) {
+        AuthenticationResponse response = authenticationService.authenticateWithOtp(username, otp);
+        return ResponseEntity.ok(response);
+    }
 }

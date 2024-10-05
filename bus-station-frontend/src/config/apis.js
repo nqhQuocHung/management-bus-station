@@ -8,6 +8,8 @@ const endpoints = {
   login_with_google: '/api/v1/auth/oauth2/google',
   forgot_password: '/api/auth/forgot-password',
   change_password: '/api/auth/change-password',
+  login_with_otp: '/api/auth/login-otp',
+  get_otp: '/api/auth/send-otp',
 
   // User Management
   update_user: (id) => `/api/users/${id}`,
@@ -39,6 +41,7 @@ const endpoints = {
   update_trip_status: (id) => `/api/trips/${id}/status`,
   get_trips_by_driver: (id) => `/api/trips/driver/${id}`,
   route_trip_list: (id) => `/api/trips/route/${id}`,
+  get_list_passengers: (id) => `/api/trips/${id}/passengers`,
   
   // Route Management
   route_list: '/api/routes',

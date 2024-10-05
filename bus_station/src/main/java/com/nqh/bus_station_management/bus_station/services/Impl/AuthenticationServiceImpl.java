@@ -226,4 +226,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         emailService.sendHtmlEmail(user.getEmail(), subject, message);
     }
 
+    @Override
+    public void sendOtp(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Username không tồn tại trong hệ thống"));
+        String email = user.getEmail();
+        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+        user.setOtp(otp);
+        user.setOtpCreationTime(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+
+        String subject = "Mã OTP đăng nhập của bạn";
+        String message = String.format(
+                "<html><body style=\"font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;\">"
+                        + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;\">"
+                        + "<h2 style=\"text-align: center; color: #007bff;\">Mã OTP đăng nhập</h2>"
+                        + "<p style=\"font-size: 16px;\">Xin chào,</p>"
+                        + "<p style=\"font-size: 16px;\">Để đăng nhập vào tài khoản của bạn, vui lòng sử dụng mã OTP sau:</p>"
+                        + "<h3 style=\"text-align: center; font-size: 24px; color: #28a745;\">%s</h3>"
+                        + "<p style=\"font-size: 14px; color: #555;\">Mã này sẽ hết hạn sau 5 phút.</p>"
+                        + "<p style=\"font-size: 14px;\">Trân trọng,</p>"
+                        + "<p style=\"font-size: 14px; color: #007bff;\">Đội ngũ hỗ trợ của chúng tôi</p>"
+                        + "</div>"
+                        + "<div style=\"text-align: center; padding: 10px; font-size: 12px; color: #777;\">"
+                        + "<p>Email này được gửi tự động, vui lòng không trả lời.</p>"
+                        + "</div></body></html>",
+                otp
+        );
+
+        emailService.sendHtmlEmail(email, subject, message);
+    }
+
+
+    @Override
+    public AuthenticationResponse authenticateWithOtp(String username, String otp) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Username không tồn tại trong hệ thống"));
+        if (user.getOtp() == null || !user.getOtp().equals(otp) || System.currentTimeMillis() - user.getOtpCreationTime().getTime() > 5 * 60 * 1000) {
+            throw new IllegalArgumentException("OTP không hợp lệ hoặc đã hết hạn.");
+        }
+        user.setOtp(null);
+        user.setOtpCreationTime(null);
+        userRepository.save(user);
+        String token = jwtService.generateToken(user);
+        return AuthenticationResponse.builder().accessToken(token).userDetails(userDetailsService.toDTO(user)).build();
+    }
 }

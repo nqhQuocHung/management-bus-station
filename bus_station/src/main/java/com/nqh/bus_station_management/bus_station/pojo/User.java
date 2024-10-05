@@ -71,6 +71,12 @@ public class User implements UserDetails {
     @JsonIgnore
     private Role role;
 
+    @Column(name = "otp", length = 6)
+    private String otp;
+
+    @Column(name = "otp_creation_time")
+    private Timestamp otpCreationTime;
+
     @Override
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {

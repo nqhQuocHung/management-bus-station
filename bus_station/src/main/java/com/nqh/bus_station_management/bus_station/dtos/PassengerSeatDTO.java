@@ -6,11 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompanyPublicDTO {
-    private Long id;
-    private String name;
-    private Boolean isCargo;
+@Builder
+public class PassengerSeatDTO {
+
+    private Long passengerId;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
+    private String seatCode;
 }

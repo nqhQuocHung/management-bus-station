@@ -40,6 +40,8 @@ public class SecurityConfiguration {
     private List<String> publicUrl = List.of("/",
             "/api/auth/authenticate",
             "/api/auth/register",
+            "/api/auth/send-otp",
+            "/api/auth/login-otp",
             "/api/auth/forgot-password",
             "/api/auth/oauth2/google",
             "/api/companies/**",
