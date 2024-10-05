@@ -259,15 +259,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public AuthenticationResponse authenticateWithOtp(String username, String otp) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Username không tồn tại trong hệ thống"));
-        if (user.getOtp() == null || !user.getOtp().equals(otp) || System.currentTimeMillis() - user.getOtpCreationTime().getTime() > 5 * 60 * 1000) {
-            throw new IllegalArgumentException("OTP không hợp lệ hoặc đã hết hạn.");
+    public AuthenticationResponse authenticateWithOtp(String username, String enteredOtp) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Username không tồn tại trong hệ thống"));
+        if (user.getOtp() == null) {
+            throw new IllegalArgumentException("OTP không tồn tại.");
+        }
+        if (System.currentTimeMillis() - user.getOtpCreationTime().getTime() > 5 * 60 * 1000) {
+            throw new IllegalArgumentException("OTP đã hết hạn.");
+        }
+        if (!user.getOtp().equals(enteredOtp)) {
+            throw new IllegalArgumentException("OTP không đúng.");
         }
         user.setOtp(null);
         user.setOtpCreationTime(null);
         userRepository.save(user);
+
         String token = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().accessToken(token).userDetails(userDetailsService.toDTO(user)).build();
+        return AuthenticationResponse.builder()
+                .accessToken(token)
+                .userDetails(userDetailsService.toDTO(user))
+                .build();
     }
+
 }

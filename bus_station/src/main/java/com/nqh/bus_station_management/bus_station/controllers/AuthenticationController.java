@@ -74,8 +74,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login-otp")
-    public ResponseEntity<AuthenticationResponse> loginWithOtp(@RequestParam String username, @RequestParam String otp) {
-        AuthenticationResponse response = authenticationService.authenticateWithOtp(username, otp);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> loginWithOtp(@RequestParam String username, @RequestParam String otp) {
+        try {
+            AuthenticationResponse response = authenticationService.authenticateWithOtp(username, otp);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra. Vui lòng thử lại sau.");
+        }
     }
+
 }
