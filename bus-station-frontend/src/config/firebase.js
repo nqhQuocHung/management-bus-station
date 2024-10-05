@@ -2,15 +2,14 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDA19hOUUIdUsOMiNbb_W41v9yKaqR1fek',
-  authDomain: 'lms-chats.firebaseapp.com',
-  databaseURL:
-    'https://lms-chats-default-rtdb.asia-southeast1.firebasedatabase.app',
-  projectId: 'lms-chats',
-  storageBucket: 'lms-chats.appspot.com',
-  messagingSenderId: '74220990475',
-  appId: '1:74220990475:web:a2e33d60cbba6a85e8570e',
-  measurementId: 'G-79FJV88W0D',
+  apiKey: "AIzaSyAR8fzCWDNCT5wt92ARPzZlC-Ae-Bjozm4",
+  authDomain: "bus-station-chat.firebaseapp.com",
+  databaseURL: "https://bus-station-chat-default-rtdb.firebaseio.com",
+  projectId: "bus-station-chat",
+  storageBucket: "bus-station-chat.appspot.com",
+  messagingSenderId: "538391703504",
+  appId: "1:538391703504:web:927b83a2b76525e046d3d5",
+  measurementId: "G-NR12DM5QJE"
 };
 
 firebase.initializeApp(firebaseConfig);
