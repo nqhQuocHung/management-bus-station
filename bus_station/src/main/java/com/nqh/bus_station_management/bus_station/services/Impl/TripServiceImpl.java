@@ -84,11 +84,15 @@ public class TripServiceImpl implements TripService {
     @Override
     public List<TripDTO> getTripsByRouteId(Long routeId) {
         List<Trip> trips = tripRepository.findByRouteId(routeId);
+        LocalDateTime now = LocalDateTime.now();
+
         return trips.stream()
-                .filter(trip -> trip.getDepartAt().toLocalDateTime().isAfter(LocalDateTime.now()))
+                .filter(trip -> trip.getDepartAt().toLocalDateTime().isAfter(now))
                 .map(tripDTOMapper)
                 .collect(Collectors.toList());
     }
+
+
 
     @Override
     public List<TripPublicDTO> getTripsByDriverId(Long driverId) {
