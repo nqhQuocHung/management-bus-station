@@ -22,6 +22,7 @@ const VnpayPaymentResult = () => {
         if (storedTicketIds) {
           parsedTicketIds = JSON.parse(storedTicketIds);
           setTicketIds(parsedTicketIds);
+          console.log(parsedTicketIds);
         }
 
         const queryParams = new URLSearchParams(window.location.search);
@@ -35,15 +36,22 @@ const VnpayPaymentResult = () => {
           confirmAt: new Date().toISOString()
         };
 
+        console.log(paymentDetails);
+
         const response = await apis().post(endpoints.payment_bill, paymentDetails);
         setPaymentData(paymentDetails);
 
         const paymentId = response.data.id;
-        await updateTicketPayment(parsedTicketIds, paymentId); 
+        console.log(paymentId);
+
+        await updateTicketPayment(parsedTicketIds, paymentId);
         await fetchTicketDetails(parsedTicketIds);
 
+        localStorage.removeItem('ticketIds');
+        localStorage.removeItem('paymentUrl');
+
       } catch (err) {
-        console.error('Error fetching payment data or creating bill:', err);
+        console.error(err);
       } finally {
         setLoading('none');
       }
@@ -57,18 +65,21 @@ const VnpayPaymentResult = () => {
           paymentMethodId: 2
         };
 
+        console.log(payload);
         await apis(accessToken).put(endpoints.update_payment_ticket, payload);
       } catch (error) {
-        console.error('Error updating ticket payment:', error);
+        console.error(error);
       }
     };
 
     const fetchTicketDetails = async (ticketIds) => {
       try {
+        console.log(ticketIds);
         const response = await apis(accessToken).post(endpoints.get_ticket_details, { ticketIds });
         setTickets(response.data);
+        console.log(response.data);
       } catch (error) {
-        console.error('Error fetching ticket details:', error);
+        console.error(error);
       }
     };
 

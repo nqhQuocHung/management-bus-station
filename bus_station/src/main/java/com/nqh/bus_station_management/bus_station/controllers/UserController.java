@@ -1,18 +1,15 @@
 package com.nqh.bus_station_management.bus_station.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nqh.bus_station_management.bus_station.dtos.UserDTO;
 import com.nqh.bus_station_management.bus_station.dtos.UserProfileDTO;
 import com.nqh.bus_station_management.bus_station.dtos.UserRegisterDTO;
 import com.nqh.bus_station_management.bus_station.dtos.UserUpdateDTO;
 import com.nqh.bus_station_management.bus_station.pojo.User;
-import com.nqh.bus_station_management.bus_station.services.CloudinaryService;
 import com.nqh.bus_station_management.bus_station.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 

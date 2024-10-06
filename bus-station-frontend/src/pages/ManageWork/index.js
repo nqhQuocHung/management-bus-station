@@ -3,6 +3,9 @@ import { apis, endpoints } from '../../config/apis';
 import { AuthenticationContext, LoadingContext } from '../../config/context';
 import './styles.css';
 import QRCodeComponent from '../../components/QrCode';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Modal } from 'react-bootstrap';
 
 const ManageWork = () => {
   const { user } = useContext(AuthenticationContext);
@@ -18,10 +21,23 @@ const ManageWork = () => {
     cargoPrice: 0,
     includeCargo: false,
     discount: '10',
-    totalPrice: 0
+    totalPrice: 0,
   });
   const [paymentUrl, setPaymentUrl] = useState('');
   const [isTicketCreated, setIsTicketCreated] = useState(false);
+  const [availableSeats, setAvailableSeats] = useState([]);
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [cargoInfo, setCargoInfo] = useState({
+    receiverName: '',
+    receiverEmail: '',
+    receiverPhone: '',
+    receiverAddress: '',
+    description: '',
+  });
+  const [showCargoDialog, setShowCargoDialog] = useState(false);
+
+  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -29,7 +45,8 @@ const ManageWork = () => {
         setLoading('flex');
         const api = apis(accessToken);
         const response = await api.get(endpoints.get_trips_by_driver(user.id));
-        setTrips(response.data);
+        const sortedTrips = response.data.sort((a, b) => new Date(a.departAt) - new Date(b.departAt));
+        setTrips(sortedTrips);
       } catch {
         setTrips([]);
       } finally {
@@ -42,15 +59,29 @@ const ManageWork = () => {
     }
   }, [user, accessToken, setLoading]);
 
+  const handleSearchUser = async () => {
+    try {
+      setLoading('flex');
+      const api = apis(accessToken);
+      const response = await api.get(endpoints.get_user_by_username(username));
+      const foundUser = response.data;
+      setUserId(foundUser.id);
+      setUsername(`${foundUser.id} - ${foundUser.lastname} ${foundUser.firstname}`);
+      toast.success(`User found with ID: ${foundUser.id}`);
+    } catch {
+      toast.error('Không tìm thấy người dùng!');
+    } finally {
+      setLoading('none');
+    }
+  };
+
   const handleMarkComplete = async (tripId) => {
     try {
       setLoading('flex');
       const api = apis(accessToken);
       await api.put(endpoints.update_trip_status(tripId), { status: true });
       setTrips((prevTrips) =>
-        prevTrips.map((trip) =>
-          trip.id === tripId ? { ...trip, status: true } : trip
-        )
+        prevTrips.map((trip) => (trip.id === tripId ? { ...trip, status: true } : trip))
       );
     } finally {
       setLoading('none');
@@ -60,19 +91,115 @@ const ManageWork = () => {
   const handleCreateTicket = async () => {
     try {
       setLoading('flex');
+  
+      const baseSeatPrice = parseFloat(ticketInfo.seatPrice) || 0;
+      const cargoPrice = ticketInfo.includeCargo ? parseFloat(ticketInfo.cargoPrice) || 0 : 0;
+      const discountPercentage = parseFloat(ticketInfo.discount) || 0;
+      const discountAmountSeat = (baseSeatPrice * discountPercentage) / 100;
+      const discountAmountCargo = (cargoPrice * discountPercentage) / 100;
+      const seatPriceAfterDiscount = baseSeatPrice - discountAmountSeat;
+      const cargoPriceAfterDiscount = cargoPrice - discountAmountCargo;
       const orderInfo = `Payment for ticket #${Math.random().toString(36).substr(2, 9)}`;
-      const amount = parseFloat((ticketInfo.totalPrice || '').replace(/[^0-9]/g, ''));
-      const response = await apis(accessToken).post(endpoints.payment_url, {
-        amount: amount,
-        orderInfo: orderInfo,
-      });
-      const paymentUrl = response.data;
-      setPaymentUrl(paymentUrl);
-      setIsTicketCreated(true);
+      const amount = seatPriceAfterDiscount + cargoPriceAfterDiscount;
+  
+      const payload = selectedSeats.map((seat) => ({
+        seatId: seat,
+        tripId: selectedTrip.id,
+        customerId: userId,
+        seatPrice: seatPriceAfterDiscount,
+        cargoPrice: ticketInfo.includeCargo ? cargoPriceAfterDiscount : null,
+        withCargo: ticketInfo.includeCargo,
+        paidAt: null,
+      }));
+  
+      const response = await apis(accessToken).post(endpoints.add_cart, payload);
+  
+      if (response.status === 200) {
+        const ticketIds = response.data.map(ticket => ticket.id);
+        console.log('Ticket IDs:', ticketIds);
+  
+        localStorage.setItem('ticketIds', JSON.stringify(ticketIds));
+  
+        toast.success('Thêm vé thành công!', {
+          position: 'top-center',
+          autoClose: 3000,
+          theme: 'colored',
+        });
+  
+        if (ticketInfo.includeCargo) {
+          await createCargo(ticketIds[0]);
+        }
+  
+        await createPaymentUrl(orderInfo, amount, ticketIds);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Không thể thêm vé vào giỏ hàng!');
     } finally {
       setLoading('none');
     }
   };
+  
+
+  const createCargo = async (ticketId) => {
+    try {
+      setLoading('flex');
+      const cargoPrice = ticketInfo.cargoPrice || 0;
+      const discountPercentage = parseFloat(ticketInfo.discount) || 0;
+      const discountAmountCargo = (cargoPrice * discountPercentage) / 100;
+      const cargoPriceAfterDiscount = cargoPrice - discountAmountCargo;
+
+      const cargoPayload = {
+        receiverName: cargoInfo.receiverName,
+        receiverEmail: cargoInfo.receiverEmail,
+        receiverPhone: cargoInfo.receiverPhone,
+        receiverAddress: cargoInfo.receiverAddress,
+        description: cargoInfo.description,
+        ticketId: ticketId,
+        cargoPrice: cargoPriceAfterDiscount,
+      };
+
+      await apis(accessToken).post(endpoints.add_cargo, cargoPayload);
+    } catch (error) {
+      console.error('Error creating cargo:', error);
+      toast.error('Không thể thêm thông tin giao hàng!');
+    } finally {
+      setLoading('none');
+    }
+  };
+
+  const createPaymentUrl = async (orderInfo, amount) => {
+    try {
+      const response = await apis(accessToken).post(endpoints.payment_url, {
+        orderInfo: orderInfo,
+        amount: amount,
+      });
+  
+      const paymentUrl = response.data;
+      console.log('Payment Url: ', paymentUrl);
+      setPaymentUrl(paymentUrl);
+      setIsTicketCreated(true);
+  
+      
+      localStorage.setItem('paymentUrl', paymentUrl);
+  
+      toast.success('URL thanh toán đã được tạo!', {
+        position: 'top-center',
+        autoClose: 3000,
+        theme: 'colored',
+      });
+  
+      if (selectedTrip) {
+        await fetchAvailableSeats(selectedTrip.id);
+      }
+  
+    } catch (error) {
+      console.error('Error creating payment URL:', error);
+      toast.error('Không thể tạo URL thanh toán!');
+    }
+  };
+  
+  
 
   const fetchPassengerList = async (tripId) => {
     try {
@@ -82,6 +209,19 @@ const ManageWork = () => {
       setPassengerList(response.data);
       setIsPassengerList(true);
       setShowDialog(true);
+    } finally {
+      setLoading('none');
+    }
+  };
+
+  const fetchAvailableSeats = async (tripId) => {
+    try {
+      setLoading('flex');
+      const api = apis(accessToken);
+      const response = await api.get(endpoints.get_available_seat(tripId));
+      setAvailableSeats(response.data);
+    } catch (error) {
+      toast.error('Không thể tải ghế khả dụng!');
     } finally {
       setLoading('none');
     }
@@ -106,6 +246,7 @@ const ManageWork = () => {
         discount: '10',
         totalPrice: selectedTrip.seatPrice,
       });
+      fetchAvailableSeats(selectedTrip.id);
     }
   }, [selectedTrip]);
 
@@ -123,14 +264,35 @@ const ManageWork = () => {
     setShowDialog(false);
     setPaymentUrl('');
     setIsTicketCreated(false);
+    setSelectedSeats([]);
   };
 
   const handleCheckboxChange = () => {
     setTicketInfo((prev) => ({ ...prev, includeCargo: !prev.includeCargo }));
+    if (!ticketInfo.includeCargo) {
+      setShowCargoDialog(true);
+    }
   };
 
   const handleDiscountChange = (e) => {
     setTicketInfo((prev) => ({ ...prev, discount: e.target.value }));
+  };
+
+  const handleSeatSelection = (seatId) => {
+    if (selectedSeats.includes(seatId)) {
+      setSelectedSeats(selectedSeats.filter((seat) => seat !== seatId));
+    } else {
+      setSelectedSeats([...selectedSeats, seatId]);
+    }
+  };
+
+  const closeCargoDialog = () => {
+    setShowCargoDialog(false);
+  };
+
+  const handleCargoInfoChange = (e) => {
+    const { name, value } = e.target;
+    setCargoInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
   };
 
   return (
@@ -263,9 +425,41 @@ const ManageWork = () => {
                   readOnly
                 />
 
+                <div>
+                  <h4>Tìm người dùng</h4>
+                  <input
+                    type="text"
+                    placeholder="Nhập tên người dùng"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  <button onClick={handleSearchUser}>Tìm kiếm</button>
+                </div>
+
+                <div>
+                  <h4>Chọn ghế</h4>
+                  <select
+                    className="form-select"
+                    value={selectedSeats[0] || ''}
+                    onChange={(e) => {
+                      setSelectedSeats([e.target.value]);
+                    }}
+                  >
+                    <option value="" disabled>Chọn ghế</option>
+                    {availableSeats.length > 0 ? (
+                      availableSeats.map((seat) => (
+                        <option key={seat.id} value={seat.id}>
+                          {seat.code}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>Không có ghế nào khả dụng</option>
+                    )}
+                  </select>
+                </div>
+
                 {isTicketCreated && paymentUrl && (
                   <div className="qr-code">
-                    <h4>Quét mã QR để thanh toán</h4>
                     <QRCodeComponent value={paymentUrl} />
                   </div>
                 )}
@@ -285,6 +479,68 @@ const ManageWork = () => {
           </div>
         </div>
       )}
+
+      <Modal show={showCargoDialog} onHide={closeCargoDialog}>
+        <Modal.Header closeButton>
+          <Modal.Title>Thông tin giao hàng</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="cargo-form">
+            <div className="mb-3">
+              <label>Tên người nhận:</label>
+              <input
+                type="text"
+                name="receiverName"
+                value={cargoInfo.receiverName}
+                onChange={handleCargoInfoChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label>Email người nhận:</label>
+              <input
+                type="email"
+                name="receiverEmail"
+                value={cargoInfo.receiverEmail}
+                onChange={handleCargoInfoChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label>Số điện thoại:</label>
+              <input
+                type="text"
+                name="receiverPhone"
+                value={cargoInfo.receiverPhone}
+                onChange={handleCargoInfoChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label>Địa chỉ người nhận:</label>
+              <input
+                type="text"
+                name="receiverAddress"
+                value={cargoInfo.receiverAddress}
+                onChange={handleCargoInfoChange}
+                className="form-control"
+              />
+            </div>
+            <div className="mb-3">
+              <label>Ghi chú:</label>
+              <textarea
+                name="description"
+                value={cargoInfo.description}
+                onChange={handleCargoInfoChange}
+                className="form-control"
+              ></textarea>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={closeCargoDialog}>Đóng</button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

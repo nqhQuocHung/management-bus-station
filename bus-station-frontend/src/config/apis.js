@@ -18,6 +18,7 @@ const endpoints = {
   // self_ticket: '/api/v1/users/self/tickets',
   get_user_by_id: (id) => `/api/users/${id}`,
   get_user_by_role: (id) => `/admin/users/role/${id}`,
+  get_user_by_username:(username) => `/api/users/username/${username}`,
 
   // Company Management
   verified_company_list: '/api/companies',
@@ -67,7 +68,6 @@ const endpoints = {
   // Seat Management
   get_available_seat: (tripId) => `/api/seats/available?tripId=${tripId}`,
   get_occupied_seat: (tripId) => `/api/seats/occupied/${tripId}`,
-  trip_seat_details: (id) => `/api/v1/trip/${id}/seat-details`,
 
   // Car Management
   available_cars: '/api/cars/available',
