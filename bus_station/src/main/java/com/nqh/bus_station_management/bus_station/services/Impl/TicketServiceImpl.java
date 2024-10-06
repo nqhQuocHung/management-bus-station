@@ -226,4 +226,5 @@ public class TicketServiceImpl implements TicketService {
     public List<StatisticsAdminDTO> calculateMonthlyRevenueAdmin(int year) {
         return ticketRepository.calculateMonthlyRevenueAdmin(year);
     }
+
 }
