@@ -194,7 +194,8 @@ const AdminDashboard = () => {
 
   const exportReportToPDF = async (existingFile) => {
     let pdf;
-  
+    const currentYear = new Date().getFullYear();
+    
     if (!existingFile) {
       pdf = new jsPDF();
       pdf.setFont('helvetica', 'normal');
@@ -205,12 +206,51 @@ const AdminDashboard = () => {
       pdf.addPage();
     }
   
+    const waitForRender = async (time = 1000) => {
+      return new Promise((resolve) => setTimeout(resolve, time));
+    };
+  
+    setChartType('bar');
+    await waitForRender();
+    const barChartElement = document.querySelector('.admin-chart canvas');
+    if (barChartElement) {
+      const barCanvas = await html2canvas(barChartElement, { scale: 3 });
+      const barImage = barCanvas.toDataURL('image/png');
+      const imageProps = pdf.getImageProperties(barImage);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imageProps.height * pdfWidth) / imageProps.width;
+      pdf.addImage(barImage, 'PNG', 5, 40, pdfWidth - 10, pdfHeight - 20);
+    }
+  
+    pdf.addPage();
+    pdf.text(`Revenue Statistics (${currentYear})`, 105, 20, null, null, 'center');
+    setChartType('line');
+    setYear(currentYear);
+    await waitForRender();
+    const lineChartElement = document.querySelector('.admin-chart canvas');
+    if (lineChartElement) {
+      const lineCanvas = await html2canvas(lineChartElement, { scale: 3 });
+      const lineImage = lineCanvas.toDataURL('image/png');
+      const imageProps = pdf.getImageProperties(lineImage);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imageProps.height * pdfWidth) / imageProps.width;
+      pdf.addImage(lineImage, 'PNG', 5, 40, pdfWidth - 10, pdfHeight - 20);
+    }
+  
+    pdf.addPage();
+    pdf.text('User Statistics', 105, 20, null, null, 'center');
+    setChartType('pie');
+    await waitForRender();
     const pieChartElement = document.querySelector('.admin-chart canvas');
-    
     if (pieChartElement) {
-      const pieCanvas = await html2canvas(pieChartElement, { scale: 2 });
+      const pieCanvas = await html2canvas(pieChartElement, { scale: 3 });
       const pieImage = pieCanvas.toDataURL('image/png');
-      pdf.addImage(pieImage, 'PNG', 35, 40, 140, 140);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      
+      const pdfHeight = 100;
+      const imageWidth = 100;
+      
+      pdf.addImage(pieImage, 'PNG', 55, 40, imageWidth, pdfHeight);
     }
   
     const currentDate = new Date();

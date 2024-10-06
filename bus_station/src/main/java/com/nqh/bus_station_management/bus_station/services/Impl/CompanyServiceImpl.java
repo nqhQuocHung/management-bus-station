@@ -3,9 +3,11 @@ package com.nqh.bus_station_management.bus_station.services.Impl;
 import com.nqh.bus_station_management.bus_station.dtos.CompanyDTO;
 import com.nqh.bus_station_management.bus_station.dtos.CompanyPublicDTO;
 import com.nqh.bus_station_management.bus_station.dtos.CompanyRegisterDTO;
+import com.nqh.bus_station_management.bus_station.pojo.Role;
 import com.nqh.bus_station_management.bus_station.pojo.TransportationCompany;
 import com.nqh.bus_station_management.bus_station.pojo.User;
 import com.nqh.bus_station_management.bus_station.repositories.CompanyRepository;
+import com.nqh.bus_station_management.bus_station.repositories.RoleRepository;
 import com.nqh.bus_station_management.bus_station.repositories.UserRepository;
 import com.nqh.bus_station_management.bus_station.services.CompanyService;
 import com.nqh.bus_station_management.bus_station.services.EmailService;
@@ -24,9 +26,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class CompanyServiceImpl implements CompanyService {
+    @Autowired
+    private CompanyRepository companyRepository;
 
-    private final CompanyRepository companyRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private  UserRepository userRepository;
 
     @Autowired
     private EmailService emailService;
@@ -35,10 +39,7 @@ public class CompanyServiceImpl implements CompanyService {
     private Environment environment;
 
     @Autowired
-    public CompanyServiceImpl(CompanyRepository companyRepository, UserRepository userRepository) {
-        this.companyRepository = companyRepository;
-        this.userRepository = userRepository;
-    }
+    private RoleRepository roleRepository;
 
     @Override
     public Map<String, Object> listCompanies(Map<String, String> params) {
@@ -167,7 +168,13 @@ public class CompanyServiceImpl implements CompanyService {
             boolean newVerifiedStatus = !company.getIsVerified();
             company.setIsVerified(newVerifiedStatus);
 
+            User manager = company.getManager();
+            Role newRole = roleRepository.findById(newVerifiedStatus ? 3L : 1L)
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy vai trò"));
+            manager.setRole(newRole);
+
             companyRepository.save(company);
+            userRepository.save(manager);
 
             String emailTo = company.getEmail();
             String subject = newVerifiedStatus
