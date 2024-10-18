@@ -76,14 +76,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Lombok for Code Simplification -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- MySQL Connector -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -91,7 +89,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- File Upload Handling -->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
@@ -131,9 +128,7 @@
 			<version>4.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-
-
-
+		
 	</dependencies>
 
 	<build>
