@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // const BASE_URL = 'http://localhost:8080/busstation';
-const BASE_URL = 'http://localhost:8080';
+// const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://18.209.55.105';
 const endpoints = {
   // Authentication
   login: '/api/auth/authenticate',
