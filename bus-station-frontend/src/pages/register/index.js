@@ -1,11 +1,13 @@
 import './styles.css';
 import '../login/styles.css';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import * as validator from '../../config/validator';
 import { LoadingContext, AuthenticationContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -17,7 +19,9 @@ const Register = () => {
   const [phone, setPhone] = useState('');
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const { setLoading } = useContext(LoadingContext);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  
+  const { setLoading, loading } = useContext(LoadingContext); // Added loading context
   const { setUser } = useContext(AuthenticationContext);
   const navigate = useNavigate();
 
@@ -109,16 +113,7 @@ const Register = () => {
   
         const response = await apis(null).post(endpoints.register_user, formData);
         if (response && response.status === 201) {
-          toast.success('Đăng ký thành công!', {
-            position: 'top-center',
-            autoClose: 4000,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: 'colored',
-          });
-  
+          setRegistrationSuccess(true); // Set registration success to true
           setUsername('');
           setPassword('');
           setRePassword('');
@@ -128,8 +123,6 @@ const Register = () => {
           setPhone('');
           setAvatar(null);
           setAvatarPreview(null);
-
-          navigate('/login');
         }
       } catch (error) {
         console.log(error);
@@ -148,6 +141,22 @@ const Register = () => {
     }
   };
 
+  useEffect(() => {
+    if (loading === 'none' && registrationSuccess) {
+      toast.success('Đăng ký thành công!', {
+        position: 'top-center',
+        autoClose: 4000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'colored',
+      });
+      setRegistrationSuccess(false); // Reset success state after displaying toast
+      navigate('/login');
+    }
+  }, [loading, registrationSuccess, navigate]);
+
   return (
     <div className="row" style={{ height: '100vh' }}>
       <div className="col-md-6">
@@ -162,7 +171,10 @@ const Register = () => {
                 <p className="text-muted">Chào mừng đến với OU BUS</p>
               </div>
 
-              <form>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                callRegister();
+              }}>
                 <div className="mb-3">
                   <label htmlFor="username" className="form-label">
                     Tên người dùng
@@ -285,8 +297,7 @@ const Register = () => {
                   ></input>
                 </div>
                 <button
-                  onClick={callRegister}
-                  type="button"
+                  type="submit"
                   className="btn btn-primary btn-lg"
                   style={{ width: '100%' }}
                 >
@@ -304,6 +315,7 @@ const Register = () => {
         </div>
       </div>
       <div className="col-md-6 rightImage"></div>
+      <ToastContainer className="toast-container" />
     </div>
   );
 };
