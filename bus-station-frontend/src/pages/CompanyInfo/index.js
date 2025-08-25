@@ -4,11 +4,12 @@ import { useState, useContext, useEffect, useRef } from 'react';
 import { AuthenticationContext, LoadingContext } from '../../config/context';
 import { apis, endpoints } from '../../config/apis';
 import moment from 'moment';
-import Chat from '../../components/Chat';
+// import Chat from '../../components/Chat';
 import databaseRef from '../../config/firebase';
 import { toast } from 'react-toastify';
 import { Modal, Button } from 'react-bootstrap';
 import IconComment from '../CommentList/IconComment';
+import ChatSocket from '../../components/ChatSocket';
 
 const CompanyInfo = () => {
   let { pathname } = useLocation();
@@ -116,26 +117,26 @@ const CompanyInfo = () => {
       toast.error('Vui lòng nhập số sao hợp lệ (1-5).');
       return;
     }
-  
+
     if (!user) {
       toast.error('Bạn cần đăng nhập để thực hiện đánh giá.');
       return;
     }
-  
+
     try {
       setLoading('flex');
-  
+
       const payload = {
         content: newComment,
         rating: newRating,
-        userId: user.id, 
+        userId: user.id,
         companyId: company.id
       };
-  
+
       console.log('Form Data:', payload);
-  
+
       await apis(accessToken).post(endpoints.create_comment(id), payload);
-  
+
       toast.success('Đánh giá thành công!');
       setShowRatingDialog(false);
       setNewRating(0);
@@ -149,15 +150,15 @@ const CompanyInfo = () => {
       setLoading('none');
     }
   };
-  
-  
+
+
 
   const registerDriver = async () => {
     if (!user) {
       toast.error('Bạn cần đăng nhập để đăng ký làm tài xế.');
       return;
     }
-  
+
     try {
       setLoading('flex');
       const api = apis(accessToken);
@@ -183,7 +184,7 @@ const CompanyInfo = () => {
       setLoading('none');
     }
   };
-  
+
   useEffect(() => {
     fetchRoutes();
     fetchCompanyInfo();
@@ -302,15 +303,25 @@ const CompanyInfo = () => {
       <div className="row">
         <div className="col-md-4">
           {startChat && (
-            <Chat
-              key={conversationKey.current}
-              conversationKey={conversationKey.current}
-              senderId={user['id']}
-              receiverId={company['id']}
-              avatar={company['avatar']}
-              subtitle={`Trò chuyện với nhân viên của ${company['name']}`}
+            // <Chat
+            //   key={conversationKey.current}
+            //   conversationKey={conversationKey.current}
+            //   senderId={user['id']}
+            //   receiverId={company['id']}
+            //   avatar={company['avatar']}
+            //   subtitle={`Trò chuyện với nhân viên của ${company['name']}`}
+            //   isCompany={false}
+            // />
+            <ChatSocket
+              senderId={user.id}
+              receiverId={company.id}
+              avatar={company.avatar}
+              subtitle={`Trò chuyện với nhân viên của ${company.name}`}
               isCompany={false}
+              onClose={() => setStartChat(false)}
             />
+
+
           )}
         </div>
       </div>

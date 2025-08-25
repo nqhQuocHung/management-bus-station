@@ -1,6 +1,6 @@
 .chat-icon-container {
   position: fixed;
-  bottom: 550px;
+  bottom: 550px; /* tuỳ chỉnh vị trí icon */
   right: 10px;
   z-index: 1000;
 }
@@ -14,24 +14,91 @@
   bottom: 80px;
   right: 20px;
   width: 300px;
-  max-height: 400px;
+  height: 350px;
   z-index: 2;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: #fff;
   border-radius: 10px;
-  overflow-y: scroll;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* bật scroll khi nhiều hơn 5 */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  font-family: Arial, sans-serif;
 }
 
-.chat-container {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 400px;
-  height: 500px;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+
+/* mỗi hội thoại */
+.message-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f2f2f2;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
+
+.message-list-item:hover {
+  background-color: #f7f8ff;
+}
+
+.message-list-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.message-list-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* để text-overflow hoạt động */
+}
+
+.message-list-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.message-list-preview {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-list-time {
+  font-size: 11px;
+  color: #999;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Dấu chấm đỏ khi có tin nhắn chưa đọc */
+.message-list-item.unread::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  background-color: #e74c3c;
+  border-radius: 50%;
+}
+.message-list-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+}
+
+.message-list-unread-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+}
+
